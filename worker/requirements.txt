@@ -1,0 +1,24 @@
+# Celery worker-specific dependencies (AI libraries)
+celery==5.4.0
+redis==5.0.4
+
+# Data processing
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.4.2
+
+# Time-series forecasting
+prophet==1.1.5
+
+# NLP / Sentiment analysis
+transformers==4.40.2
+torch==2.3.0
+
+# LLM Insights
+groq==0.8.0
+
+# AWS
+boto3==1.34.69
+
+# Utilities
+python-dotenv==1.0.1
