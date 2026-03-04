@@ -29,7 +29,7 @@ InsightX-Core/
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/<your-org>/InsightX-Core.git
+git clone https://github.com/YoussefBadran23/InsightX-Core.git
 cd InsightX-Core
 
 # 2. Copy environment templates
