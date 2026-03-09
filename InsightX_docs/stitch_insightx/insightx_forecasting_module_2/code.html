@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>InsightX Forecasting Module Light</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b6cee",
+                        "primary-dark": "#1a4bb0",
+                        "accent": "#8b5cf6", // Purple for forecast
+                        "background-light": "#f1f5f9", // Slate 100
+                        "surface-light": "#ffffff",
+                        "border-light": "#e2e8f0", // Slate 200
+                        "text-main": "#0f172a", // Slate 900
+                        "text-muted": "#64748b", // Slate 500
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }.slider-thumb {
+            @apply absolute top-1/2 -translate-y-1/2 size-4 rounded-full bg-white shadow-lg cursor-grab active:cursor-grabbing hover:scale-110 transition-transform;
+        }
+    </style>
+</head>
+<body class="bg-background-light text-text-main font-display overflow-hidden h-screen flex">
+<aside class="w-64 border-r border-border-light bg-surface-light hidden md:flex flex-col z-20 shrink-0">
+<div class="flex h-full flex-col justify-between p-4">
+<div class="flex flex-col gap-6">
+<div class="flex gap-3 items-center px-2">
+<div class="bg-gradient-to-br from-primary to-accent aspect-square rounded-lg size-10 flex items-center justify-center text-white font-bold text-xl">
+                    I
+                </div>
+<div class="flex flex-col">
+<h1 class="text-text-main text-base font-bold leading-none tracking-tight">InsightX</h1>
+<p class="text-text-muted text-xs font-normal mt-1">Enterprise Analytics</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-muted hover:text-text-main hover:bg-slate-100 transition-colors group" href="#">
+<span class="material-symbols-outlined text-text-muted group-hover:text-text-main" style="font-size: 24px;">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 border border-primary/20 text-primary" href="#">
+<span class="material-symbols-outlined fill-1" style="font-size: 24px;">trending_up</span>
+<span class="text-sm font-bold">Forecasting</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-muted hover:text-text-main hover:bg-slate-100 transition-colors group" href="#">
+<span class="material-symbols-outlined text-text-muted group-hover:text-text-main" style="font-size: 24px;">description</span>
+<span class="text-sm font-medium">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-muted hover:text-text-main hover:bg-slate-100 transition-colors group" href="#">
+<span class="material-symbols-outlined text-text-muted group-hover:text-text-main" style="font-size: 24px;">group</span>
+<span class="text-sm font-medium">Team</span>
+</a>
+</nav>
+</div>
+<div class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-muted hover:text-text-main hover:bg-slate-100 transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-size: 24px;">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+<div class="flex items-center gap-3 px-3 py-3 mt-2 border-t border-border-light">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-8 bg-slate-200" data-alt="User profile picture placeholder" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuATAFIBLukayr8M8ZPC0CE2wO929uy1Kn8zc9I7pb6FSsvXDqRelTQl-LkI3AiBkyoTNSO7xVbzfBDhVVCEekAsNx8d30XiPDJbL9W9ZW5a0OCCRPTbf8f8DiYyEh0vPFfYA8eJrYKce1nVKHaZr8vfKkHU5ShfijnJDVTmVzpflrsOhL05iLkP09WKG8J4GNdIfnBmJVnCL0Y8qTUDSGBDNXRiMMRq6L47vtkpkI-kVynH5Q4O1PDFy2R5SaAQE6GefFqSwcxYiKyV");'></div>
+<div class="flex flex-col">
+<p class="text-text-main text-sm font-medium leading-none">Alex Morgan</p>
+<p class="text-text-muted text-xs mt-1">CFO Workspace</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col h-full overflow-hidden relative">
+<header class="flex items-center justify-between border-b border-border-light bg-surface-light/95 backdrop-blur px-6 py-3 h-16 shrink-0 z-10">
+<div class="flex items-center gap-4">
+<button class="md:hidden text-text-muted">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="text-text-main text-lg font-bold tracking-tight flex items-center gap-2">
+<span class="text-primary material-symbols-outlined">show_chart</span>
+                Revenue Forecast
+            </h2>
+<span class="hidden sm:inline-block px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-text-muted border border-border-light">v2.4.0</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-text-muted text-sm mr-2 hidden sm:block">Last updated: <span class="text-text-main font-medium">Just now</span></span>
+<button class="flex items-center justify-center gap-2 rounded-lg h-9 px-4 bg-white border border-border-light hover:bg-slate-50 text-slate-700 text-sm font-medium transition-colors">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+<span class="hidden sm:inline">Export</span>
+</button>
+<button class="flex items-center justify-center gap-2 rounded-lg h-9 px-4 bg-primary hover:bg-primary-dark text-white text-sm font-bold shadow-lg shadow-primary/20 transition-all">
+<span class="material-symbols-outlined text-[18px]">save</span>
+<span>Save Forecast</span>
+</button>
+</div>
+</header>
+<div class="flex flex-col flex-1 h-full overflow-hidden">
+<section class="flex-1 min-h-[50%] flex flex-col p-6 pb-2 relative">
+<div class="flex justify-between items-end mb-6">
+<div>
+<h1 class="text-3xl font-bold text-text-main tracking-tight mb-1">30-Day Revenue Forecast</h1>
+<div class="flex items-center gap-4 text-sm">
+<span class="text-text-muted">Projected MRR:</span>
+<span class="text-2xl font-bold text-text-main leading-none">$158,420</span>
+<span class="flex items-center text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded text-xs font-medium border border-emerald-200">
+<span class="material-symbols-outlined text-[14px] mr-0.5">arrow_upward</span> 12.5%
+                        </span>
+</div>
+</div>
+<div class="flex gap-6 text-sm">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary ring-2 ring-primary/30"></span>
+<span class="text-slate-600 font-medium">Historical</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-4 h-0.5 border-t-2 border-dashed border-accent"></div>
+<span class="text-slate-600 font-medium">Prediction</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded bg-accent/20 border border-accent/40"></span>
+<span class="text-slate-600 font-medium">95% Confidence</span>
+</div>
+</div>
+</div>
+<div class="flex-1 relative w-full rounded-xl bg-surface-light border border-border-light p-4 overflow-hidden shadow-sm">
+<div class="absolute left-0 top-4 bottom-8 w-12 flex flex-col justify-between text-xs text-slate-400 text-right pr-2">
+<span>$200k</span>
+<span>$150k</span>
+<span>$100k</span>
+<span>$50k</span>
+<span>$0</span>
+</div>
+<div class="absolute left-14 top-4 right-4 bottom-8">
+<div class="w-full h-full flex flex-col justify-between">
+<div class="w-full h-px bg-slate-200"></div>
+<div class="w-full h-px bg-slate-200"></div>
+<div class="w-full h-px bg-slate-200"></div>
+<div class="w-full h-px bg-slate-200"></div>
+<div class="w-full h-px bg-slate-300"></div> 
+</div>
+<svg class="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 1000 300">
+<defs>
+<linearGradient id="confidenceGradient" x1="0" x2="1" y1="0" y2="0">
+<stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.1"></stop>
+<stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.25"></stop>
+</linearGradient>
+<linearGradient id="lineGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#2b6cee" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="#2b6cee" stop-opacity="0"></stop>
+</linearGradient>
+<filter height="140%" id="shadow" width="140%" x="-20%" y="-20%">
+<fedropshadow dx="0" dy="4" flood-color="#000000" flood-opacity="0.1" stdDeviation="4"></fedropshadow>
+</filter>
+</defs>
+<path d="M600,120 
+                                 L650,110 L700,90 L750,80 L800,60 L850,50 L900,40 L950,30 L1000,20 
+                                 L1000,160 L950,150 L900,145 L850,140 L800,135 L750,130 L700,125 L650,122 
+                                 Z" fill="url(#confidenceGradient)" stroke="none"></path>
+<path d="M0,250 C50,240 80,210 120,220 C160,230 180,180 220,190 C260,200 280,160 320,150 C360,140 400,180 440,160 C480,140 520,130 600,120" fill="none" stroke="#2b6cee" stroke-linecap="round" stroke-width="3"></path>
+<path d="M0,250 C50,240 80,210 120,220 C160,230 180,180 220,190 C260,200 280,160 320,150 C360,140 400,180 440,160 C480,140 520,130 600,120 V300 H0 Z" fill="url(#lineGradient)" opacity="0.6"></path>
+<path d="M600,120 C650,115 700,100 750,95 C800,90 850,70 900,60 C950,50 980,45 1000,40" fill="none" stroke="#8b5cf6" stroke-dasharray="6,6" stroke-linecap="round" stroke-width="3"></path>
+<line stroke="#94a3b8" stroke-dasharray="4,4" stroke-width="1" x1="600" x2="600" y1="0" y2="300"></line>
+<circle cx="600" cy="120" fill="#ffffff" r="6" stroke="#2b6cee" stroke-width="2"></circle>
+<g transform="translate(850, 20)">
+<rect fill="#ffffff" filter="url(#shadow)" height="50" rx="8" stroke="#e2e8f0" stroke-width="1" width="110" x="0" y="0"></rect>
+<text fill="#64748b" font-family="Inter" font-size="10" font-weight="500" x="15" y="20">Nov 14 (Proj.)</text>
+<text fill="#0f172a" font-family="Inter" font-size="14" font-weight="700" x="15" y="38">$194,200</text>
+</g>
+</svg>
+<div class="absolute w-full top-full mt-2 flex justify-between text-xs text-slate-400 font-medium uppercase tracking-wider">
+<span>Oct 01</span>
+<span>Oct 08</span>
+<span>Oct 15</span>
+<span>Oct 22</span>
+<span class="text-slate-900 font-bold">Today</span>
+<span>Nov 05</span>
+<span>Nov 12</span>
+<span>Nov 19</span>
+<span>Nov 26</span>
+</div>
+</div>
+</div>
+</section>
+<section class="h-[35%] min-h-[260px] bg-surface-light border-t border-border-light flex flex-col z-10 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.05)]">
+<div class="flex items-center justify-between px-6 py-4 border-b border-border-light bg-surface-light">
+<div class="flex items-center gap-3">
+<div class="bg-primary/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary">tune</span>
+</div>
+<div>
+<h3 class="text-text-main font-bold text-base leading-tight">Scenario Simulation Panel</h3>
+<p class="text-text-muted text-xs">Adjust parameters to simulate future revenue outcomes.</p>
+</div>
+</div>
+<button class="text-text-muted hover:text-primary text-xs font-medium flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">restart_alt</span> Reset to Default
+                </button>
+</div>
+<div class="flex-1 overflow-y-auto p-6 bg-slate-50">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1400px] mx-auto">
+<div class="bg-white border border-border-light rounded-xl p-5 shadow-sm hover:border-primary/40 transition-colors group">
+<div class="flex justify-between items-start mb-4">
+<label class="text-slate-700 font-medium text-sm">Marketing Spend Increase</label>
+<span class="text-primary font-bold text-sm bg-primary/10 px-2 py-1 rounded">+15%</span>
+</div>
+<div class="relative w-full h-10 flex items-center">
+<div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[45%]"></div> 
+</div>
+<div class="absolute left-[45%] top-1/2 -translate-y-1/2 size-5 bg-white rounded-full shadow border-2 border-primary cursor-pointer hover:scale-110 transition-transform"></div>
+</div>
+<div class="flex justify-between text-xs text-slate-400 font-medium mt-1">
+<span>0%</span>
+<span>+25%</span>
+<span>+50%</span>
+</div>
+</div>
+<div class="bg-white border border-border-light rounded-xl p-5 shadow-sm hover:border-accent/40 transition-colors group">
+<div class="flex justify-between items-start mb-4">
+<label class="text-slate-700 font-medium text-sm">Expected Price Shift</label>
+<span class="text-accent font-bold text-sm bg-accent/10 px-2 py-1 rounded">+5%</span>
+</div>
+<div class="relative w-full h-10 flex items-center">
+<div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden relative">
+<div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-slate-300 z-10"></div>
+<div class="absolute left-1/2 h-full bg-accent w-[15%]"></div>
+</div>
+<div class="absolute left-[65%] top-1/2 -translate-y-1/2 size-5 bg-white rounded-full shadow border-2 border-accent cursor-pointer hover:scale-110 transition-transform"></div>
+</div>
+<div class="flex justify-between text-xs text-slate-400 font-medium mt-1">
+<span>-10%</span>
+<span>0%</span>
+<span>+20%</span>
+</div>
+</div>
+<div class="bg-white border border-border-light rounded-xl p-5 shadow-sm hover:border-emerald-500/40 transition-colors group">
+<div class="flex justify-between items-start mb-4">
+<label class="text-slate-700 font-medium text-sm">Seasonal Adjustment</label>
+<span class="text-emerald-600 font-bold text-sm bg-emerald-100 px-2 py-1 rounded">High</span>
+</div>
+<div class="flex items-center justify-between gap-2 mt-2">
+<button class="flex-1 py-2 text-xs font-medium rounded bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors">Low</button>
+<button class="flex-1 py-2 text-xs font-medium rounded bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors">Medium</button>
+<button class="flex-1 py-2 text-xs font-bold rounded bg-emerald-500 text-white shadow-lg shadow-emerald-500/20">High</button>
+</div>
+<div class="mt-4 text-xs text-slate-500 text-center">
+                            Impact: <span class="text-emerald-600 font-semibold">+4.2% Growth</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+
+</body></html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>InsightX Customer Segmentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b6cee",
+                        "background-light": "#f8fafc",
+                        "card-light": "#ffffff",
+                        "gold": "#F59E0B",
+                        "danger": "#EF4444",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"]
+                    },
+                    boxShadow: {
+                        'glow-gold': '0 0 20px rgba(245, 158, 11, 0.4)',
+                        'glow-blue': '0 0 20px rgba(43, 108, 238, 0.4)',
+                        'glow-red': '0 0 20px rgba(239, 68, 68, 0.4)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }.bubble-container {
+            perspective: 1000px;
+        }
+        .bubble {
+            border-radius: 50%;
+            position: absolute;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: inset -2px -2px 6px rgba(0,0,0,0.1), inset 2px 2px 6px rgba(255,255,255,0.4), 0 4px 6px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        .bubble:hover {
+            transform: scale(1.2) translateZ(20px);
+            z-index: 50;
+            box-shadow: inset -2px -2px 6px rgba(0,0,0,0.1), inset 2px 2px 6px rgba(255,255,255,0.6), 0 10px 15px rgba(0,0,0,0.2);
+        }
+        .bubble-gold { background: radial-gradient(circle at 35% 35%, #fbbf24, #d97706); }
+        .bubble-blue { background: radial-gradient(circle at 35% 35%, #60a5fa, #2563eb); }
+        .bubble-red { background: radial-gradient(circle at 35% 35%, #fca5a5, #dc2626); }@keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .cluster-group { animation: float 6s ease-in-out infinite; }
+        .cluster-group:nth-child(2) { animation-delay: -2s; }
+        .cluster-group:nth-child(3) { animation-delay: -4s; }.bg-grid-pattern {
+            background-image: linear-gradient(to right, #cbd5e1 1px, transparent 1px),
+                              linear-gradient(to bottom, #cbd5e1 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 85%);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-background-light text-slate-900 font-display overflow-hidden h-screen flex flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 bg-white px-6 py-3 shrink-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-slate-900">
+<div class="size-8 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined !text-[32px]">insights</span>
+</div>
+<h2 class="text-slate-900 text-xl font-bold leading-tight tracking-tight">InsightX</h2>
+</div>
+<label class="hidden md:flex flex-col min-w-40 !h-9 w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-slate-100 border border-transparent focus-within:border-primary/50 transition-colors">
+<div class="text-slate-400 flex items-center justify-center pl-3">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="flex w-full min-w-0 flex-1 bg-transparent border-none text-slate-900 focus:outline-none focus:ring-0 placeholder:text-slate-400 px-3 text-sm font-normal" placeholder="Search customers..."/>
+</div>
+</label>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-slate-500 hover:text-slate-900 text-sm font-medium leading-normal transition-colors" href="#">Dashboard</a>
+<a class="text-slate-900 text-sm font-medium leading-normal" href="#">Analytics</a>
+<a class="text-slate-500 hover:text-slate-900 text-sm font-medium leading-normal transition-colors" href="#">Campaigns</a>
+<a class="text-slate-500 hover:text-slate-900 text-sm font-medium leading-normal transition-colors" href="#">Settings</a>
+</nav>
+<div class="flex items-center gap-3 pl-4 border-l border-slate-200">
+<button class="text-slate-500 hover:text-slate-900 p-1">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-8 border border-slate-200" data-alt="User profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB_1213p33Hy87wmCDUNqkrQmIoL5LR-D20rjlhWqy5OU8nQu80Le6ySyaeG8BmqGG3G8UECzmjpDF_WVF9OGZev84s52a-BudXns6z4J0PGlQVszVbolF4z4WqjOsq_b6B_QfZbTSy_uipxs7Ry7-5Uy0xPoHqcup20YsLmA7pfN7RD_hY59ih7UhWAQvRa6z29X9L-ZnrMQd4Lu96DcLjklmpuzDZF8Crkgwhp1lhH-mDmBY5Q0zgqj9rtEDea3sPKzudv_6JpMjL");'></div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden relative">
+<main class="flex-1 flex flex-col min-w-0 bg-slate-50 relative z-0">
+<div class="absolute top-0 left-0 w-full p-6 z-20 pointer-events-none">
+<div class="flex flex-col gap-4 pointer-events-auto max-w-[960px]">
+<div class="flex flex-wrap gap-2 items-center">
+<a class="text-slate-500 hover:text-slate-900 text-sm font-medium transition-colors" href="#">Home</a>
+<span class="text-slate-300 text-sm">/</span>
+<a class="text-slate-500 hover:text-slate-900 text-sm font-medium transition-colors" href="#">Analytics</a>
+<span class="text-slate-300 text-sm">/</span>
+<span class="text-slate-900 text-sm font-medium">Segmentation</span>
+</div>
+<div class="flex items-end justify-between">
+<div>
+<h1 class="text-slate-900 text-3xl font-bold leading-tight mb-2">Customer Segmentation</h1>
+<p class="text-slate-500 text-sm">Interactive 3D view clustered by LTV and engagement score.</p>
+</div>
+</div>
+<div class="flex gap-3 pt-2">
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white hover:bg-slate-50 transition-colors border border-slate-200 pl-3 pr-2 shadow-sm">
+<span class="text-slate-700 text-xs font-medium">Date: Last 30 Days</span>
+<span class="material-symbols-outlined text-slate-500 text-[16px]">expand_more</span>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white hover:bg-slate-50 transition-colors border border-slate-200 pl-3 pr-2 shadow-sm">
+<span class="text-slate-700 text-xs font-medium">Metric: ARR</span>
+<span class="material-symbols-outlined text-slate-500 text-[16px]">expand_more</span>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white hover:bg-slate-50 transition-colors border border-slate-200 pl-3 pr-2 shadow-sm">
+<span class="text-slate-700 text-xs font-medium">Region: Global</span>
+<span class="material-symbols-outlined text-slate-500 text-[16px]">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+<div class="absolute inset-0 w-full h-full overflow-hidden bg-slate-50 bubble-container group cursor-grab active:cursor-grabbing">
+<div class="absolute inset-0 bg-grid-pattern opacity-40 pointer-events-none"></div>
+<div class="absolute top-6 right-6 glass-panel rounded-lg p-4 z-30 shadow-lg border-l-2 border-l-primary/50">
+<h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Legend</h4>
+<div class="space-y-2">
+<div class="flex items-center gap-2">
+<div class="size-3 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700"></div>
+<span class="text-xs text-slate-700">Champions (High LTV)</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="size-3 rounded-full bg-gradient-to-br from-blue-400 to-blue-800"></div>
+<span class="text-xs text-slate-700">Loyal (Steady)</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="size-3 rounded-full bg-gradient-to-br from-red-400 to-red-800"></div>
+<span class="text-xs text-slate-700">At-Risk (Churn Likely)</span>
+</div>
+</div>
+<div class="mt-4 pt-3 border-t border-slate-200">
+<span class="text-[10px] text-slate-400">Bubble Size = Current Revenue</span>
+</div>
+</div>
+<div class="absolute inset-0 flex items-center justify-center transform scale-90 translate-y-10 pointer-events-none">
+<div class="absolute top-[20%] right-[25%] size-64 cluster-group pointer-events-auto">
+<div class="absolute -top-10 left-10 text-slate-800 font-bold text-sm tracking-wide bg-white/90 px-2 py-1 rounded backdrop-blur-sm border border-gold/30 shadow-sm">Champions</div>
+<div class="bubble bubble-gold size-16 top-0 left-10 opacity-90" title="Acme Corp: $120k ARR"></div>
+<div class="bubble bubble-gold size-24 top-10 left-20 opacity-95 shadow-glow-gold z-10" title="Globex: $250k ARR"></div>
+<div class="bubble bubble-gold size-12 top-24 left-4 opacity-80"></div>
+<div class="bubble bubble-gold size-8 top-16 left-48 opacity-70"></div>
+<div class="bubble bubble-gold size-14 top-32 left-32 opacity-85"></div>
+<div class="bubble bubble-gold size-10 top-5 left-36 opacity-60"></div>
+</div>
+<div class="absolute top-[35%] left-[20%] size-80 cluster-group pointer-events-auto">
+<div class="absolute -top-8 left-20 text-slate-800 font-bold text-sm tracking-wide bg-white/90 px-2 py-1 rounded backdrop-blur-sm border border-primary/30 shadow-sm">Loyal Customers</div>
+<div class="bubble bubble-blue size-20 top-10 left-10 opacity-90 shadow-glow-blue z-10" title="Stark Ind: $85k ARR"></div>
+<div class="bubble bubble-blue size-12 top-0 left-32 opacity-70"></div>
+<div class="bubble bubble-blue size-16 top-24 left-24 opacity-85"></div>
+<div class="bubble bubble-blue size-10 top-32 left-5 opacity-60"></div>
+<div class="bubble bubble-blue size-14 top-16 left-48 opacity-80"></div>
+<div class="bubble bubble-blue size-8 top-40 left-32 opacity-50"></div>
+<div class="bubble bubble-blue size-24 top-20 left-60 opacity-60 blur-[1px]"></div>
+<div class="bubble bubble-blue size-6 top-5 left-50 opacity-40"></div>
+</div>
+<div class="absolute bottom-[20%] right-[30%] size-72 cluster-group pointer-events-auto">
+<div class="absolute -top-8 right-10 text-slate-800 font-bold text-sm tracking-wide bg-white/90 px-2 py-1 rounded backdrop-blur-sm border border-danger/30 shadow-sm">At-Risk</div>
+<div class="bubble bubble-red size-18 top-10 right-20 opacity-90 shadow-glow-red z-10" title="Initech: $40k ARR (No login 90d)"></div>
+<div class="bubble bubble-red size-12 top-24 right-32 opacity-80"></div>
+<div class="bubble bubble-red size-10 top-0 right-10 opacity-70"></div>
+<div class="bubble bubble-red size-14 top-16 right-5 opacity-85"></div>
+<div class="bubble bubble-red size-8 top-32 right-16 opacity-60"></div>
+<div class="bubble bubble-red size-16 top-20 right-48 opacity-50 blur-[1px]"></div>
+</div>
+<div class="absolute top-[10%] left-[10%] size-4 bg-slate-300 rounded-full blur-sm"></div>
+<div class="absolute bottom-[10%] left-[40%] size-8 bg-slate-200 rounded-full blur-md"></div>
+<div class="absolute top-[40%] right-[10%] size-6 bg-slate-200 rounded-full blur-sm"></div>
+</div>
+<div class="absolute bottom-6 left-6 glass-panel rounded-lg flex flex-col p-1 z-30">
+<button class="p-2 text-slate-600 hover:bg-slate-100 rounded transition-colors" title="Zoom In">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+<button class="p-2 text-slate-600 hover:bg-slate-100 rounded transition-colors" title="Zoom Out">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<div class="h-px w-full bg-slate-200 my-1"></div>
+<button class="p-2 text-slate-600 hover:bg-slate-100 rounded transition-colors" title="Reset View">
+<span class="material-symbols-outlined text-[20px]">center_focus_strong</span>
+</button>
+</div>
+</div>
+</main>
+<aside class="w-[360px] bg-white border-l border-slate-200 flex flex-col shrink-0 z-10 shadow-xl">
+<div class="p-6 border-b border-slate-200">
+<div class="flex items-center justify-between mb-1">
+<h2 class="text-slate-900 text-lg font-bold">Customer Segments</h2>
+<button class="text-slate-400 hover:text-slate-900 transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<p class="text-slate-500 text-sm">1,240 Active Users analyzed</p>
+<div class="mt-4 flex items-center justify-between bg-slate-50 rounded-lg p-3 border border-slate-200">
+<div class="flex flex-col">
+<span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Total ARR</span>
+<span class="text-slate-900 font-mono text-lg font-medium">$4.2M</span>
+</div>
+<div class="h-8 w-px bg-slate-200"></div>
+<div class="flex flex-col items-end">
+<span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Avg Engagement</span>
+<span class="text-emerald-600 font-mono text-lg font-medium">84%</span>
+</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-4">
+<div class="group bg-white hover:bg-slate-50 border border-slate-200 hover:border-gold/30 rounded-xl p-4 transition-all cursor-pointer relative overflow-hidden shadow-sm">
+<div class="absolute top-0 left-0 w-1 h-full bg-gold"></div>
+<div class="flex justify-between items-start mb-3 pl-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gold">emoji_events</span>
+<h3 class="text-slate-900 font-semibold">Champions</h3>
+</div>
+<span class="bg-gold/10 text-gold text-xs px-2 py-1 rounded font-medium">+12% MoM</span>
+</div>
+<div class="pl-2 space-y-3">
+<div class="flex justify-between items-end">
+<span class="text-3xl font-bold text-slate-900 tracking-tight">150</span>
+<span class="text-sm text-slate-500 mb-1">Customers</span>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-xs text-slate-500">
+<span>Avg LTV</span>
+<span class="text-slate-900 font-mono">$50,200</span>
+</div>
+<div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+<div class="bg-gold h-full rounded-full" style="width: 85%"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="group bg-white hover:bg-slate-50 border border-slate-200 hover:border-primary/30 rounded-xl p-4 transition-all cursor-pointer relative overflow-hidden shadow-sm">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+<div class="flex justify-between items-start mb-3 pl-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">verified_user</span>
+<h3 class="text-slate-900 font-semibold">Loyal</h3>
+</div>
+<span class="bg-primary/10 text-primary text-xs px-2 py-1 rounded font-medium">Stable</span>
+</div>
+<div class="pl-2 space-y-3">
+<div class="flex justify-between items-end">
+<span class="text-3xl font-bold text-slate-900 tracking-tight">790</span>
+<span class="text-sm text-slate-500 mb-1">Customers</span>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-xs text-slate-500">
+<span>Avg LTV</span>
+<span class="text-slate-900 font-mono">$12,400</span>
+</div>
+<div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 65%"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="group bg-white hover:bg-slate-50 border border-slate-200 hover:border-danger/30 rounded-xl p-4 transition-all cursor-pointer relative overflow-hidden shadow-sm">
+<div class="absolute top-0 left-0 w-1 h-full bg-danger"></div>
+<div class="flex justify-between items-start mb-3 pl-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-danger">warning</span>
+<h3 class="text-slate-900 font-semibold">At-Risk</h3>
+</div>
+<span class="bg-danger/10 text-danger text-xs px-2 py-1 rounded font-medium">Attention Needed</span>
+</div>
+<div class="pl-2 space-y-3">
+<div class="flex justify-between items-end">
+<span class="text-3xl font-bold text-slate-900 tracking-tight">300</span>
+<span class="text-sm text-slate-500 mb-1">Customers</span>
+</div>
+<div class="bg-red-50 rounded p-2 border border-red-100">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-danger text-[16px] mt-0.5">history</span>
+<span class="text-xs text-slate-600">Last active &gt; 90 days ago. Churn probability High.</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="p-6 pt-4 border-t border-slate-200 bg-slate-50">
+<button class="w-full bg-primary hover:bg-blue-600 text-white font-medium h-12 rounded-lg transition-all shadow-[0_0_15px_rgba(43,108,238,0.3)] flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">campaign</span>
+                Create Segment Campaign
+            </button>
+<div class="mt-3 flex gap-2">
+<button class="flex-1 bg-white hover:bg-slate-100 text-slate-700 text-sm font-medium h-10 rounded-lg transition-colors border border-slate-300">
+                    Export List
+                </button>
+<button class="flex-1 bg-white hover:bg-slate-100 text-slate-700 text-sm font-medium h-10 rounded-lg transition-colors border border-slate-300">
+                    View Details
+                </button>
+</div>
+</div>
+</aside>
+</div>
+
+</body></html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>InsightX Customer Profiles Light</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+<style>::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-display text-slate-900 antialiased overflow-hidden">
+<div class="flex h-screen w-full overflow-hidden">
+<div class="flex w-64 flex-col justify-between border-r border-slate-200 bg-white p-4 flex-shrink-0">
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-3 px-2 py-2">
+<div class="bg-center bg-no-repeat bg-cover rounded-lg size-10 bg-gradient-to-br from-blue-600 to-indigo-900 flex items-center justify-center text-white font-bold text-xl" data-alt="InsightX Logo Gradient">
+                IX
+            </div>
+<h1 class="text-slate-900 text-lg font-bold leading-normal tracking-tight">InsightX</h1>
+</div>
+<div class="flex flex-col gap-1 mt-4">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">dashboard</span>
+<p class="text-sm font-medium leading-normal">Dashboard</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary border-l-4 border-primary" href="#">
+<span class="material-symbols-outlined text-[24px] text-primary" data-weight="fill">group</span>
+<p class="text-sm font-medium leading-normal">Customers</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">analytics</span>
+<p class="text-sm font-medium leading-normal">Analytics</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">settings</span>
+<p class="text-sm font-medium leading-normal">Settings</p>
+</a>
+</div>
+</div>
+<div class="flex flex-col gap-2 border-t border-slate-200 pt-4">
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-slate-50">
+<div class="relative">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border-2 border-primary" data-alt="User Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCcSXUbZYyOXazlSTVsXpqnW-P-DIwcOLjuwvoPh7A-QPwPxWzcFxeuDQD9m1RbvvE3s5PXDcaqWLr_fg8IpjE3seu5fFuepOXE2HinMPmyHKdlUMkWHax7beAZJFeV1-kDKtG9KSl6f6QJKU8wrTF7nHZtL9aa60NoGeCjvf1FmbWk_XdAb9Ptr1e0wlfcxItv62N4GZ6m9zuL13ar-esXixSNsVJgJ-HRt1nz_QkBYF2L5BkGUGQxLMfMnpaqTwjA_Mxf8y0iZMBc");'></div>
+<div class="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-slate-50"></div>
+</div>
+<div class="flex flex-col overflow-hidden">
+<p class="text-slate-900 text-sm font-medium truncate">Alex Morgan</p>
+<p class="text-slate-500 text-xs truncate">Admin</p>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-1 flex-col h-full min-w-0 overflow-hidden bg-slate-50">
+<header class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3 flex-shrink-0">
+<div class="flex items-center gap-4 flex-1">
+<h2 class="text-slate-900 text-lg font-bold leading-tight hidden md:block">Customer Profiles</h2>
+</div>
+<div class="flex items-center justify-end gap-4">
+<div class="hidden md:flex items-center w-64 h-10 rounded-lg bg-slate-100 border border-slate-200 focus-within:border-primary transition-colors">
+<div class="flex items-center justify-center pl-3 text-slate-500">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="w-full bg-transparent border-none text-slate-900 text-sm placeholder:text-slate-500 focus:ring-0" placeholder="Search platform..."/>
+</div>
+<button class="relative flex items-center justify-center h-10 w-10 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-900 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 border border-white"></span>
+</button>
+<button class="flex items-center justify-center h-10 w-10 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-900 transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto p-6 md:p-8">
+<div class="mx-auto max-w-7xl flex flex-col gap-6">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div class="flex flex-col gap-1">
+<h1 class="text-slate-900 text-3xl font-black tracking-tight">Customer Profiles</h1>
+<p class="text-slate-500 text-base">Manage and analyze your customer base with AI-driven insights.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium text-sm transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">file_upload</span>
+                        Import
+                    </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-blue-600 rounded-lg text-white font-medium text-sm shadow-lg shadow-blue-500/20 transition-colors">
+<span class="material-symbols-outlined text-[20px]">download</span>
+                        Export Data
+                    </button>
+</div>
+</div>
+<div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+<div class="flex flex-col md:flex-row gap-4 justify-between items-center">
+<div class="w-full md:w-auto flex-1 max-w-md relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[20px]">search</span>
+<input class="w-full h-10 pl-10 pr-4 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-slate-400" placeholder="Search by name, ID, or email..." type="text"/>
+</div>
+<div class="flex gap-3 w-full md:w-auto">
+<div class="flex items-center gap-2 px-3 h-10 bg-white border border-slate-200 rounded-lg">
+<span class="text-slate-500 text-sm font-medium">Sort by:</span>
+<select class="bg-transparent border-none text-slate-900 text-sm font-medium focus:ring-0 p-0 pr-6 cursor-pointer">
+<option>Highest LTV</option>
+<option>Lowest LTV</option>
+<option>Newest Customers</option>
+<option>Most Orders</option>
+</select>
+</div>
+<button class="h-10 px-3 bg-white border border-slate-200 rounded-lg text-slate-500 hover:text-slate-900 flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+<span class="text-sm font-medium hidden sm:block">Filters</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-slate-200 bg-slate-50">
+<th class="p-4 text-xs font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+<div class="flex items-center gap-1 cursor-pointer hover:text-slate-800">Customer ID <span class="material-symbols-outlined text-[16px]">unfold_more</span></div>
+</th>
+<th class="p-4 text-xs font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap">Country/Region</th>
+<th class="p-4 text-xs font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+<div class="flex items-center gap-1 cursor-pointer hover:text-slate-800">First Purchase <span class="material-symbols-outlined text-[16px]">unfold_more</span></div>
+</th>
+<th class="p-4 text-xs font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap text-right">Total Orders</th>
+<th class="p-4 text-xs font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap text-right">
+<div class="flex items-center justify-end gap-1 cursor-pointer text-primary">Lifetime Value (LTV) <span class="material-symbols-outlined text-[16px]">arrow_downward</span></div>
+</th>
+<th class="p-4 text-xs font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+<div class="flex items-center gap-1 text-purple-600">
+<span class="material-symbols-outlined text-[16px]">auto_awesome</span>
+                                        AI Segment
+                                    </div>
+</th>
+<th class="p-4 w-10"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-200">
+<tr class="group hover:bg-slate-50 transition-colors">
+<td class="p-4">
+<div class="flex flex-col">
+<span class="text-slate-900 text-sm font-medium">#CUS-001</span>
+<span class="text-slate-500 text-xs">acme_corp@example.com</span>
+</div>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-2 text-slate-900 text-sm">
+<span class="text-lg">🇺🇸</span> United States
+                                    </div>
+</td>
+<td class="p-4 text-slate-500 text-sm">Oct 24, 2023</td>
+<td class="p-4 text-slate-900 text-sm font-medium text-right">42</td>
+<td class="p-4 text-right">
+<span class="text-slate-900 font-bold text-sm bg-slate-100 px-2 py-1 rounded border border-slate-200">$12,450.00</span>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
+<span class="material-symbols-outlined text-[14px]">star</span>
+                                        VIP Champion
+                                    </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-slate-400 hover:text-slate-900 p-1 rounded hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-slate-50 transition-colors">
+<td class="p-4">
+<div class="flex flex-col">
+<span class="text-slate-900 text-sm font-medium">#CUS-042</span>
+<span class="text-slate-500 text-xs">sarah.j@techstart.io</span>
+</div>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-2 text-slate-900 text-sm">
+<span class="text-lg">🇨🇦</span> Canada
+                                    </div>
+</td>
+<td class="p-4 text-slate-500 text-sm">Jan 12, 2024</td>
+<td class="p-4 text-slate-900 text-sm font-medium text-right">15</td>
+<td class="p-4 text-right">
+<span class="text-slate-900 font-semibold text-sm">$8,200.00</span>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+                                        Loyalist
+                                    </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-slate-400 hover:text-slate-900 p-1 rounded hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-slate-50 transition-colors">
+<td class="p-4">
+<div class="flex flex-col">
+<span class="text-slate-900 text-sm font-medium">#CUS-089</span>
+<span class="text-slate-500 text-xs">mike_d@enterprise.co.uk</span>
+</div>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-2 text-slate-900 text-sm">
+<span class="text-lg">🇬🇧</span> United Kingdom
+                                    </div>
+</td>
+<td class="p-4 text-slate-500 text-sm">Nov 05, 2023</td>
+<td class="p-4 text-slate-900 text-sm font-medium text-right">3</td>
+<td class="p-4 text-right">
+<span class="text-slate-900 font-semibold text-sm">$1,250.00</span>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+                                        At-Risk
+                                    </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-slate-400 hover:text-slate-900 p-1 rounded hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-slate-50 transition-colors">
+<td class="p-4">
+<div class="flex flex-col">
+<span class="text-slate-900 text-sm font-medium">#CUS-104</span>
+<span class="text-slate-500 text-xs">lisa.w@designstudio.de</span>
+</div>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-2 text-slate-900 text-sm">
+<span class="text-lg">🇩🇪</span> Germany
+                                    </div>
+</td>
+<td class="p-4 text-slate-500 text-sm">Feb 28, 2024</td>
+<td class="p-4 text-slate-900 text-sm font-medium text-right">8</td>
+<td class="p-4 text-right">
+<span class="text-slate-900 font-semibold text-sm">$3,400.00</span>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+<span class="material-symbols-outlined text-[14px]">new_releases</span>
+                                        New Potential
+                                    </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-slate-400 hover:text-slate-900 p-1 rounded hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-slate-50 transition-colors">
+<td class="p-4">
+<div class="flex flex-col">
+<span class="text-slate-900 text-sm font-medium">#CUS-156</span>
+<span class="text-slate-500 text-xs">procurement@globalsytems.jp</span>
+</div>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-2 text-slate-900 text-sm">
+<span class="text-lg">🇯🇵</span> Japan
+                                    </div>
+</td>
+<td class="p-4 text-slate-500 text-sm">Dec 10, 2023</td>
+<td class="p-4 text-slate-900 text-sm font-medium text-right">24</td>
+<td class="p-4 text-right">
+<span class="text-slate-900 font-semibold text-sm">$9,150.00</span>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
+<span class="material-symbols-outlined text-[14px]">star</span>
+                                        VIP Champion
+                                    </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-slate-400 hover:text-slate-900 p-1 rounded hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-slate-50 transition-colors">
+<td class="p-4">
+<div class="flex flex-col">
+<span class="text-slate-900 text-sm font-medium">#CUS-201</span>
+<span class="text-slate-500 text-xs">dev-team@innovate.fr</span>
+</div>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-2 text-slate-900 text-sm">
+<span class="text-lg">🇫🇷</span> France
+                                    </div>
+</td>
+<td class="p-4 text-slate-500 text-sm">Mar 15, 2024</td>
+<td class="p-4 text-slate-900 text-sm font-medium text-right">1</td>
+<td class="p-4 text-right">
+<span class="text-slate-900 font-semibold text-sm">$450.00</span>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+<span class="material-symbols-outlined text-[14px]">help</span>
+                                        Undetermined
+                                    </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-slate-400 hover:text-slate-900 p-1 rounded hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="border-t border-slate-200 bg-slate-50 p-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-sm text-slate-500">Rows per page:</span>
+<select class="bg-white border border-slate-200 text-slate-900 text-sm rounded cursor-pointer focus:ring-0 py-1 pl-2 pr-8 focus:border-primary">
+<option>10</option>
+<option>20</option>
+<option>50</option>
+</select>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-sm text-slate-500">1-10 of 450</span>
+<div class="flex gap-1">
+<button class="p-1 rounded hover:bg-white border border-transparent hover:border-slate-200 text-slate-400 hover:text-slate-900 disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<button class="p-1 rounded hover:bg-white border border-transparent hover:border-slate-200 text-slate-400 hover:text-slate-900">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 pb-8">
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-start gap-3">
+<div class="p-2 rounded-lg bg-blue-50 text-blue-600">
+<span class="material-symbols-outlined">insights</span>
+</div>
+<div>
+<p class="text-slate-500 text-sm">Average LTV</p>
+<p class="text-slate-900 text-xl font-bold mt-1">$4,250</p>
+<p class="text-emerald-600 text-xs mt-1 flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-0.5">trending_up</span>
+                            +12% vs last month
+                        </p>
+</div>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-start gap-3">
+<div class="p-2 rounded-lg bg-purple-50 text-purple-600">
+<span class="material-symbols-outlined">group_add</span>
+</div>
+<div>
+<p class="text-slate-500 text-sm">New VIPs</p>
+<p class="text-slate-900 text-xl font-bold mt-1">24</p>
+<p class="text-slate-500 text-xs mt-1">Identified this week</p>
+</div>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-start gap-3">
+<div class="p-2 rounded-lg bg-red-50 text-red-600">
+<span class="material-symbols-outlined">warning</span>
+</div>
+<div>
+<p class="text-slate-500 text-sm">At-Risk Accounts</p>
+<p class="text-slate-900 text-xl font-bold mt-1">8</p>
+<p class="text-red-600 text-xs mt-1 flex items-center">
+                            Needs attention
+                        </p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+</body></html>

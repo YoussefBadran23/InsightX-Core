@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>InsightX Analytics Edit Mode</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                        "surface-dark": "#111a22",
+                        "surface-lighter": "#233648",
+                        "text-secondary": "#92adc9"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Grid Pattern for the Canvas */
+        .bg-grid-pattern {
+            background-image: radial-gradient(#233648 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+        }
+        
+        /* Custom Scrollbar for dark mode */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111a22; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #233648; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #344c63; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-white font-display overflow-hidden h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-surface-lighter bg-surface-dark px-6 py-3 shrink-0 z-20">
+<div class="flex items-center gap-4 text-white">
+<div class="size-8 bg-primary/20 rounded-lg flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl">analytics</span>
+</div>
+<h2 class="text-white text-lg font-bold leading-tight tracking-[-0.015em]">InsightX</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="size-8 rounded-full bg-surface-lighter flex items-center justify-center text-text-secondary cursor-pointer hover:text-white transition-colors">
+<span class="material-symbols-outlined text-xl">notifications</span>
+</div>
+<div class="size-8 rounded-full bg-surface-lighter flex items-center justify-center text-text-secondary cursor-pointer hover:text-white transition-colors">
+<span class="material-symbols-outlined text-xl">help</span>
+</div>
+<div class="size-8 rounded-full bg-gradient-to-br from-primary to-blue-400 ml-2 cursor-pointer"></div>
+</div>
+</div>
+</header>
+<!-- Main Layout -->
+<div class="flex flex-1 overflow-hidden">
+<!-- Left Sidebar: Widget Library -->
+<aside class="w-80 flex flex-col border-r border-surface-lighter bg-surface-dark shrink-0 z-10">
+<div class="p-4 border-b border-surface-lighter">
+<h3 class="text-white text-lg font-bold mb-4">Widget Library</h3>
+<!-- Search Bar -->
+<label class="flex flex-col w-full h-10">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-surface-lighter border border-transparent focus-within:border-primary transition-colors">
+<div class="text-text-secondary flex items-center justify-center pl-3">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="flex w-full min-w-0 flex-1 bg-transparent border-none text-white focus:ring-0 placeholder:text-text-secondary px-3 text-sm" placeholder="Search widgets..." value=""/>
+</div>
+</label>
+</div>
+<!-- Accordion List -->
+<div class="flex-1 overflow-y-auto p-4 space-y-3">
+<!-- Category 1 -->
+<details class="flex flex-col rounded-lg bg-surface-lighter/30 px-3 py-2 group open:bg-surface-lighter/50 transition-colors" open="">
+<summary class="flex cursor-pointer items-center justify-between py-2 select-none">
+<p class="text-white text-sm font-bold leading-normal">Sales Metrics</p>
+<span class="material-symbols-outlined text-text-secondary group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="pt-2 pb-1 flex flex-col gap-2">
+<!-- Draggable Item -->
+<div class="group/item flex items-center gap-3 bg-surface-dark border border-surface-lighter hover:border-primary/50 hover:bg-surface-lighter p-2 rounded cursor-grab active:cursor-grabbing transition-all shadow-sm">
+<span class="material-symbols-outlined text-text-secondary group-hover/item:text-white">drag_indicator</span>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-white">Sales Heatmap</span>
+<span class="text-xs text-text-secondary">Geo-distribution view</span>
+</div>
+<span class="material-symbols-outlined text-text-secondary ml-auto text-lg">add_circle</span>
+</div>
+<div class="group/item flex items-center gap-3 bg-surface-dark border border-surface-lighter hover:border-primary/50 hover:bg-surface-lighter p-2 rounded cursor-grab active:cursor-grabbing transition-all shadow-sm">
+<span class="material-symbols-outlined text-text-secondary group-hover/item:text-white">drag_indicator</span>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-white">MRR Growth</span>
+<span class="text-xs text-text-secondary">Line chart visualization</span>
+</div>
+<span class="material-symbols-outlined text-text-secondary ml-auto text-lg">add_circle</span>
+</div>
+<div class="group/item flex items-center gap-3 bg-surface-dark border border-surface-lighter hover:border-primary/50 hover:bg-surface-lighter p-2 rounded cursor-grab active:cursor-grabbing transition-all shadow-sm">
+<span class="material-symbols-outlined text-text-secondary group-hover/item:text-white">drag_indicator</span>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-white">Win Rate</span>
+<span class="text-xs text-text-secondary">Percentage gauge</span>
+</div>
+<span class="material-symbols-outlined text-text-secondary ml-auto text-lg">add_circle</span>
+</div>
+</div>
+</details>
+<!-- Category 2 -->
+<details class="flex flex-col rounded-lg bg-surface-lighter/30 px-3 py-2 group open:bg-surface-lighter/50 transition-colors">
+<summary class="flex cursor-pointer items-center justify-between py-2 select-none">
+<p class="text-white text-sm font-bold leading-normal">Profit &amp; Finance</p>
+<span class="material-symbols-outlined text-text-secondary group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="pt-2 pb-1 flex flex-col gap-2">
+<div class="group/item flex items-center gap-3 bg-surface-dark border border-surface-lighter hover:border-primary/50 hover:bg-surface-lighter p-2 rounded cursor-grab active:cursor-grabbing transition-all shadow-sm">
+<span class="material-symbols-outlined text-text-secondary group-hover/item:text-white">drag_indicator</span>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-white">EBITDA Trend</span>
+<span class="text-xs text-text-secondary">Quarterly view</span>
+</div>
+</div>
+</div>
+</details>
+<!-- Category 3 -->
+<details class="flex flex-col rounded-lg bg-surface-lighter/30 px-3 py-2 group open:bg-surface-lighter/50 transition-colors">
+<summary class="flex cursor-pointer items-center justify-between py-2 select-none">
+<p class="text-white text-sm font-bold leading-normal">Inventory</p>
+<span class="material-symbols-outlined text-text-secondary group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+</details>
+<!-- Category 4 -->
+<details class="flex flex-col rounded-lg bg-surface-lighter/30 px-3 py-2 group open:bg-surface-lighter/50 transition-colors" open="">
+<summary class="flex cursor-pointer items-center justify-between py-2 select-none">
+<p class="text-white text-sm font-bold leading-normal">Customer Insights</p>
+<span class="material-symbols-outlined text-text-secondary group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="pt-2 pb-1 flex flex-col gap-2">
+<div class="group/item flex items-center gap-3 bg-surface-dark border border-surface-lighter hover:border-primary/50 hover:bg-surface-lighter p-2 rounded cursor-grab active:cursor-grabbing transition-all shadow-sm">
+<span class="material-symbols-outlined text-text-secondary group-hover/item:text-white">drag_indicator</span>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-white">Cohort Analysis</span>
+<span class="text-xs text-text-secondary">Retention table</span>
+</div>
+<span class="material-symbols-outlined text-text-secondary ml-auto text-lg">add_circle</span>
+</div>
+<div class="group/item flex items-center gap-3 bg-surface-dark border border-surface-lighter hover:border-primary/50 hover:bg-surface-lighter p-2 rounded cursor-grab active:cursor-grabbing transition-all shadow-sm">
+<span class="material-symbols-outlined text-text-secondary group-hover/item:text-white">drag_indicator</span>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-white">NPS Score</span>
+<span class="text-xs text-text-secondary">Sentiment gauge</span>
+</div>
+<span class="material-symbols-outlined text-text-secondary ml-auto text-lg">add_circle</span>
+</div>
+</div>
+</details>
+</div>
+</aside>
+<!-- Right: Canvas Area -->
+<main class="flex-1 flex flex-col bg-background-dark relative h-full">
+<!-- Canvas Toolbar -->
+<div class="h-16 border-b border-surface-lighter bg-surface-dark/50 backdrop-blur-sm flex justify-between items-center px-6 shrink-0 z-10">
+<!-- Breadcrumbs -->
+<div class="flex items-center gap-2">
+<a class="text-text-secondary text-sm font-medium hover:text-white transition-colors" href="#">Dashboard</a>
+<span class="text-text-secondary text-sm font-medium">/</span>
+<span class="text-white text-sm font-medium">Customization Mode</span>
+<span class="ml-2 px-2 py-0.5 rounded-full bg-primary/20 text-primary text-xs font-bold border border-primary/30">EDITING</span>
+</div>
+<!-- Actions -->
+<div class="flex gap-3">
+<button class="flex items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-transparent border border-surface-lighter text-text-secondary hover:text-white hover:border-white transition-colors text-sm font-bold leading-normal">
+<span class="truncate">Reset to Default</span>
+</button>
+<button class="flex items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-surface-lighter text-white hover:bg-[#2f455a] transition-colors text-sm font-bold leading-normal">
+<span class="truncate">Cancel</span>
+</button>
+<button class="flex items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary hover:bg-primary/90 text-white shadow-[0_0_15px_rgba(19,127,236,0.4)] transition-all text-sm font-bold leading-normal">
+<span class="material-symbols-outlined text-lg mr-2">save</span>
+<span class="truncate">Save Layout</span>
+</button>
+</div>
+</div>
+<!-- Grid Canvas -->
+<div class="flex-1 overflow-y-auto p-8 bg-grid-pattern relative">
+<!-- Dotted Grid Layout Container -->
+<div class="grid grid-cols-12 gap-6 w-full max-w-[1400px] mx-auto min-h-[800px]">
+<!-- Widget 1: Large Chart (Revenue) -->
+<div class="col-span-8 row-span-2 relative group cursor-grab active:cursor-grabbing">
+<div class="absolute inset-0 bg-surface-dark border-2 border-dashed border-primary/40 rounded-xl hover:border-primary transition-colors flex flex-col overflow-hidden shadow-lg">
+<!-- Widget Header -->
+<div class="h-10 border-b border-surface-lighter bg-surface-lighter/20 flex items-center justify-between px-3 cursor-grab">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-text-secondary text-lg">drag_indicator</span>
+<span class="text-xs font-bold text-white uppercase tracking-wider">Revenue Over Time</span>
+</div>
+<div class="flex gap-1">
+<button class="p-1 hover:bg-white/10 rounded text-text-secondary hover:text-white"><span class="material-symbols-outlined text-sm">edit</span></button>
+<button class="p-1 hover:bg-red-500/20 rounded text-text-secondary hover:text-red-400"><span class="material-symbols-outlined text-sm">close</span></button>
+</div>
+</div>
+<!-- Widget Content Mockup -->
+<div class="flex-1 p-4 flex flex-col">
+<div class="flex justify-between items-end mb-4">
+<div>
+<p class="text-text-secondary text-sm">Total Revenue</p>
+<p class="text-2xl font-bold text-white">$2,405,021</p>
+</div>
+<div class="flex gap-2">
+<div class="h-1 w-3 bg-primary rounded-full"></div>
+<div class="h-1 w-3 bg-surface-lighter rounded-full"></div>
+</div>
+</div>
+<!-- CSS-only simple chart visualization -->
+<div class="flex-1 flex items-end gap-3 px-2 pb-2 opacity-60 pointer-events-none select-none">
+<div class="w-full bg-surface-lighter rounded-t-sm h-[30%] relative group-hover:bg-primary/20 transition-colors"></div>
+<div class="w-full bg-surface-lighter rounded-t-sm h-[45%] relative group-hover:bg-primary/20 transition-colors"></div>
+<div class="w-full bg-surface-lighter rounded-t-sm h-[35%] relative group-hover:bg-primary/20 transition-colors"></div>
+<div class="w-full bg-surface-lighter rounded-t-sm h-[60%] relative group-hover:bg-primary/20 transition-colors"></div>
+<div class="w-full bg-surface-lighter rounded-t-sm h-[50%] relative group-hover:bg-primary/20 transition-colors"></div>
+<div class="w-full bg-surface-lighter rounded-t-sm h-[75%] relative group-hover:bg-primary/20 transition-colors"></div>
+<div class="w-full bg-primary rounded-t-sm h-[65%] relative shadow-[0_0_10px_rgba(19,127,236,0.3)]"></div>
+<div class="w-full bg-surface-lighter rounded-t-sm h-[55%] relative group-hover:bg-primary/20 transition-colors"></div>
+<div class="w-full bg-surface-lighter rounded-t-sm h-[80%] relative group-hover:bg-primary/20 transition-colors"></div>
+<div class="w-full bg-surface-lighter rounded-t-sm h-[70%] relative group-hover:bg-primary/20 transition-colors"></div>
+</div>
+</div>
+<!-- Resize Handle -->
+<div class="absolute bottom-0 right-0 p-1 cursor-nwse-resize text-surface-lighter hover:text-primary">
+<span class="material-symbols-outlined text-lg">filter_list</span> <!-- Looking like grip lines -->
+</div>
+</div>
+</div>
+<!-- Widget 2: Number Card -->
+<div class="col-span-4 row-span-1 relative group cursor-grab active:cursor-grabbing">
+<div class="absolute inset-0 bg-surface-dark border-2 border-dashed border-surface-lighter rounded-xl hover:border-primary transition-colors flex flex-col overflow-hidden">
+<div class="h-10 border-b border-surface-lighter bg-surface-lighter/20 flex items-center justify-between px-3 cursor-grab">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-text-secondary text-lg">drag_indicator</span>
+<span class="text-xs font-bold text-white uppercase tracking-wider">Active Users</span>
+</div>
+<div class="flex gap-1">
+<button class="p-1 hover:bg-white/10 rounded text-text-secondary hover:text-white"><span class="material-symbols-outlined text-sm">edit</span></button>
+<button class="p-1 hover:bg-red-500/20 rounded text-text-secondary hover:text-red-400"><span class="material-symbols-outlined text-sm">close</span></button>
+</div>
+</div>
+<div class="flex-1 p-5 flex flex-col justify-center opacity-60 pointer-events-none select-none">
+<div class="flex items-center justify-between">
+<p class="text-4xl font-bold text-white">1,240</p>
+<span class="text-emerald-400 text-sm font-bold bg-emerald-400/10 px-2 py-1 rounded">+12.5%</span>
+</div>
+<p class="text-text-secondary text-sm mt-1">Daily Active Users</p>
+</div>
+</div>
+</div>
+<!-- Widget 3: List/Table -->
+<div class="col-span-4 row-span-2 relative group cursor-grab active:cursor-grabbing">
+<div class="absolute inset-0 bg-surface-dark border-2 border-dashed border-surface-lighter rounded-xl hover:border-primary transition-colors flex flex-col overflow-hidden">
+<div class="h-10 border-b border-surface-lighter bg-surface-lighter/20 flex items-center justify-between px-3 cursor-grab">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-text-secondary text-lg">drag_indicator</span>
+<span class="text-xs font-bold text-white uppercase tracking-wider">Top Regions</span>
+</div>
+<div class="flex gap-1">
+<button class="p-1 hover:bg-white/10 rounded text-text-secondary hover:text-white"><span class="material-symbols-outlined text-sm">edit</span></button>
+<button class="p-1 hover:bg-red-500/20 rounded text-text-secondary hover:text-red-400"><span class="material-symbols-outlined text-sm">close</span></button>
+</div>
+</div>
+<div class="flex-1 p-4 flex flex-col gap-3 opacity-60 pointer-events-none select-none">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-blue-500/20 flex items-center justify-center text-xs">US</div>
+<span class="text-sm text-white">United States</span>
+</div>
+<div class="w-16 h-1.5 bg-surface-lighter rounded-full overflow-hidden">
+<div class="h-full w-[80%] bg-primary"></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-purple-500/20 flex items-center justify-center text-xs">DE</div>
+<span class="text-sm text-white">Germany</span>
+</div>
+<div class="w-16 h-1.5 bg-surface-lighter rounded-full overflow-hidden">
+<div class="h-full w-[60%] bg-purple-500"></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-orange-500/20 flex items-center justify-center text-xs">JP</div>
+<span class="text-sm text-white">Japan</span>
+</div>
+<div class="w-16 h-1.5 bg-surface-lighter rounded-full overflow-hidden">
+<div class="h-full w-[40%] bg-orange-500"></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-indigo-500/20 flex items-center justify-center text-xs">UK</div>
+<span class="text-sm text-white">UK</span>
+</div>
+<div class="w-16 h-1.5 bg-surface-lighter rounded-full overflow-hidden">
+<div class="h-full w-[35%] bg-indigo-500"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Widget 4: Heatmap Placeholer -->
+<div class="col-span-8 row-span-2 relative group cursor-grab active:cursor-grabbing">
+<div class="absolute inset-0 bg-surface-dark border-2 border-dashed border-surface-lighter rounded-xl hover:border-primary transition-colors flex flex-col overflow-hidden">
+<div class="h-10 border-b border-surface-lighter bg-surface-lighter/20 flex items-center justify-between px-3 cursor-grab">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-text-secondary text-lg">drag_indicator</span>
+<span class="text-xs font-bold text-white uppercase tracking-wider">Cohort Analysis</span>
+</div>
+<div class="flex gap-1">
+<button class="p-1 hover:bg-white/10 rounded text-text-secondary hover:text-white"><span class="material-symbols-outlined text-sm">edit</span></button>
+<button class="p-1 hover:bg-red-500/20 rounded text-text-secondary hover:text-red-400"><span class="material-symbols-outlined text-sm">close</span></button>
+</div>
+</div>
+<div class="flex-1 p-4 grid grid-cols-6 gap-1 opacity-50 pointer-events-none select-none">
+<!-- Fake Heatmap Grid -->
+<div class="bg-primary/90 rounded-sm"></div> <div class="bg-primary/80 rounded-sm"></div> <div class="bg-primary/70 rounded-sm"></div> <div class="bg-primary/60 rounded-sm"></div> <div class="bg-primary/50 rounded-sm"></div> <div class="bg-primary/40 rounded-sm"></div>
+<div class="bg-primary/80 rounded-sm"></div> <div class="bg-primary/70 rounded-sm"></div> <div class="bg-primary/60 rounded-sm"></div> <div class="bg-primary/50 rounded-sm"></div> <div class="bg-primary/40 rounded-sm"></div> <div class="bg-primary/30 rounded-sm"></div>
+<div class="bg-primary/70 rounded-sm"></div> <div class="bg-primary/60 rounded-sm"></div> <div class="bg-primary/50 rounded-sm"></div> <div class="bg-primary/40 rounded-sm"></div> <div class="bg-primary/30 rounded-sm"></div> <div class="bg-primary/20 rounded-sm"></div>
+<div class="bg-primary/60 rounded-sm"></div> <div class="bg-primary/50 rounded-sm"></div> <div class="bg-primary/40 rounded-sm"></div> <div class="bg-primary/30 rounded-sm"></div> <div class="bg-primary/20 rounded-sm"></div> <div class="bg-surface-lighter rounded-sm"></div>
+<div class="bg-primary/50 rounded-sm"></div> <div class="bg-primary/40 rounded-sm"></div> <div class="bg-primary/30 rounded-sm"></div> <div class="bg-primary/20 rounded-sm"></div> <div class="bg-surface-lighter rounded-sm"></div> <div class="bg-surface-lighter rounded-sm"></div>
+</div>
+</div>
+</div>
+<!-- Drop Zone Placeholder -->
+<div class="col-span-4 row-span-1 border-2 border-dashed border-primary/30 bg-primary/5 rounded-xl flex items-center justify-center min-h-[160px]">
+<div class="text-center text-primary/60">
+<span class="material-symbols-outlined text-3xl mb-1">add_circle_outline</span>
+<p class="text-sm font-medium">Drop Widget Here</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Action Button for Help (Optional visual detail) -->
+<div class="absolute bottom-6 right-6">
+<button class="bg-surface-lighter hover:bg-surface-lighter/80 text-white p-3 rounded-full shadow-lg border border-white/10">
+<span class="material-symbols-outlined">question_mark</span>
+</button>
+</div>
+</main>
+</div>
+</body></html>

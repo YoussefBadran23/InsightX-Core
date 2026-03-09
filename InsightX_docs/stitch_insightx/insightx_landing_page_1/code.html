@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>InsightX - B2B SaaS Platform</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Outfit:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#6366f1", // Indigo-500 equivalent, vibrant for tech
+                        "primary-hover": "#4f46e5",
+                        "background-light": "#f8fafc", // Slate-50
+                        "background-dark": "#0f172a", // Slate-900
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1e293b", // Slate-800
+                        "text-light": "#1e293b",
+                        "text-dark": "#f1f5f9",
+                        "subtext-light": "#64748b",
+                        "subtext-dark": "#94a3b8",
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                    },
+                    backgroundImage: {
+                        'hero-pattern-light': "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')",
+                        'hero-pattern-dark': "url('https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop')",
+                    }
+                },
+            },
+        };
+    </script>
+<style>.glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .glass-panel {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }.gradient-text {
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(to right, #6366f1, #a855f7, #ec4899);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark font-sans transition-colors duration-300 min-h-screen flex flex-col">
+<header class="fixed w-full top-0 z-50 glass-panel border-b border-gray-200 dark:border-gray-800">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center h-20">
+<div class="flex items-center space-x-3">
+<div class="h-10 w-10 relative overflow-hidden rounded flex-shrink-0">
+<img alt="InsightX Stylized Eye Logo" class="h-full w-full object-contain dark:invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-A5OQ30UgqnDnkBYMkI0s2uVxDVgAg0QuSnH9noO4l3HifhyJM-m_MCKnwPeEINYVHg4KlLTjGSxPhyKtXYtDUfO5n3dtZ-E6TFfq0vuFfTZwbseVMiB7EH4hxuISgYBx9FUuVfTfoC1alROBV95lJTObRdO2fGmymyOJnLC1ELIMmukds9TDVWxYVxmGYXjFnGHKGwmxkmPkfZ6pIy__X-OAmtcVxMnmYNUXmNNlMz4EU9boytz9YFRlapT9BAJbe8LcmQ3g5SZz"/>
+</div>
+<span class="font-display font-bold text-2xl tracking-tight text-gray-900 dark:text-white">
+                        Insight<span class="text-primary">X</span>
+</span>
+</div>
+<div class="flex items-center space-x-4">
+<button class="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">
+                        Login
+                    </button>
+<button class="bg-primary hover:bg-primary-hover text-white text-sm font-medium py-2 px-5 rounded-full transition-all shadow-lg shadow-primary/30">
+                        Sign Up
+                    </button>
+<button aria-label="Toggle Dark Mode" class="p-2 rounded-full text-gray-500 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors ml-2" id="theme-toggle">
+<span class="material-icons-round text-xl dark:hidden">dark_mode</span>
+<span class="material-icons-round text-xl hidden dark:block">light_mode</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-grow flex items-center relative overflow-hidden pt-20">
+<div class="absolute inset-0 z-0">
+<div class="absolute inset-0 bg-white/90 dark:bg-background-dark/80 z-10"></div>
+<img alt="Abstract connectivity network background" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkhKK2SvN2VDVGjjsWTy8acBeiIxE17zY_JDftfLxtFv3vXlnr9rRA4qaKGfCjZlbY5tsDXmAUA_fmOLodPQAVGk51ku-IBN_xaKYdqOPyI_l1y75kfp2NmKc60HEMiCXCQE5-9Wq3MbhnkCH1NRsLO88TIKQL1xdrzDhDVAXXzSQwLhwuSQi1qep6MbX9KxNPJyRx7vzHIsfj8Wolk-YIpwameNrolTELsZiI6YEBJ9zi4C0-p0LS_4n6cf_dpViKcGbSx0rINOqq"/>
+</div>
+<div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 dark:opacity-20 animate-blob z-0"></div>
+<div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl opacity-20 dark:opacity-20 animate-blob animation-delay-2000 z-0"></div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full py-12 lg:py-24">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+<div class="lg:col-span-6 flex flex-col justify-center text-center lg:text-left space-y-8">
+<div class="space-y-4">
+<h1 class="font-display font-bold text-5xl lg:text-7xl leading-tight text-gray-900 dark:text-white">
+                            Stop Guessing. <br/>
+<span class="gradient-text">Start Forecasting.</span>
+</h1>
+<p class="text-lg text-subtext-light dark:text-subtext-dark max-w-lg mx-auto lg:mx-0 font-light leading-relaxed">
+                            Transform raw data into actionable foresight. InsightX empowers your business with AI-driven analytics that see beyond the numbers.
+                        </p>
+</div>
+<div class="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+<button class="w-full sm:w-auto bg-primary hover:bg-primary-hover text-white font-semibold py-4 px-8 rounded-lg shadow-xl shadow-primary/20 transition-all transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
+<span>Start Analysis Free</span>
+<span class="material-icons-round text-sm">arrow_forward</span>
+</button>
+<button class="w-full sm:w-auto bg-transparent border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-white font-medium py-4 px-8 rounded-lg transition-all flex items-center justify-center space-x-2">
+<span class="material-icons-round">play_circle_outline</span>
+<span>Watch Demo</span>
+</button>
+</div>
+<div class="pt-8 flex items-center justify-center lg:justify-start space-x-6 text-sm text-subtext-light dark:text-gray-500">
+<div class="flex items-center space-x-2">
+<span class="material-icons-round text-green-500 text-base">check_circle</span>
+<span>No credit card required</span>
+</div>
+<div class="flex items-center space-x-2">
+<span class="material-icons-round text-green-500 text-base">check_circle</span>
+<span>14-day free trial</span>
+</div>
+</div>
+</div>
+<div class="lg:col-span-6 relative">
+<div class="absolute inset-0 bg-gradient-to-tr from-primary/20 to-purple-500/20 rounded-full filter blur-3xl opacity-30"></div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-5 relative">
+<div class="glass-panel p-6 rounded-2xl hover:bg-white/50 dark:hover:bg-gray-800/60 transition-all cursor-pointer group">
+<div class="h-12 w-12 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center mb-4 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
+<span class="material-icons-round text-2xl">cloud_upload</span>
+</div>
+<h3 class="font-display font-semibold text-lg text-gray-900 dark:text-white mb-1">Start</h3>
+<p class="text-sm text-subtext-light dark:text-subtext-dark">Upload Data effortlessly via CSV or API.</p>
+</div>
+<div class="glass-panel p-6 rounded-2xl hover:bg-white/50 dark:hover:bg-gray-800/60 transition-all cursor-pointer group mt-0 sm:mt-8">
+<div class="h-12 w-12 rounded-lg bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center mb-4 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
+<span class="material-icons-round text-2xl">insights</span>
+</div>
+<h3 class="font-display font-semibold text-lg text-gray-900 dark:text-white mb-1">Analytics</h3>
+<p class="text-sm text-subtext-light dark:text-subtext-dark">Deep Dive into real-time metrics.</p>
+</div>
+<div class="glass-panel p-6 rounded-2xl hover:bg-white/50 dark:hover:bg-gray-800/60 transition-all cursor-pointer group">
+<div class="h-12 w-12 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center mb-4 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform">
+<span class="material-icons-round text-2xl">auto_graph</span>
+</div>
+<h3 class="font-display font-semibold text-lg text-gray-900 dark:text-white mb-1">Forecasting</h3>
+<p class="text-sm text-subtext-light dark:text-subtext-dark">AI Predictions for future trends.</p>
+</div>
+<div class="glass-panel p-6 rounded-2xl hover:bg-white/50 dark:hover:bg-gray-800/60 transition-all cursor-pointer group mt-0 sm:mt-8">
+<div class="h-12 w-12 rounded-lg bg-pink-100 dark:bg-pink-900/50 flex items-center justify-center mb-4 text-pink-600 dark:text-pink-400 group-hover:scale-110 transition-transform">
+<span class="material-icons-round text-2xl">pie_chart</span>
+</div>
+<h3 class="font-display font-semibold text-lg text-gray-900 dark:text-white mb-1">Segmentation</h3>
+<p class="text-sm text-subtext-light dark:text-subtext-dark">Customer Clusters &amp; behavior analysis.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="glass-panel border-t border-gray-200 dark:border-gray-800 relative z-30">
+<div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+<div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+<div class="flex items-center space-x-2">
+<div class="h-6 w-6 relative overflow-hidden rounded">
+<img alt="InsightX Logo Small" class="h-full w-full object-contain dark:invert opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAQS2EmIhW4HMVTB54C2yLctVBxBvEbNJvNCzphHbcJs4YQSalMDI7WVYqyoiC6EYEbN0IsjVNC5lfTFwGav3pCEevZx-gdxW8eAdsLUNbNNKql4CklHWR9iC9MMn3kh0elMUNnLQh7t-w9AZBMqR29sj7ViPFwvK3HKj4pZ9-CqZEfA6cNKfCvfigZBvz-c1X5NnhYdUetajxi-vkYjyPueTnZ7n8kXgeFwOumLBX_Hb16VhLpc_UN-4WfMhoQDhEtIyzZIip-i2T"/>
+</div>
+<span class="font-display font-bold text-lg text-gray-700 dark:text-gray-200">InsightX</span>
+</div>
+<div class="flex space-x-8">
+<a class="text-sm text-subtext-light dark:text-subtext-dark hover:text-primary dark:hover:text-primary transition-colors" href="#">Support</a>
+<a class="text-sm text-subtext-light dark:text-subtext-dark hover:text-primary dark:hover:text-primary transition-colors" href="#">Terms</a>
+<a class="text-sm text-subtext-light dark:text-subtext-dark hover:text-primary dark:hover:text-primary transition-colors" href="#">Privacy</a>
+</div>
+<div class="relative group">
+<button class="flex items-center space-x-2 text-sm text-subtext-light dark:text-subtext-dark hover:text-gray-900 dark:hover:text-white focus:outline-none">
+<span class="material-icons-round text-base">language</span>
+<span>English / العربية</span>
+<span class="material-icons-round text-base">expand_more</span>
+</button>
+<div class="absolute bottom-full right-0 mb-2 w-32 bg-white dark:bg-surface-dark rounded-md shadow-lg border border-gray-100 dark:border-gray-700 hidden group-hover:block overflow-hidden">
+<a class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" href="#">English</a>
+<a class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 text-right" href="#">العربية</a>
+</div>
+</div>
+</div>
+<div class="mt-4 text-center text-xs text-gray-400 dark:text-gray-600">
+                © 2023 InsightX. See Beyond.
+            </div>
+</div>
+</footer>
+<script>
+        const toggleButton = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+        // Check for saved user preference, if any, on load of the website
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            htmlElement.classList.add('dark');
+        } else {
+            htmlElement.classList.remove('dark');
+        }
+        toggleButton.addEventListener('click', () => {
+            if (htmlElement.classList.contains('dark')) {
+                htmlElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                htmlElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        });
+    </script>
+
+</body></html>

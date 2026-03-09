@@ -275,7 +275,7 @@ NEW_TOKEN = r.json().get("access_token", "")
 
 # 5.2 Wrong current password
 r = client.post("/api/v1/auth/change-password",
-    json={"current_password": "FinalTest123!", "new_password": "Hacker!"},
+    json={"current_password": "FinalTest123!", "new_password": "Hacker123!"},
     headers={"Authorization": f"Bearer {NEW_TOKEN}"},
 )
 check("Wrong current password → 400", r.status_code == 400, section="password")

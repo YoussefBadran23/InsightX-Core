@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>InsightX Dashboard Home Light</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8", // Main background
+                        "background-white": "#ffffff", // Sidebar/Header background
+                        "surface-light": "#ffffff",    // Card background
+                        "border-light": "#e2e8f0",     // Border color
+                        "text-main": "#0f172a",        // Dark text for main headings
+                        "text-secondary": "#64748b",   // Lighter text for labels
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="bg-background-light text-text-main font-display overflow-hidden">
+<div class="flex h-screen w-full overflow-hidden">
+<aside class="flex w-64 flex-col justify-between border-r border-border-light bg-background-white p-4 shadow-sm z-20">
+<div class="flex flex-col gap-8">
+<div class="flex items-center gap-3 px-2">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-8 bg-primary flex items-center justify-center text-white font-bold text-lg" data-alt="InsightX Abstract Logo - Blue gradient circle">
+                         IX
+                    </div>
+<h1 class="text-text-main text-lg font-bold leading-normal tracking-tight">InsightX</h1>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary text-white transition-colors shadow-sm" href="#">
+<span class="material-symbols-outlined text-[24px]">home</span>
+<p class="text-sm font-medium leading-normal">Home</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-slate-100 hover:text-text-main transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px] group-hover:text-primary">inventory_2</span>
+<p class="text-sm font-medium leading-normal">Product</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-slate-100 hover:text-text-main transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px] group-hover:text-primary">group</span>
+<p class="text-sm font-medium leading-normal">Customer</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-slate-100 hover:text-text-main transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px] group-hover:text-primary">analytics</span>
+<p class="text-sm font-medium leading-normal">Analytics</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-slate-100 hover:text-text-main transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px] group-hover:text-primary">trending_up</span>
+<p class="text-sm font-medium leading-normal">Forecasting</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-slate-100 hover:text-text-main transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px] group-hover:text-primary">donut_large</span>
+<p class="text-sm font-medium leading-normal">Segmentation</p>
+</a>
+</nav>
+</div>
+<div class="flex flex-col gap-2 border-t border-border-light pt-4">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-slate-100 hover:text-text-main transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px] group-hover:text-primary">settings</span>
+<p class="text-sm font-medium leading-normal">Settings</p>
+</a>
+</div>
+</aside>
+<main class="flex flex-1 flex-col h-full relative overflow-y-auto bg-background-light">
+<header class="sticky top-0 z-10 flex items-center justify-between border-b border-border-light bg-white/90 backdrop-blur px-8 py-4">
+<div class="flex items-center gap-4">
+<h2 class="text-text-main text-xl font-bold">Dashboard</h2>
+</div>
+<div class="flex items-center gap-6">
+<button class="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-100 text-text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+</button>
+<div class="flex items-center gap-3 cursor-pointer">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border border-slate-200 shadow-sm" data-alt="User profile picture of a professional man" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAfyAIpe2pO5J8hBNEyqNwLBaaJTZ-qUFYZEzRHJoruipbXwa5bqYeQwgtWhNG1jffUv8AzCjF1IyteNrFA-gg91zxcsjWO2aypVzpCv4cn6Cpdb4veyxmMgkTcplvUUaGZFRX8NMCtcxAI4BZIynFWC4wGF3ODIOD2-DgG70ylhpUyy7kM_DtQ2hQdpwdCJ2_lbLGKM8lu0DFLju7f4LAq0vr2kKHuMVRx8BLSO5xJHHXzT-zyLKNaIfjd1ZqshEyR9VjJJSYUVRbP");'>
+</div>
+</div>
+</div>
+</header>
+<div class="flex-1 p-8">
+<div class="mx-auto max-w-7xl flex flex-col gap-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="flex flex-col gap-2 rounded-xl p-6 bg-surface-light border border-border-light hover:border-blue-200 hover:shadow-md transition-all shadow-sm">
+<div class="flex justify-between items-start">
+<p class="text-text-secondary text-sm font-medium leading-normal">Total Revenue</p>
+<span class="material-symbols-outlined text-primary text-2xl">payments</span>
+</div>
+<div class="flex items-baseline gap-3 mt-1">
+<p class="text-text-main tracking-tight text-3xl font-bold leading-tight">$150k</p>
+<div class="flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded text-emerald-600 text-sm font-medium border border-emerald-100">
+<span class="material-symbols-outlined text-[16px]">arrow_upward</span>
+<span>12%</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 rounded-xl p-6 bg-surface-light border border-border-light hover:border-blue-200 hover:shadow-md transition-all shadow-sm">
+<div class="flex justify-between items-start">
+<p class="text-text-secondary text-sm font-medium leading-normal">Active Customers</p>
+<span class="material-symbols-outlined text-primary text-2xl">group</span>
+</div>
+<div class="flex items-baseline gap-3 mt-1">
+<p class="text-text-main tracking-tight text-3xl font-bold leading-tight">1,200</p>
+<div class="flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded text-emerald-600 text-sm font-medium border border-emerald-100">
+<span class="material-symbols-outlined text-[16px]">arrow_upward</span>
+<span>5%</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 rounded-xl p-6 bg-surface-light border border-border-light hover:border-blue-200 hover:shadow-md transition-all shadow-sm">
+<div class="flex justify-between items-start">
+<p class="text-text-secondary text-sm font-medium leading-normal">Churn Rate</p>
+<span class="material-symbols-outlined text-primary text-2xl">trending_down</span>
+</div>
+<div class="flex items-baseline gap-3 mt-1">
+<p class="text-text-main tracking-tight text-3xl font-bold leading-tight">2.4%</p>
+<div class="flex items-center gap-1 bg-orange-50 px-2 py-0.5 rounded text-orange-600 text-sm font-medium border border-orange-100">
+<span class="material-symbols-outlined text-[16px]">arrow_downward</span>
+<span>0.5%</span>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-2 rounded-xl bg-surface-light border border-border-light p-6 shadow-sm">
+<div class="flex flex-col gap-1 mb-6">
+<h3 class="text-text-main text-lg font-bold leading-normal">Sales Trend Last 30 Days</h3>
+<div class="flex gap-2 items-center">
+<p class="text-text-secondary text-sm">Compared to previous month</p>
+<span class="text-emerald-600 text-sm font-medium">+8.5%</span>
+</div>
+</div>
+<div class="w-full h-[300px] relative">
+<svg class="w-full h-full" fill="none" preserveAspectRatio="none" viewBox="0 0 478 150" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient gradientUnits="userSpaceOnUse" id="paint0_linear_1131_5935" x1="239" x2="239" y1="20" y2="150">
+<stop stop-color="#137fec" stop-opacity="0.2"></stop>
+<stop offset="1" stop-color="#137fec" stop-opacity="0"></stop>
+</linearGradient>
+</defs>
+<path d="M0 109C18.15 109 18.15 21 36.3 21C54.46 21 54.46 41 72.6 41C90.7 41 90.7 93 108.9 93C127 93 127 33 145.2 33C163.4 33 163.4 101 181.5 101C199.7 101 199.7 61 217.8 61C236 61 236 45 254.1 45C272.3 45 272.3 121 290.4 121C308.6 121 308.6 149 326.7 149C344.9 149 344.9 1 363 1C381.2 1 381.2 81 399.4 81C417.5 81 417.5 129 435.7 129C453.8 129 453.8 25 472 25V150H0V109Z" fill="url(#paint0_linear_1131_5935)"></path>
+<path d="M0 109C18.15 109 18.15 21 36.3 21C54.46 21 54.46 41 72.6 41C90.7 41 90.7 93 108.9 93C127 93 127 33 145.2 33C163.4 33 163.4 101 181.5 101C199.7 101 199.7 61 217.8 61C236 61 236 45 254.1 45C272.3 45 272.3 121 290.4 121C308.6 121 308.6 149 326.7 149C344.9 149 344.9 1 363 1C381.2 1 381.2 81 399.4 81C417.5 81 417.5 129 435.7 129C453.8 129 453.8 25 472 25" stroke="#137fec" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+</div>
+<div class="flex justify-between mt-4 px-2">
+<p class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Day 1</p>
+<p class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Day 5</p>
+<p class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Day 10</p>
+<p class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Day 15</p>
+<p class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Day 20</p>
+<p class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Day 25</p>
+<p class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Day 30</p>
+</div>
+</div>
+<div class="rounded-xl bg-surface-light border border-border-light p-6 shadow-sm flex flex-col">
+<div class="flex flex-col gap-1 mb-6">
+<h3 class="text-text-main text-lg font-bold leading-normal">Revenue by Region</h3>
+<p class="text-text-main text-2xl font-bold mt-1">$450k <span class="text-sm font-normal text-text-secondary">Total</span></p>
+</div>
+<div class="flex-1 flex items-end justify-between px-2 gap-4">
+<div class="flex flex-col items-center gap-2 w-full">
+<div class="w-full rounded-t-sm bg-slate-100 relative h-40 flex items-end overflow-hidden group">
+<div class="w-full bg-primary h-[70%] group-hover:bg-primary/80 transition-all duration-500"></div>
+</div>
+<p class="text-text-secondary text-xs font-bold">NA</p>
+</div>
+<div class="flex flex-col items-center gap-2 w-full">
+<div class="w-full rounded-t-sm bg-slate-100 relative h-40 flex items-end overflow-hidden group">
+<div class="w-full bg-primary h-[35%] group-hover:bg-primary/80 transition-all duration-500"></div>
+</div>
+<p class="text-text-secondary text-xs font-bold">EU</p>
+</div>
+<div class="flex flex-col items-center gap-2 w-full">
+<div class="w-full rounded-t-sm bg-slate-100 relative h-40 flex items-end overflow-hidden group">
+<div class="w-full bg-primary h-[90%] group-hover:bg-primary/80 transition-all duration-500"></div>
+</div>
+<p class="text-text-secondary text-xs font-bold">APAC</p>
+</div>
+<div class="flex flex-col items-center gap-2 w-full">
+<div class="w-full rounded-t-sm bg-slate-100 relative h-40 flex items-end overflow-hidden group">
+<div class="w-full bg-primary h-[60%] group-hover:bg-primary/80 transition-all duration-500"></div>
+</div>
+<p class="text-text-secondary text-xs font-bold">LATAM</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

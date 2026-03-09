@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>InsightX Product Inventory</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                        "surface-dark": "#16202a",
+                        "surface-darker": "#0d141b",
+                        "border-dark": "#233648"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- Side Navigation -->
+<aside class="flex w-64 flex-col border-r border-border-dark bg-surface-dark hidden md:flex shrink-0">
+<div class="flex flex-col gap-4 p-4 h-full">
+<!-- Logo -->
+<div class="flex items-center gap-3 px-2 py-2">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8 bg-primary/20 flex items-center justify-center text-primary" data-alt="InsightX Logo">
+<span class="material-symbols-outlined text-xl">insights</span>
+</div>
+<h1 class="text-white text-lg font-bold tracking-tight">InsightX</h1>
+</div>
+<!-- Nav Items -->
+<nav class="flex flex-col gap-2 mt-4 flex-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-white">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary transition-colors" href="#">
+<span class="material-symbols-outlined fill-1">inventory_2</span>
+<span class="text-sm font-bold">Products</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-white">trending_up</span>
+<span class="text-sm font-medium">Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-white">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<!-- User Profile Snippet (Bottom of Sidebar) -->
+<div class="mt-auto border-t border-border-dark pt-4">
+<div class="flex items-center gap-3 px-3 py-2">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8" data-alt="User profile picture showing a smiling man" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBsdLfP2bky26CbxsnkqRtlZtTAUlIio7v8b6NWCggYxEGiR3lOwegcJOQmYVG6wUq7EbrGIEsXEj5UyJC5QszIfZTEQwfLCT8_TcFtr22Tuw27x8m1SX8e3EApmTuHoAGYl7aYRgPn_p-rz3ZhZ9_4YxZHE8cz7alF7FNp3Pu7H8B1RqpumMRF_mcB-htNz4qkjlVZeZ6sSBnyNg6TMS7N2vBHgMLr3Pq_ku2lMWk6eHKJwkN6sg1XxNJJj7KQBza7_UQYuHAKu3Tj");'></div>
+<div class="flex flex-col">
+<p class="text-white text-sm font-medium">Alex Morgan</p>
+<p class="text-slate-400 text-xs">Admin</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="flex flex-1 flex-col min-w-0 bg-background-dark">
+<!-- Top Header -->
+<header class="flex items-center justify-between border-b border-border-dark bg-surface-dark px-6 py-3 h-16 shrink-0">
+<!-- Search Bar -->
+<div class="flex w-full max-w-md items-center">
+<div class="relative w-full">
+<div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="block w-full rounded-lg border-none bg-background-dark py-2 pl-10 pr-3 text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-primary focus:bg-surface-dark transition-all" placeholder="Search inventory, SKUs, or categories..." type="text"/>
+</div>
+</div>
+<!-- Right Actions -->
+<div class="flex items-center gap-4">
+<button class="relative rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[24px]">notifications</span>
+<span class="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-surface-dark"></span>
+</button>
+<div class="h-8 w-px bg-border-dark mx-2"></div>
+<button class="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>Add Product</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Page Content -->
+<main class="flex-1 overflow-y-auto p-4 md:p-8">
+<div class="mx-auto max-w-7xl flex flex-col gap-6">
+<!-- Page Heading -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<h1 class="text-3xl font-bold text-white tracking-tight">Product Inventory</h1>
+<div class="flex items-center gap-1 rounded-full bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 text-xs font-medium text-purple-400">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+<span>AI Extracted</span>
+</div>
+</div>
+<p class="text-slate-400">Manage and track your retail product catalog with automated insights.</p>
+</div>
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+<div class="rounded-xl border border-border-dark bg-surface-dark p-5 shadow-sm">
+<div class="flex items-center gap-4">
+<div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500">
+<span class="material-symbols-outlined">dataset</span>
+</div>
+<div>
+<p class="text-sm font-medium text-slate-400">Total SKUs</p>
+<p class="text-2xl font-bold text-white">450</p>
+</div>
+</div>
+</div>
+<div class="rounded-xl border border-border-dark bg-surface-dark p-5 shadow-sm">
+<div class="flex items-center gap-4">
+<div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-500/10 text-green-500">
+<span class="material-symbols-outlined">attach_money</span>
+</div>
+<div>
+<p class="text-sm font-medium text-slate-400">Inventory Value</p>
+<p class="text-2xl font-bold text-white">$85,000</p>
+</div>
+</div>
+</div>
+<div class="rounded-xl border border-border-dark bg-surface-dark p-5 shadow-sm">
+<div class="flex items-center gap-4">
+<div class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-500/10 text-orange-500">
+<span class="material-symbols-outlined">warning</span>
+</div>
+<div>
+<p class="text-sm font-medium text-slate-400">Low Stock Items</p>
+<p class="text-2xl font-bold text-white">12</p>
+</div>
+</div>
+</div>
+<div class="rounded-xl border border-border-dark bg-surface-dark p-5 shadow-sm">
+<div class="flex items-center gap-4">
+<div class="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-500/10 text-purple-500">
+<span class="material-symbols-outlined">category</span>
+</div>
+<div>
+<p class="text-sm font-medium text-slate-400">Categories</p>
+<p class="text-2xl font-bold text-white">8</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Filter Bar -->
+<div class="flex flex-wrap items-center justify-between gap-4 rounded-lg bg-surface-dark border border-border-dark p-2">
+<div class="flex items-center gap-2 px-2">
+<span class="material-symbols-outlined text-slate-400">filter_list</span>
+<span class="text-sm font-medium text-white">Filters:</span>
+<button class="rounded-md bg-white/5 px-3 py-1 text-sm font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
+                                Category: All
+                            </button>
+<button class="rounded-md bg-white/5 px-3 py-1 text-sm font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
+                                Status: Active
+                            </button>
+</div>
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-300 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                                Export
+                            </button>
+</div>
+</div>
+<!-- Data Table -->
+<div class="overflow-hidden rounded-xl border border-border-dark bg-surface-dark shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm text-slate-400">
+<thead class="bg-[#192633] text-xs uppercase font-semibold text-slate-300">
+<tr>
+<th class="px-6 py-4" scope="col">Product SKU</th>
+<th class="px-6 py-4" scope="col">Product Name</th>
+<th class="px-6 py-4" scope="col">Category</th>
+<th class="px-6 py-4" scope="col">Stock</th>
+<th class="px-6 py-4" scope="col">Unit Price</th>
+<th class="px-6 py-4" scope="col">ABC Tier Status</th>
+<th class="px-6 py-4 text-right" scope="col">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-dark">
+<!-- Row 1 -->
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="whitespace-nowrap px-6 py-4 font-medium text-white">SK-9021</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded bg-slate-700 bg-cover bg-center" data-alt="Small thumbnail of headphones" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBNUP3IwRqAcavhWLDaP0scaJIorKjSLPyJeHecuJBrp2SC2bkX2HMZeD8qq_Tt6a3HgTxcHTnx0vI6_Fksxinj6hKspB2-aH9ljbWO4-Tlq40cjkXSZlrAXUhuaJI-6UXiJfDDSnTxC2ILG8xGhwfRNfcS5jdIT3kn6URwZWHNPdsMenlBW_L41nqDdkRBGYWy0McJVdAAn4hdpusgQgV59Aa7H3IFNoG95N1h9zaqdjF3H7jf6MAeGyYZFdCFp_6kVTwVJ2XnmhB2");'></div>
+<span class="text-white font-medium">Wireless Noise-Cancelling Headphones</span>
+</div>
+</td>
+<td class="whitespace-nowrap px-6 py-4">Electronics</td>
+<td class="whitespace-nowrap px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="text-white">42</span>
+<span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+</div>
+</td>
+<td class="whitespace-nowrap px-6 py-4 text-white">$299.00</td>
+<td class="whitespace-nowrap px-6 py-4">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-500 border border-emerald-500/20">
+                                                Tier A (High Value)
+                                            </span>
+</td>
+<td class="whitespace-nowrap px-6 py-4 text-right">
+<button class="text-slate-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="whitespace-nowrap px-6 py-4 font-medium text-white">SK-4420</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded bg-slate-700 bg-cover bg-center" data-alt="Small thumbnail of an office chair" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDrAKGoCYEVJRdeatJcAcOR-jSO-7Cqxruzi4IpaPn8N6795zCglKavGQS-O3RhL4PSbtPO_1lJEs2pzffunLIBocOaWIxZbNYBTrxw5C-L62zqHuorX8JFuhmY4OIBF7Lf_u17bUas8sBiMiUwADfzp_qw8SeL1F1-6yUz722AZhzAg1IDhpAwm-IvudYo2maGmRyI1Qvy2Scm3S3U7d2N2Kxh1RCqeqbtPH8wYXJYrQQonJ3_j7wthe1pFkmmqkiv4IwDp1WtaddV");'></div>
+<span class="text-white font-medium">Ergonomic Office Chair</span>
+</div>
+</td>
+<td class="whitespace-nowrap px-6 py-4">Furniture</td>
+<td class="whitespace-nowrap px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="text-white">15</span>
+<span class="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
+</div>
+</td>
+<td class="whitespace-nowrap px-6 py-4 text-white">$450.00</td>
+<td class="whitespace-nowrap px-6 py-4">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-medium text-amber-500 border border-amber-500/20">
+                                                Tier B
+                                            </span>
+</td>
+<td class="whitespace-nowrap px-6 py-4 text-right">
+<button class="text-slate-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="whitespace-nowrap px-6 py-4 font-medium text-white">SK-1123</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded bg-slate-700 bg-cover bg-center" data-alt="Small thumbnail of a cable" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBbCC3cz8eSjapdk1CnjAW5ndB7GhqHH7UigvXvj9Q0LIpnXlzTV3vE6_cqG3_N552flTaZ51sxpk8fEHjrn3GP5jhkElAMQcpOU6PcCfLKpen7pGRgk9-EFcRB_XnVcAK8T3fQhOfaSNQM8KFfX5304YlbiEz8ukuBA2zNolO3NKq9tN_E4XAMmJUNzKbn9aywZX0M-0LpI3pIupj05O12rqm862InJqQH63TkwyFPzRWHWyzW908Kuwak-DYecIdxX-mvnLrK5saB");'></div>
+<span class="text-white font-medium">USB-C Charging Cable (2m)</span>
+</div>
+</td>
+<td class="whitespace-nowrap px-6 py-4">Accessories</td>
+<td class="whitespace-nowrap px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="text-white">120</span>
+<span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+</div>
+</td>
+<td class="whitespace-nowrap px-6 py-4 text-white">$15.00</td>
+<td class="whitespace-nowrap px-6 py-4">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-slate-500/10 px-2.5 py-0.5 text-xs font-medium text-slate-400 border border-slate-500/20">
+                                                Tier C
+                                            </span>
+</td>
+<td class="whitespace-nowrap px-6 py-4 text-right">
+<button class="text-slate-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="whitespace-nowrap px-6 py-4 font-medium text-white">SK-8832</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded bg-slate-700 bg-cover bg-center" data-alt="Small thumbnail of a monitor screen" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA2wCnZ0SmXUxIKn3xkK0B56cvMofgm0NBA0MB8nSFu4_k7qkGmCfHfW86fn9UsDq7KoEGIZL_AqM7v8P2mQMlY7U41OX0lEp1GgWQqDruyx5fgreX28xsliX2UaWlCN55ujwXc5s-MYFC0w111tIHhIoIJUeQWRAm354ICxV_kYjl_7r3bgSHZLfYtw2iFc30G2ClkeuVxNW4CuL7-P7Y2ssP_E2eFxxL5itEFnCTA0tW2P_Vn1tAPXMb05Fl71nECUdkAWZt5-bv2");'></div>
+<span class="text-white font-medium">4K Monitor 27-inch</span>
+</div>
+</td>
+<td class="whitespace-nowrap px-6 py-4">Electronics</td>
+<td class="whitespace-nowrap px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="text-white">8</span>
+<span class="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse"></span>
+</div>
+</td>
+<td class="whitespace-nowrap px-6 py-4 text-white">$350.00</td>
+<td class="whitespace-nowrap px-6 py-4">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-500 border border-emerald-500/20">
+                                                Tier A (High Value)
+                                            </span>
+</td>
+<td class="whitespace-nowrap px-6 py-4 text-right">
+<button class="text-slate-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="whitespace-nowrap px-6 py-4 font-medium text-white">SK-2201</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded bg-slate-700 bg-cover bg-center" data-alt="Small thumbnail of a mechanical keyboard" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC6B3M0D6Cnx71iPTCaZDoNoAEsXzjzj1bNoPt8pfUUjBKvHRG0rONicuEizK1s3qEdoZMXooSy8Pd3wgZ4yKo_yClTdtenA3bzXXtvv7uKLyClc2lGf1aYnqFR4MweR0T1jpQidWxMbfRnwW-5ca4yWuNe399uAgSELnU-Qt8hCFJ7x7E9c6e72yqrDUXYEC1PBvm_qDFQ4uzl8mWQTjWK0N2uWj_gyHHxxit8er9t3-ZPA66GqqLfiWy69KG6TMhF0kPKjh982nFc");'></div>
+<span class="text-white font-medium">Mechanical Keyboard</span>
+</div>
+</td>
+<td class="whitespace-nowrap px-6 py-4">Electronics</td>
+<td class="whitespace-nowrap px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="text-white">35</span>
+<span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+</div>
+</td>
+<td class="whitespace-nowrap px-6 py-4 text-white">$120.00</td>
+<td class="whitespace-nowrap px-6 py-4">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-medium text-amber-500 border border-amber-500/20">
+                                                Tier B
+                                            </span>
+</td>
+<td class="whitespace-nowrap px-6 py-4 text-right">
+<button class="text-slate-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="flex items-center justify-between border-t border-border-dark bg-[#111a22] px-6 py-3">
+<div class="text-sm text-slate-400">
+                                Showing <span class="font-medium text-white">1</span> to <span class="font-medium text-white">5</span> of <span class="font-medium text-white">450</span> results
+                            </div>
+<div class="flex items-center gap-2">
+<button class="rounded p-1 text-slate-400 hover:bg-white/10 hover:text-white disabled:opacity-50">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<button class="rounded p-1 text-slate-400 hover:bg-white/10 hover:text-white">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

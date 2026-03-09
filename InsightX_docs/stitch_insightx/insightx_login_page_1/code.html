@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>InsightX Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922", // Deep dark blue-black
+                        "surface-dark": "#16202a", // Slightly lighter for card
+                        "input-bg": "#192633", // From component examples
+                        "border-color": "#324d67", // From component examples
+                        "text-secondary": "#92adc9", // From component examples
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar to match theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #101922; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #324d67; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #476887; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white antialiased overflow-x-hidden">
+<div class="relative min-h-screen w-full flex flex-col justify-center overflow-hidden">
+<!-- Background Layer with Image and Overlay -->
+<div class="absolute inset-0 z-0">
+<!-- Background Image: Abstract tech/video loop aesthetic -->
+<img class="h-full w-full object-cover opacity-30" data-alt="Dark abstract high-tech geometric network pattern with blue accents" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCI7cKWGx9wnNjhpTloZl2umDnI0nH6YBzrS0azPmiXt3XewBVlivIt8wfKvgc8s729yofoI87yyjhP8khA3cWEr18q4t3HCMreFfQrPW_LPga8U_JKLnlealx2MVAF9xPm8Le0SzXtCUGOABt5tynULBroRFlunNGpfluQ95lhVq2nZcNkSOgzVdQDExWqY34EiDrnEUML_PURTxD2Evw2Dmtp_KF9QLACKdh3Zjp-r4_b4x5VK7VtIippe4Sdu_vlajeCUm-NIDsa"/>
+<!-- Heavy Overlay to ensure contrast and focus -->
+<div class="absolute inset-0 bg-[#0a1016]/90 backdrop-blur-[2px]"></div>
+</div>
+<!-- Global Navigation / Logo Area -->
+<header class="absolute top-0 left-0 w-full z-20 px-8 py-6">
+<div class="flex items-center gap-3 text-white">
+<div class="size-8 text-primary">
+<svg class="w-full h-full" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 45.8096C19.6865 45.8096 15.4698 44.5305 11.8832 42.134C8.29667 39.7376 5.50128 36.3314 3.85056 32.3462C2.19985 28.361 1.76794 23.9758 2.60947 19.7452C3.451 15.5145 5.52816 11.6284 8.57829 8.5783C11.6284 5.52817 15.5145 3.45101 19.7452 2.60948C23.9758 1.76795 28.361 2.19986 32.3462 3.85057C36.3314 5.50129 39.7376 8.29668 42.134 11.8833C44.5305 15.4698 45.8096 19.6865 45.8096 24L24 24L24 45.8096Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-white text-xl font-bold leading-tight tracking-tight">InsightX</h2>
+</div>
+</header>
+<!-- Main Content - Centered Card -->
+<main class="relative z-10 flex w-full flex-col items-center justify-center px-4 sm:px-6">
+<div class="w-full max-w-[440px] rounded-2xl bg-[#16202a] border border-[#233648] p-8 shadow-2xl sm:p-10">
+<!-- Headline -->
+<div class="mb-8 text-center">
+<h1 class="text-white text-[28px] font-bold leading-tight tracking-tight">Sign In to InsightX</h1>
+<p class="mt-2 text-text-secondary text-sm">Secure access to your dashboard</p>
+</div>
+<!-- Login Form -->
+<form action="#" class="flex flex-col gap-5">
+<!-- Email Field -->
+<label class="flex flex-col gap-2">
+<span class="text-white text-sm font-medium leading-normal">Email Address</span>
+<input class="form-input w-full rounded-lg border border-border-color bg-input-bg h-12 px-4 text-white placeholder-text-secondary focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-200" placeholder="name@company.com" type="email"/>
+</label>
+<!-- Password Field -->
+<label class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="text-white text-sm font-medium leading-normal">Password</span>
+<a class="text-primary text-xs font-medium hover:text-blue-400 hover:underline transition-colors" href="#">Forgot password?</a>
+</div>
+<div class="relative w-full">
+<input class="form-input w-full rounded-lg border border-border-color bg-input-bg h-12 px-4 pr-12 text-white placeholder-text-secondary focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-200" placeholder="Enter your password" type="password"/>
+<button class="absolute right-0 top-0 h-full px-3 text-text-secondary hover:text-white transition-colors flex items-center justify-center focus:outline-none" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</label>
+<!-- Login Button -->
+<button class="mt-2 flex w-full items-center justify-center rounded-lg bg-primary py-3.5 text-base font-semibold text-white shadow-lg shadow-blue-900/20 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-[#16202a] transition-all duration-200" type="submit">
+                        Log In
+                    </button>
+</form>
+<!-- Footer Link -->
+<div class="mt-8 text-center">
+<p class="text-text-secondary text-sm">
+                        Don't have an account? 
+                        <a class="text-primary font-medium hover:text-blue-400 hover:underline transition-colors ml-1" href="#">Sign Up</a>
+</p>
+</div>
+</div>
+</main>
+<!-- Optional Footer for credits/legal (Visual Balance) -->
+<footer class="absolute bottom-6 w-full text-center z-10 px-4">
+<p class="text-[#4e657e] text-xs">© 2024 InsightX Inc. All rights reserved.</p>
+</footer>
+</div>
+</body></html>

@@ -12,8 +12,27 @@ load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
 from fastapi.testclient import TestClient
 from app.main import app
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from app.models.user import User
 
 client = TestClient(app)
+
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://insightx_user:insightx_pass@db:5432/insightx_db")
+engine = create_engine(DATABASE_URL)
+Session = sessionmaker(bind=engine)
+
+# ─── Cleanup previous runs ────────────────────────────────────
+db = Session()
+try:
+    existing = db.query(User).filter(User.email == "auth_test@insightx.io").first()
+    if existing:
+        db.delete(existing)
+        db.commit()
+except Exception:
+    pass
+finally:
+    db.close()
 
 PASS = "✅"
 FAIL = "❌"

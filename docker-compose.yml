@@ -94,8 +94,8 @@ services:
   # ─────────────────────────────────────────────
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: ./next-scaffold
+      dockerfile: ../frontend/Dockerfile
     container_name: insightx_frontend
     restart: unless-stopped
     env_file:
@@ -105,7 +105,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app # mount source for hot-reload
+      - ./next-scaffold:/app # mount source for hot-reload
       - /app/node_modules # keep container node_modules isolated
     depends_on:
       - backend

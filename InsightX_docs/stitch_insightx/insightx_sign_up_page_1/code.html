@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>InsightX Sign Up</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111a22; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #324d67; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #406080; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen flex flex-col font-display overflow-x-hidden group/design-root">
+<!-- Background Layer with Overlay -->
+<div class="fixed inset-0 z-0">
+<!-- Abstract Tech Background -->
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Abstract dark blue cyber technology background with geometric shapes" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDfwdxZjP601nvay8oQZACC6niznc_iStGdeZbZ-LzXuFxPh4l9qXHIRwO9VT1oTHiJrAME3GcZP4dAHQ4w5b3HbarAjx6rRJz4lAqRCAAqTrEdfF0j5pjO2pXzyBTR_Ea5ZRu0VuVv-jtZU7GrFN04Jc0Fhd-7S__hjbbCdigrCMUSGqY0jjdoihFKBgbDt--nXzPcn4K-jRngNyFFWfvj7bCSsCY37O0-qTQW1woSUmNk6WbnXQ9cGNomdLzqm6ixXGoc_FR74pLe');"></div>
+<!-- Heavy Black Overlay -->
+<div class="absolute inset-0 bg-[#0f151a]/90 backdrop-blur-[2px]"></div>
+</div>
+<!-- Content Layer -->
+<div class="relative z-10 flex flex-col h-full min-h-screen">
+<!-- Header -->
+<header class="flex items-center justify-between whitespace-nowrap px-6 py-4 lg:px-10">
+<div class="flex items-center gap-3 text-white">
+<div class="size-8 text-primary">
+<svg class="w-full h-full" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 45.8096C19.6865 45.8096 15.4698 44.5305 11.8832 42.134C8.29667 39.7376 5.50128 36.3314 3.85056 32.3462C2.19985 28.361 1.76794 23.9758 2.60947 19.7452C3.451 15.5145 5.52816 11.6284 8.57829 8.5783C11.6284 5.52817 15.5145 3.45101 19.7452 2.60948C23.9758 1.76795 28.361 2.19986 32.3462 3.85057C36.3314 5.50129 39.7376 8.29668 42.134 11.8833C44.5305 15.4698 45.8096 19.6865 45.8096 24L24 24L24 45.8096Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-white text-xl font-bold leading-tight tracking-[-0.015em]">InsightX</h2>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 flex items-center justify-center p-4">
+<div class="w-full max-w-[540px] flex flex-col">
+<!-- Auth Card -->
+<div class="bg-[#111a22] border border-[#233648] rounded-xl shadow-2xl p-6 md:p-10 w-full relative overflow-hidden">
+<!-- Subtle gradient glow at top of card -->
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+<div class="mb-8 text-center md:text-left">
+<h1 class="text-white tracking-tight text-3xl font-bold leading-tight mb-2">Create Your InsightX Account</h1>
+<p class="text-[#92adc9] text-sm">Join thousands of companies using InsightX for data analytics.</p>
+</div>
+<form class="flex flex-col gap-5">
+<!-- Work Email -->
+<div class="flex flex-col gap-2">
+<label class="text-white text-sm font-medium leading-normal">Work Email</label>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#324d67] bg-[#192633] focus:border-primary h-12 placeholder:text-[#586e85] px-4 text-base font-normal leading-normal transition-all duration-200" placeholder="name@company.com" required="" type="email"/>
+</div>
+<!-- Password -->
+<div class="flex flex-col gap-2">
+<label class="text-white text-sm font-medium leading-normal">Password</label>
+<div class="relative flex w-full items-center">
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#324d67] bg-[#192633] focus:border-primary h-12 placeholder:text-[#586e85] px-4 pr-12 text-base font-normal leading-normal transition-all duration-200" placeholder="••••••••" required="" type="password"/>
+<div class="absolute right-0 top-0 bottom-0 flex items-center justify-center px-4 cursor-pointer text-[#92adc9] hover:text-white transition-colors">
+<span class="material-symbols-outlined text-xl">visibility_off</span>
+</div>
+</div>
+</div>
+<!-- Confirm Password -->
+<div class="flex flex-col gap-2">
+<label class="text-white text-sm font-medium leading-normal">Confirm Password</label>
+<div class="relative flex w-full items-center">
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#324d67] bg-[#192633] focus:border-primary h-12 placeholder:text-[#586e85] px-4 pr-12 text-base font-normal leading-normal transition-all duration-200" placeholder="••••••••" required="" type="password"/>
+</div>
+</div>
+<!-- Company Name -->
+<div class="flex flex-col gap-2">
+<label class="text-white text-sm font-medium leading-normal">Company Name</label>
+<div class="relative flex w-full items-center">
+<div class="absolute left-0 top-0 bottom-0 flex items-center pl-4 pointer-events-none text-[#586e85]">
+<span class="material-symbols-outlined text-xl">domain</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#324d67] bg-[#192633] focus:border-primary h-12 placeholder:text-[#586e85] pl-11 pr-4 text-base font-normal leading-normal transition-all duration-200" placeholder="Acme Corp" required="" type="text"/>
+</div>
+</div>
+<!-- Submit Button -->
+<div class="pt-2">
+<button class="w-full bg-primary hover:bg-blue-600 text-white font-bold h-12 rounded-lg shadow-lg shadow-blue-500/20 transition-all duration-200 transform active:scale-[0.98] flex items-center justify-center gap-2" type="submit">
+<span>Sign Up</span>
+<span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+</div>
+<!-- Footer Link -->
+<div class="text-center mt-2">
+<p class="text-[#92adc9] text-sm">
+                                Already have an account? 
+                                <a class="text-primary hover:text-blue-400 font-medium transition-colors hover:underline" href="#">Login</a>
+</p>
+</div>
+</form>
+</div>
+<!-- Simple Footer links -->
+<div class="mt-8 flex justify-center gap-6 text-xs text-[#586e85]">
+<a class="hover:text-[#92adc9] transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-[#92adc9] transition-colors" href="#">Terms of Service</a>
+<a class="hover:text-[#92adc9] transition-colors" href="#">Help Center</a>
+</div>
+</div>
+</main>
+</div>
+</body></html>
