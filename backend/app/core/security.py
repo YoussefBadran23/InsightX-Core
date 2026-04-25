@@ -6,6 +6,8 @@ from typing import Any
 
 import bcrypt
 import jwt
+from fastapi import HTTPException, status
+import hashlib
 
 from app.core.config import settings
 
