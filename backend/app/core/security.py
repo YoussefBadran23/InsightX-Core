@@ -1,7 +1,6 @@
 """Core security utilities — password hashing and JWT token management."""
 
 import secrets
-import hashlib
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -61,11 +60,14 @@ def decode_access_token(token: str) -> dict[str, Any]:
         jwt.ExpiredSignatureError  — token has expired
         jwt.InvalidTokenError      — token is invalid / tampered
     """
-    return jwt.decode(
-        token,
-        settings.SECRET_KEY,
-        algorithms=[settings.ALGORITHM],
-    )
+    try:
+        return jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+        )
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
 
 
 # ── Password reset tokens ─────────────────────────────────────────────────────
