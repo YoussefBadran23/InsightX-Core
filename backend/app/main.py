@@ -37,7 +37,12 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# ── CORS ───────────────────────────────────────────────────────────────────────
+# ── Rate Limiting Middleware ───────────────────────────────────────────────
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    return await limiter.limit("100/minute")(call_next)(request)
+
+# ── CORS Middleware ───────────────────────────────────────────────────────────
 _origins = [
     "http://localhost:3000",
     os.getenv("FRONTEND_URL", ""),
@@ -51,9 +56,10 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
+# ── GZip Middleware ───────────────────────────────────────────────────────────
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
-# ── Request logging middleware ─────────────────────────────────────────────────
+# ── Request logging middleware ───────────────────────────────────────────────
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     start = time.perf_counter()
