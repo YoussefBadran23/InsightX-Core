@@ -1,6 +1,6 @@
-# InsightX Local Setup & Deployment Guide
+# Velin Local Setup & Deployment Guide
 
-This guide provides step-by-step instructions on how to clone the InsightX repository from GitHub and get the entire system running on a brand-new PC or laptop.
+This guide provides step-by-step instructions on how to clone the Velin repository from GitHub and get the entire system running on a brand-new PC or laptop.
 
 ## 1. Prerequisites (Technologies to Install)
 
@@ -14,7 +14,7 @@ Before cloning the repository, ensure the following software is installed on you
     *   [Download Docker Desktop](https://www.docker.com/products/docker-desktop/)
     *   *Note for Windows users:* Ensure WSL2 (Windows Subsystem for Linux) integration is enabled in Docker settings for optimal performance.
 3.  **Python 3.10+ (Optional but Recommended):**
-    *   Used for running local verification scripts (like [test_phase_1.ps1](file:///c:/work/InsightX/InsightX-Core/test_phase_1.ps1), [test_db_step5.py](file:///c:/work/InsightX/InsightX-Core/backend/test_db_step5.py), etc.) without needing to jump into the container.
+    *   Used for running local verification scripts (like [test_phase_1.ps1](file:///c:/work/Velin/Velin-Core/test_phase_1.ps1), [test_db_step5.py](file:///c:/work/Velin/Velin-Core/backend/test_db_step5.py), etc.) without needing to jump into the container.
     *   [Download Python](https://www.python.org/downloads/)
     *   If installed, also install `pip install requests` and `pip install pytest`.
 
@@ -24,22 +24,22 @@ Open a terminal (Command Prompt, PowerShell, or Git Bash) and execute the follow
 
 ```bash
 # 1. Clone the repository (replace with your actual GitHub repo URL)
-git clone https://github.com/YoussefBadran/InsightX.git
+git clone https://github.com/YoussefBadran/Velin.git
 
 # 2. Navigate into the core project directory
-cd InsightX/InsightX-Core
+cd Velin/Velin-Core
 ```
 
 ## 3. Environment Variables Configuration
 
-The [.env](file:///c:/work/InsightX/InsightX-Core/worker/.env) files are already included in the repository for local development convenience (normally they would be [.env.example](file:///c:/work/InsightX/InsightX-Core/worker/.env.example)).
+The [.env](file:///c:/work/Velin/Velin-Core/worker/.env) files are already included in the repository for local development convenience (normally they would be [.env.example](file:///c:/work/Velin/Velin-Core/worker/.env.example)).
 
-Verify the primary backend [.env](file:///c:/work/InsightX/InsightX-Core/worker/.env) file exists at [InsightX-Core/backend/.env](file:///c:/work/InsightX/InsightX-Core/backend/.env). It should contain the database credentials and the JWT secret:
+Verify the primary backend [.env](file:///c:/work/Velin/Velin-Core/worker/.env) file exists at [Velin-Core/backend/.env](file:///c:/work/Velin/Velin-Core/backend/.env). It should contain the database credentials and the JWT secret:
 
 ```env
-DATABASE_URL=postgresql://insightx_user:insightx_pass@db:5432/insightx_db
+DATABASE_URL=postgresql://velin_user:velin_pass@db:5432/velin_db
 REDIS_URL=redis://redis:6379/0
-SECRET_KEY=youssef_insightx_super_secret_jwt_key_2026_dev
+SECRET_KEY=youssef_velin_super_secret_jwt_key_2026_dev
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
 ADMIN_SECRET_KEY=98b4461-secret-admin-handshake
@@ -47,7 +47,7 @@ ADMIN_SECRET_KEY=98b4461-secret-admin-handshake
 
 ## 4. Starting the Application (Docker Compose)
 
-InsightX uses Docker Compose to orchestrate all microservices simultaneously.
+Velin uses Docker Compose to orchestrate all microservices simultaneously.
 
 ```bash
 # Make sure Docker Desktop is currently running on your PC.
@@ -58,8 +58,8 @@ docker-compose up --build -d
 
 **What this command does:**
 1.  Pulls the official `postgres:16-alpine` and `redis:7-alpine` images.
-2.  Builds the `insightx_backend` image using [backend/Dockerfile](file:///c:/work/InsightX/InsightX-Core/backend/Dockerfile) and installs all AI/ML Python requirements.
-3.  Builds the `insightx_frontend` Next.js image (Note: The frontend code lives in `next-scaffold/`).
+2.  Builds the `velin_backend` image using [backend/Dockerfile](file:///c:/work/Velin/Velin-Core/backend/Dockerfile) and installs all AI/ML Python requirements.
+3.  Builds the `velin_frontend` Next.js image (Note: The frontend code lives in `next-scaffold/`).
 4.  Starts all containers and wires them together via an internal bridge network.
 
 ## 5. Running Database Migrations (One-Time Setup)
@@ -68,7 +68,7 @@ Once the containers are spinning, you must tell the backend to construct the 11 
 
 ```bash
 # Execute the Alembic upgrade command inside the backend container
-docker exec insightx_backend alembic upgrade head
+docker exec velin_backend alembic upgrade head
 ```
 
 You should see output indicating that all revisions (up to the current head, `cd7f4376ca5f`) have been successfully applied.
@@ -86,9 +86,9 @@ With everything running, you can now access the system locally:
 3.  **Database Access (if needed):**
     *   Host: `localhost`
     *   Port: `5432`
-    *   Username: `insightx_user`
-    *   Password: `insightx_pass`
-    *   Database: `insightx_db`
+    *   Username: `velin_user`
+    *   Password: `velin_pass`
+    *   Database: `velin_db`
 
 ## 7. Verifying the Installation
 
@@ -96,13 +96,13 @@ To prove the system is fully operational on your new PC, run the automated verif
 
 ```bash
 # 1. Test Database Integrity
-docker exec insightx_backend python test_db_step5.py
+docker exec velin_backend python test_db_step5.py
 
 # 2. Test the Authentication Flow
-docker exec insightx_backend python test_auth_step7.py
+docker exec velin_backend python test_auth_step7.py
 
 # 3. Test Full Backend Architecture
-docker exec insightx_backend python test_final.py
+docker exec velin_backend python test_final.py
 ```
 
 If all three scripts output `ALL PASS`, the clone was 100% successful!

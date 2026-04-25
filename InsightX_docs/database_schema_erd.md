@@ -1,4 +1,4 @@
-# InsightX Database Schema & ERD
+# Velin Database Schema & ERD
 
 Below is the complete database structure in text/SQL format alongside the Entity-Relationship Diagram (ERD).
 
@@ -129,7 +129,7 @@ erDiagram
 ## 2. Text Explanation of Tables & Attributes
 
 ### `users`
-Manages the platform's authentication and user accounts. It stores emails, hashed passwords, roles ([admin](file:///c:/work/InsightX/InsightX-Core/backend/app/routers/auth.py#265-319), `analyst`, `viewer`), and the `widget_config` (JSON) to save each user's drag-and-drop dashboard layout preferences.
+Manages the platform's authentication and user accounts. It stores emails, hashed passwords, roles ([admin](file:///c:/work/Velin/Velin-Core/backend/app/routers/auth.py#265-319), `analyst`, `viewer`), and the `widget_config` (JSON) to save each user's drag-and-drop dashboard layout preferences.
 **Attributes:**
 *   `id` (UUID, Primary Key)
 *   `email` (VARCHAR, Unique)

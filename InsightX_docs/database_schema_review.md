@@ -1,4 +1,4 @@
-# InsightX — Comprehensive Database Schema Review & Enhancement
+# Velin — Comprehensive Database Schema Review & Enhancement
 
 ## Executive Summary
 
@@ -260,7 +260,7 @@ ALTER TABLE orders ADD CONSTRAINT chk_orders_sentiment
 **Design Decisions:**
 - `net_amount` as a computed/generated column — prevents inconsistency between `total_amount - discount` and stored values
 - `region` denormalized onto order — if a customer moves region, historical data is preserved correctly
-- `comment_text` + `sentiment_label` + `sentiment_score` on the orders table — this is what [worker/tasks/sentiment.py](file:///c:/work/InsightX/InsightX-Core/worker/tasks/sentiment.py) processes; sentiment is order-level, not customer-level
+- `comment_text` + `sentiment_label` + `sentiment_score` on the orders table — this is what [worker/tasks/sentiment.py](file:///c:/work/Velin/Velin-Core/worker/tasks/sentiment.py) processes; sentiment is order-level, not customer-level
 - `upload_job_id` FK — enables data lineage: "which CSV batch did this order come from?"
 - `status` allows refund tracking → refunded orders excluded from revenue KPIs
 
@@ -303,7 +303,7 @@ ALTER TABLE order_items ADD CONSTRAINT chk_order_items_price
 
 ### Table 6: `upload_jobs`
 
-**Justifies:** "Import" button on Customer Profiles page, CSV upload workflow in the preprocess worker task, `GET /upload/status/{job_id}` endpoint, Celery [preprocess](file:///c:/work/InsightX/InsightX-Core/worker/tasks/preprocess.py#6-11) task's `job_id` parameter.
+**Justifies:** "Import" button on Customer Profiles page, CSV upload workflow in the preprocess worker task, `GET /upload/status/{job_id}` endpoint, Celery [preprocess](file:///c:/work/Velin/Velin-Core/worker/tasks/preprocess.py#6-11) task's `job_id` parameter.
 
 > [!IMPORTANT]
 > This table was completely missing from the initial proposal. Without it, there is no way to track upload status, errors, or data lineage.
@@ -447,9 +447,9 @@ CREATE INDEX idx_kpi_snapshot_date ON daily_kpi_snapshots(snapshot_date DESC);
 
 ---
 
-### Table 9: [insights](file:///c:/work/InsightX/InsightX-Core/worker/tasks/insights.py#6-11)
+### Table 9: [insights](file:///c:/work/Velin/Velin-Core/worker/tasks/insights.py#6-11)
 
-**Justifies:** [worker/tasks/insights.py](file:///c:/work/InsightX/InsightX-Core/worker/tasks/insights.py) — "Send synthesised summary to Groq LLaMA 3 and store 3 bullet insights." These need to persist per analysis run and be retrievable by the frontend.
+**Justifies:** [worker/tasks/insights.py](file:///c:/work/Velin/Velin-Core/worker/tasks/insights.py) — "Send synthesised summary to Groq LLaMA 3 and store 3 bullet insights." These need to persist per analysis run and be retrievable by the frontend.
 
 ```sql
 CREATE TABLE insights (
@@ -609,16 +609,16 @@ erDiagram
 
 | Table | Critical Query | Index |
 |---|---|---|
-| `orders` | Sales Trend (30 days) | [(order_date, region, net_amount)](file:///c:/work/InsightX/InsightX-Core/next-scaffold/src/app/page.tsx#3-102) composite |
-| `orders` | Dashboard total revenue | [(order_date DESC)](file:///c:/work/InsightX/InsightX-Core/next-scaffold/src/app/page.tsx#3-102) |
-| `customers` | Sort by LTV (Profile table) | [(lifetime_value DESC)](file:///c:/work/InsightX/InsightX-Core/next-scaffold/src/app/page.tsx#3-102) |
-| `customers` | Segment filter | [(ai_segment)](file:///c:/work/InsightX/InsightX-Core/next-scaffold/src/app/page.tsx#3-102) |
-| `customers` | At-Risk detection | [(last_active_at)](file:///c:/work/InsightX/InsightX-Core/next-scaffold/src/app/page.tsx#3-102) |
-| `products` | Filter by category | [(category)](file:///c:/work/InsightX/InsightX-Core/next-scaffold/src/app/page.tsx#3-102) |
-| `products` | Low stock count | [(stock_qty)](file:///c:/work/InsightX/InsightX-Core/next-scaffold/src/app/page.tsx#3-102) |
-| `forecast_results` | Latest forecast chart | [(run_date DESC)](file:///c:/work/InsightX/InsightX-Core/next-scaffold/src/app/page.tsx#3-102) |
-| `daily_kpi_snapshots` | Period comparison | [(snapshot_date DESC)](file:///c:/work/InsightX/InsightX-Core/next-scaffold/src/app/page.tsx#3-102) |
-| `upload_jobs` | User's import history | [(user_id, created_at DESC)](file:///c:/work/InsightX/InsightX-Core/next-scaffold/src/app/page.tsx#3-102) |
+| `orders` | Sales Trend (30 days) | [(order_date, region, net_amount)](file:///c:/work/Velin/Velin-Core/next-scaffold/src/app/page.tsx#3-102) composite |
+| `orders` | Dashboard total revenue | [(order_date DESC)](file:///c:/work/Velin/Velin-Core/next-scaffold/src/app/page.tsx#3-102) |
+| `customers` | Sort by LTV (Profile table) | [(lifetime_value DESC)](file:///c:/work/Velin/Velin-Core/next-scaffold/src/app/page.tsx#3-102) |
+| `customers` | Segment filter | [(ai_segment)](file:///c:/work/Velin/Velin-Core/next-scaffold/src/app/page.tsx#3-102) |
+| `customers` | At-Risk detection | [(last_active_at)](file:///c:/work/Velin/Velin-Core/next-scaffold/src/app/page.tsx#3-102) |
+| `products` | Filter by category | [(category)](file:///c:/work/Velin/Velin-Core/next-scaffold/src/app/page.tsx#3-102) |
+| `products` | Low stock count | [(stock_qty)](file:///c:/work/Velin/Velin-Core/next-scaffold/src/app/page.tsx#3-102) |
+| `forecast_results` | Latest forecast chart | [(run_date DESC)](file:///c:/work/Velin/Velin-Core/next-scaffold/src/app/page.tsx#3-102) |
+| `daily_kpi_snapshots` | Period comparison | [(snapshot_date DESC)](file:///c:/work/Velin/Velin-Core/next-scaffold/src/app/page.tsx#3-102) |
+| `upload_jobs` | User's import history | [(user_id, created_at DESC)](file:///c:/work/Velin/Velin-Core/next-scaffold/src/app/page.tsx#3-102) |
 
 ---
 

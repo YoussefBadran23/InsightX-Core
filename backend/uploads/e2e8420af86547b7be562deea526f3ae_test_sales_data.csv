@@ -1,0 +1,11 @@
+order_id,customer_id,product_id,order_date,total_amount,quantity,status,comment_text
+ORD001,CUST001,PROD001,2026-01-15,150.00,2,completed,Great product
+ORD002,CUST002,PROD002,2026-01-16,75.50,1,completed,Good value
+ORD003,CUST001,PROD003,2026-01-17,200.00,3,pending,Waiting for delivery
+ORD004,CUST003,PROD001,2026-01-18,150.00,2,completed,Excellent
+ORD005,CUST002,PROD004,2026-01-19,90.25,1,completed,Nice product
+ORD006,CUST004,PROD002,2026-01-20,75.50,1,shipped,On the way
+ORD007,CUST001,PROD005,2026-01-21,125.75,1,completed,Satisfied
+ORD008,CUST005,PROD003,2026-01-22,200.00,3,completed,Very good
+ORD009,CUST003,PROD004,2026-01-23,90.25,1,pending,Will update
+ORD010,CUST002,PROD001,2026-01-24,150.00,2,completed,Highly recommend

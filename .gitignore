@@ -38,8 +38,27 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
-# === Secrets ===
+# === Executables / Installers ===
+*.exe
+*.msi
+
+# === Secrets — NEVER commit these ===
 *.pem
 *.key
 *.crt
+*.pfx
 secrets/
+pass*.txt
+*credentials*
+*secret*
+
+# Env files — only .env.example is allowed
+.env
+.env.local
+.env.production
+.env.staging
+backend/.env
+worker/.env
+frontend/.env.local
+!**/.env.example
+.aider*

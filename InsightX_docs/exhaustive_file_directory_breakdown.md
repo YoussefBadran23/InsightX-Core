@@ -1,22 +1,22 @@
-# InsightX Exhaustive File & Directory Breakdown
+# Velin Exhaustive File & Directory Breakdown
 
-This document provides a highly granular, file-by-file explanation of every component residing in the `c:\work\InsightX` directory.
+This document provides a highly granular, file-by-file explanation of every component residing in the `c:\work\Velin` directory.
 
 ---
 
-## 📁 `c:\work\InsightX` (Root Directory)
+## 📁 `c:\work\Velin` (Root Directory)
 This is the main workspace directory. 
 
 *   📄 **`master_implementation_plan_v3.md.resolved`**: The project's ultimate roadmap and source of truth outlining the 5-phase execution plan.
 *   📄 **`database_schema_review.md.resolved`**: Detailed DB architecture document mapping out the 9-table schema, indexing, and business rules.
-*   📄 **`InsightX_Graduation_Project_Documentation_2025_v2.pdf`** & **`InsightX_v3_Schema_Analytics_Pipeline.pdf`**: Original project requirements and documentation.
-*   📄 **`pass db.txt`** & **`insightx-key.pem`**: Local development credentials and SSH keys for the AWS infrastructure.
-*   📁 **`stitch_insightx/`**: Contains the raw HTML/CSS/Asset exports of the 9 UI screens (Login, Dashboard, Profiles, Forecasting, etc.). These are the static templates used as reference to build the dynamic Next.js React components.
-*   📁 **`InsightX-Core/`**: The actual living codebase where all active development happens.
+*   📄 **`Velin_Graduation_Project_Documentation_2025_v2.pdf`** & **`Velin_v3_Schema_Analytics_Pipeline.pdf`**: Original project requirements and documentation.
+*   📄 **`pass db.txt`** & **`velin-key.pem`**: Local development credentials and SSH keys for the AWS infrastructure.
+*   📁 **`stitch_velin/`**: Contains the raw HTML/CSS/Asset exports of the 9 UI screens (Login, Dashboard, Profiles, Forecasting, etc.). These are the static templates used as reference to build the dynamic Next.js React components.
+*   📁 **`Velin-Core/`**: The actual living codebase where all active development happens.
 
 ---
 
-## 📁 `InsightX-Core/` (The Application Monorepo)
+## 📁 `Velin-Core/` (The Application Monorepo)
 
 ### ⚙️ Root Configuration Files
 *   📄 **`docker-compose.yml`**: The orchestrator. Defines the 5 containers (PostgreSQL, Redis, FastAPI Backend, Celery Worker, Next.js Frontend) and connects them via a virtual Docker network.

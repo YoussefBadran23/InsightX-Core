@@ -5,14 +5,14 @@ redis==5.0.4
 # Data processing
 pandas==2.2.2
 numpy==1.26.4
+pyarrow==16.1.0
 scikit-learn==1.4.2
 
 # Time-series forecasting
 prophet==1.1.5
 
-# NLP / Sentiment analysis
-transformers==4.40.2
-torch==2.3.0
+# CLV prediction (BG/NBD + Gamma-Gamma)
+lifetimes>=0.11.3
 
 # LLM Insights
 groq==0.8.0
@@ -20,5 +20,14 @@ groq==0.8.0
 # AWS
 boto3==1.34.69
 
+# Database access directly from worker
+sqlalchemy==2.0.30
+psycopg2-binary==2.9.9
+
+# Auto-Mapping Step 8
+rapidfuzz==3.9.4
+chardet==5.2.0
+
 # Utilities
 python-dotenv==1.0.1
+openai>=1.0.0
