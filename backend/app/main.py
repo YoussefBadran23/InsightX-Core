@@ -40,7 +40,10 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # ── Rate Limiting Middleware ───────────────────────────────────────────────
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
-    return await limiter.limit("100/minute")(call_next)(request)
+    if request.url.path.startswith("/api/v1/jobs"):
+        return await limiter.limit("30/minute")(call_next)(request)
+    else:
+        return await limiter.limit("200/day")(call_next)(request)
 
 # ── CORS Middleware ───────────────────────────────────────────────────────────
 def get_allowed_origins():
