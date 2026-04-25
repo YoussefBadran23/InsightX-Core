@@ -19,8 +19,10 @@ from app.routers import auth, upload, jobs, analytics, kpi, customers, products,
 # Rate limiter — keyed by client IP; shared across routers via app.state
 limiter = Limiter(key_func=get_remote_address)
 
+# Determine logging level based on environment variable
+LOG_LEVEL = os.getenv("LOG_LEVEL", "WARNING").upper()
 logging.basicConfig(
-    level=logging.INFO,
+    level=LOG_LEVEL,
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
 logger = logging.getLogger("insightx.api")
