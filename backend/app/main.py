@@ -43,14 +43,18 @@ async def rate_limit_middleware(request: Request, call_next):
     return await limiter.limit("100/minute")(call_next)(request)
 
 # ── CORS Middleware ───────────────────────────────────────────────────────────
-_origins = [
-    "http://localhost:3000",
-    os.getenv("FRONTEND_URL", ""),
-]
+def get_allowed_origins():
+    origins = ["http://localhost:3000"]
+    frontend_url = os.getenv("FRONTEND_URL")
+    if frontend_url:
+        origins.append(frontend_url)
+    return origins
+
+_origins = get_allowed_origins()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[o for o in _origins if o],
+    allow_origins=_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "Accept"],
