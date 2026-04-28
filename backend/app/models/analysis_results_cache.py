@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, func, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -30,6 +30,9 @@ class AnalysisResultsCache(UUIDMixin, Base):
     correlation | demographic
     """
     __tablename__ = "analysis_results_cache"
+    __table_args__ = (
+        UniqueConstraint("analysis_type", "upload_job_id", name="uq_analysis_job"),
+    )
 
     # Which analytics module produced this result
     analysis_type: Mapped[str] = mapped_column(
@@ -37,7 +40,7 @@ class AnalysisResultsCache(UUIDMixin, Base):
     )
     # The upload job that triggered this computation
     upload_job_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("upload_jobs.id"), nullable=True, index=True
+        UUID(as_uuid=True), ForeignKey("upload_jobs.id", ondelete="CASCADE"), nullable=True, index=True
     )
 
     # Full module output consumed directly by the API → frontend

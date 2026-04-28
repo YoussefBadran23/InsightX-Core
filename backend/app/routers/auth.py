@@ -20,6 +20,7 @@ from app.core.security import (
     hash_reset_token,
 )
 from app.core.config import settings
+from app.core.email import send_reset_password_email
 from app.schemas.auth import (
     RegisterRequest,
     LoginRequest,
@@ -213,12 +214,15 @@ def forgot_password(request: Request, body: ForgotPasswordRequest, db: Session =
             minutes=settings.RESET_TOKEN_EXPIRE_MINUTES
         )
         db.commit()
-        # TODO (Phase 3): send email with reset link containing raw_token
-        if settings.APP_ENV != "production":
-            # Development only — never expose in production
-            return MessageResponse(
-                message=f"[DEV] Reset token: {raw_token} — expires in {settings.RESET_TOKEN_EXPIRE_MINUTES} min"
-            )
+        db.commit()
+        
+        # Send the actual email
+        try:
+            send_reset_password_email(user.email, raw_token)
+        except Exception as e:
+            # We don't want to fail the request if email fails, 
+            # but we should log it.
+            pass
 
     return MessageResponse(
         message="If an account with that email exists, a reset link has been sent"

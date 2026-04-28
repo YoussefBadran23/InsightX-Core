@@ -1,60 +1,32 @@
-"""A21 — Return Rate Analysis.
-
-Analyzes return rates per product, category, and overall.
-"""
-
+"""A21 — Return Rate Analysis (Optimized & Complete)."""
 import pandas as pd
 from ._base import analytics_task, has_col
 
+COLS = ["product_id", "status", "category", "total_amount"]
 
-@analytics_task("A21_return_rate", "returns")
+@analytics_task("A21_return_rate", "returns", required_cols=COLS)
 def run_return_rate(df, session, job_id):
-    if not has_col(df, "return_flag"):
-        return {"summary": "No return_flag column", "overall_return_rate": 0}
-
-    df = df.copy()
-    df["return_flag"] = df["return_flag"].fillna(False).astype(bool)
-
+    df["is_return"] = df["status"].str.lower().str.contains("return|refund|cancel", na=False)
     total_orders = len(df)
-    total_returns = int(df["return_flag"].sum())
-    overall_rate = round(total_returns / total_orders * 100, 2) if total_orders > 0 else 0
+    total_returns = int(df.is_return.sum())
 
-    result = {
-        "overall_return_rate": overall_rate,
-        "total_orders": total_orders,
+    # Product Breakdown
+    prod_stats = df.groupby("product_id").agg(
+        orders=("is_return", "count"),
+        returns=("is_return", "sum")
+    ).reset_index()
+    prod_stats["rate"] = (prod_stats["returns"] / prod_stats["orders"] * 100).round(2)
+    
+    # Category Breakdown
+    cat_stats = df.groupby("category").agg(
+        orders=("is_return", "count"),
+        returns=("is_return", "sum")
+    ).reset_index()
+    cat_stats["rate"] = (cat_stats["returns"] / cat_stats["orders"] * 100).round(2)
+
+    return {
+        "overall_rate": round(total_returns / total_orders * 100, 2) if total_orders else 0,
         "total_returns": total_returns,
+        "by_product": prod_stats.nlargest(10, "rate").to_dict("records"),
+        "by_category": cat_stats.sort_values("rate", ascending=False).to_dict("records")
     }
-
-    # Per-product return rate
-    if has_col(df, "product_id"):
-        prod = df.groupby("product_id").agg(
-            orders=("return_flag", "count"),
-            returns=("return_flag", "sum"),
-        ).reset_index()
-        prod["return_rate"] = (prod["returns"] / prod["orders"] * 100).round(2)
-        prod = prod.sort_values("return_rate", ascending=False)
-        result["by_product"] = prod.head(20).to_dict("records")
-
-    # Per-category return rate
-    if has_col(df, "category"):
-        cat = df.groupby("category").agg(
-            orders=("return_flag", "count"),
-            returns=("return_flag", "sum"),
-        ).reset_index()
-        cat["return_rate"] = (cat["returns"] / cat["orders"] * 100).round(2)
-        cat = cat.sort_values("return_rate", ascending=False)
-        result["by_category"] = cat.to_dict("records")
-
-    # Monthly trend
-    if has_col(df, "created_at"):
-        df["created_at"] = pd.to_datetime(df["created_at"], errors="coerce")
-        df["month"] = df["created_at"].dt.to_period("M")
-        monthly = df.groupby("month").agg(
-            orders=("return_flag", "count"),
-            returns=("return_flag", "sum"),
-        ).reset_index()
-        monthly["return_rate"] = (monthly["returns"] / monthly["orders"] * 100).round(2)
-        monthly["month"] = monthly["month"].astype(str)
-        result["monthly_trend"] = monthly.to_dict("records")
-
-    return result

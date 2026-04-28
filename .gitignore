@@ -14,6 +14,11 @@ env/
 *.env
 *.env.*
 !.env.example
+.pytest_cache/
+**/.pytest_cache/
+.continue/
+backend/uploads/
+backend/uploads/cleaned/
 
 # === Node / Next.js ===
 node_modules/
@@ -27,6 +32,7 @@ yarn-error.log*
 
 # === Docker ===
 *.log
+docker-compose.override.yml
 
 # === IDEs ===
 .vscode/
@@ -42,7 +48,7 @@ Thumbs.db
 *.exe
 *.msi
 
-# === Secrets — NEVER commit these ===
+# === Secrets — NEVER commit these === (Use Doppler for secrets in production)
 *.pem
 *.key
 *.crt
@@ -52,7 +58,7 @@ pass*.txt
 *credentials*
 *secret*
 
-# Env files — only .env.example is allowed
+# Env files — only .env.example is allowed (Doppler injects secrets)
 .env
 .env.local
 .env.production

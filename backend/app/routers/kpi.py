@@ -33,6 +33,7 @@ def get_kpi_summary(db: Session = Depends(get_db), current_user: User = Depends(
     # Latest snapshot
     latest = (
         db.query(DailyKpiSnapshot)
+        .filter(DailyKpiSnapshot.user_id == current_user.id)
         .order_by(desc(DailyKpiSnapshot.snapshot_date))
         .first()
     )
@@ -57,7 +58,10 @@ def get_kpi_summary(db: Session = Depends(get_db), current_user: User = Depends(
     prev_date = latest.snapshot_date - timedelta(days=30)
     previous = (
         db.query(DailyKpiSnapshot)
-        .filter(DailyKpiSnapshot.snapshot_date <= prev_date)
+        .filter(
+            DailyKpiSnapshot.user_id == current_user.id,
+            DailyKpiSnapshot.snapshot_date <= prev_date
+        )
         .order_by(desc(DailyKpiSnapshot.snapshot_date))
         .first()
     )
@@ -91,7 +95,10 @@ def get_kpi_history(
     since = date.today() - timedelta(days=days)
     snapshots = (
         db.query(DailyKpiSnapshot)
-        .filter(DailyKpiSnapshot.snapshot_date >= since)
+        .filter(
+            DailyKpiSnapshot.user_id == current_user.id,
+            DailyKpiSnapshot.snapshot_date >= since
+        )
         .order_by(DailyKpiSnapshot.snapshot_date)
         .all()
     )

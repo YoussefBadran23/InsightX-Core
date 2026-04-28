@@ -2,6 +2,7 @@
 
 import os
 import uuid
+import shutil
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
@@ -44,27 +45,12 @@ async def upload_csv(
             detail=f"Invalid content type '{file.content_type}'. Upload a CSV file.",
         )
 
-    # --- Read and enforce size limit ---
-    data = await file.read()
-    if len(data) == 0:
-        raise HTTPException(status_code=400, detail="Uploaded file is empty.")
-    if len(data) > _MAX_SIZE_BYTES:
-        raise HTTPException(
-            status_code=413,
-            detail=f"File too large. Maximum size is {settings.MAX_UPLOAD_SIZE_MB} MB.",
-        )
-
-    # --- Quick structural check: ensure there is at least a header row ---
-    first_line = data.split(b"\n")[0].decode("utf-8", errors="replace").strip()
-    if not first_line:
-        raise HTTPException(status_code=400, detail="CSV file has no header row.")
-
-    # --- Persist file ---
+    # --- Persist file directly to disk via stream (Zero RAM impact) ---
     unique_filename = f"{uuid.uuid4().hex}_{file.filename}"
     file_path = os.path.join(UPLOAD_DIR, unique_filename)
     try:
         with open(file_path, "wb") as buf:
-            buf.write(data)
+            shutil.copyfileobj(file.file, buf)
     except OSError as e:
         raise HTTPException(status_code=500, detail=f"Failed to save file: {e}")
 

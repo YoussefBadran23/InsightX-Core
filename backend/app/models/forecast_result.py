@@ -30,8 +30,8 @@ class ForecastResult(UUIDMixin, TimestampMixin, Base):
         UUID(as_uuid=True), nullable=False, index=True
     )
     # Who triggered the forecast run
-    user_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     # The date the forecast was computed (not the forecast date)
     run_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
@@ -64,7 +64,7 @@ class ForecastResult(UUIDMixin, TimestampMixin, Base):
     )
 
     # Relationships
-    user: Mapped["User | None"] = relationship(
+    user: Mapped["User"] = relationship(
         "User", back_populates="forecast_results"
     )
 

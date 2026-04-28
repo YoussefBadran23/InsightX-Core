@@ -1,71 +1,75 @@
 import os
 import uuid
 import time
+import json
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-from tasks.insights import run_insights
+from tasks.insights import run_insights 
 
-# Inside worker container
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://insightx_user:insightx_pass@db:5432/insightx_db")
+# Connection setup
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://insightx_user:insightx_pass@localhost:5432/insightx_db")
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 
 def verify_worker_flow():
-    print("=== Testing Local LLM Worker Flow ===")
+    print("\n🚀 Starting Full-Loop InsightX Worker Test...")
     db = Session()
-    # UUID for job_id
     job_id = str(uuid.uuid4())
     
     try:
-        # 1. Create dummy analysis result
-        print(f"Creating dummy analysis for ID {job_id}...")
-        dummy_result = {
-            "summary": "Monthly sales up by 20%",
-            "top_products": ["Widget A", "Gadget B"],
-            "trends": "Upward trend in Q3"
+        # 1. Create Mock Data in Cache
+        print(f"📦 Step 1: Seeding cache for Job ID: {job_id}")
+        dummy_data = {
+            "summary": "Revenue spiked 15% in Cairo region.",
+            "top_products": ["HP Z440 Workstation", "RTX 3060"],
+            "trends": "Consistent growth in hardware sector."
         }
-        import json
-        # Corrected columns for AnalysisResultsCache
+        
         db.execute(text("""
             INSERT INTO analysis_results_cache (id, analysis_type, result_json, is_stale, computed_at)
-            VALUES (:id, :type, :result, :stale, now())
-        """), {
-            "id": job_id, 
-            "type": "rfm", 
-            "result": json.dumps(dummy_result),
-            "stale": False
-        })
+            VALUES (:id, 'revenue', :result, false, now())
+        """), {"id": job_id, "result": json.dumps(dummy_data)})
         db.commit()
         
-        # 2. Trigger task Synchronously
-        print("Triggering run_insights task synchronously...")
-        # Since we use SessionLocal in the task, we need to ensure our inserts are visible
-        # SQLAlchemy Session in script vs SessionLocal in task
-        result = run_insights(job_id) 
-        print(f"Task status result: {result}")
+        # 2. Trigger task ASYNCHRONOUSLY
+        print(f"📨 Step 2: Dispatching task to Redis...")
+        task = run_insights.delay(job_id) 
         
-        # 3. Verify Database
-        print("Verifying database for generated insights...")
+        # 3. Wait and Poll
+        print(f"⏳ Step 3: Waiting for worker to process (ID: {task.id})...")
+        timeout = 20
+        start = time.time()
+        while task.status not in ['SUCCESS', 'FAILURE']:
+            if time.time() - start > timeout:
+                print("❌ TIMEOUT: Worker is likely not running or stuck.")
+                return
+            print(f"   Current Worker Status: {task.status}")
+            time.sleep(2)
+            
+        if task.status == 'SUCCESS':
+            print(f"✅ Step 4: Worker finished task successfully!")
+        else:
+            print(f"❌ Step 4: Worker failed the task. Check Celery logs.")
+            return
+
+        # 5. Verify the Result in DB
         res = db.execute(text("SELECT bullet_text FROM insights WHERE job_id = :job_id"), {"job_id": job_id}).fetchall()
         
         if res:
-            print(f"✅ PASS | Insights generated: {len(res)} points found.")
-            for i, row in enumerate(res):
-                print(f"   Insight {i+1}: {row[0]}")
+            print(f"\n🎉 TEST PASSED! {len(res)} insights found in DB:")
+            for row in res:
+                print(f"   • {row[0]}")
         else:
-            print(f"❌ FAIL | No insights found in database for job {job_id}. Check worker logs.")
+            print(f"❌ FAIL: Task succeeded but no rows were written to the 'insights' table.")
             
     except Exception as e:
         db.rollback()
-        print(f"❌ ERROR: {e}")
+        print(f"💥 CRITICAL ERROR: {e}")
     finally:
         # Cleanup
-        try:
-            db.execute(text("DELETE FROM insights WHERE job_id = :job_id"), {"job_id": job_id})
-            db.execute(text("DELETE FROM analysis_results_cache WHERE id = :job_id"), {"job_id": job_id})
-            db.commit()
-        except:
-            db.rollback()
+        db.execute(text("DELETE FROM insights WHERE job_id = :job_id"), {"job_id": job_id})
+        db.execute(text("DELETE FROM analysis_results_cache WHERE id = :job_id"), {"job_id": job_id})
+        db.commit()
         db.close()
 
 if __name__ == "__main__":

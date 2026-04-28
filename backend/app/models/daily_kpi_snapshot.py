@@ -1,8 +1,10 @@
 """DailyKpiSnapshot model — pre-aggregated KPIs for period-over-period dashboard deltas."""
 
+import uuid
 from datetime import date
 from decimal import Decimal
-from sqlalchemy import Date, Integer, Numeric
+from sqlalchemy import Date, Integer, Numeric, ForeignKey, UniqueConstraint
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -24,10 +26,17 @@ class DailyKpiSnapshot(UUIDMixin, TimestampMixin, Base):
     multi-table aggregate over all historical orders.
     """
     __tablename__ = "daily_kpi_snapshots"
+    __table_args__ = (
+        UniqueConstraint("user_id", "snapshot_date", name="uq_kpi_user_date"),
+    )
 
-    # One row per day — UNIQUE enforced
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+
+    # One row per day per user
     snapshot_date: Mapped[date] = mapped_column(
-        Date, nullable=False, unique=True, index=True
+        Date, nullable=False, index=True
     )
 
     # --- Core KPIs (shown on Dashboard Home cards) ---

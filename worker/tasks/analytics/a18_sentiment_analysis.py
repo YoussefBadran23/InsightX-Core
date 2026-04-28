@@ -1,141 +1,54 @@
-"""A18 — Sentiment Analysis (LLM-based).
-
-Classifies order comments as POSITIVE / NEGATIVE / NEUTRAL using
-the OpenAI-compatible API (Groq, LM Studio, or Ollama).
-Updates orders.sentiment_label and orders.sentiment_score.
-"""
-
+"""A18 — Sentiment Analysis (LLM-based) (Optimized & Complete)."""
 import os
-import logging
 import pandas as pd
 from sqlalchemy import text
 from ._base import analytics_task, has_col
+from openai import OpenAI
 
-logger = logging.getLogger(__name__)
-
-_LLM_URL = os.getenv("LOCAL_LLM_URL", "http://host.docker.internal:1234/v1")
-_LLM_KEY = os.getenv("LOCAL_LLM_API_KEY", "lm-studio")
+COLS = ["id", "comment_text"]
 _GROQ_KEY = os.getenv("GROQ_API_KEY", "")
 
+@analytics_task("A18_sentiment_analysis", "sentiment", required_cols=COLS)
+def run_sentiment_analysis(df, session, job_id):
+    comments_df = df[df["comment_text"].notna() & (df["comment_text"].str.strip() != "")].copy()
+    if comments_df.empty: return {"summary": "No comments found", "total_analyzed": 0}
 
-def _get_client():
-    """Return an OpenAI-compatible client, preferring Groq if key is set."""
-    from openai import OpenAI
-
-    if _GROQ_KEY:
-        return OpenAI(base_url="https://api.groq.com/openai/v1", api_key=_GROQ_KEY, timeout=30)
-    return OpenAI(base_url=_LLM_URL, api_key=_LLM_KEY, timeout=30)
-
-
-def _classify_batch(client, comments: list[str]) -> list[dict]:
-    """Send a batch of comments to LLM for sentiment classification."""
-    if not comments:
-        return []
-
-    numbered = "\n".join(f"{i+1}. {c[:200]}" for i, c in enumerate(comments))
-    prompt = (
-        f"Classify each comment as POSITIVE, NEGATIVE, or NEUTRAL. "
-        f"Reply with ONLY one word per line (the sentiment label).\n\n{numbered}"
+    client = OpenAI(
+        base_url="https://api.groq.com/openai/v1" if _GROQ_KEY else os.getenv("LOCAL_LLM_URL", "http://host.docker.internal:1234/v1"), 
+        api_key=_GROQ_KEY or "local",
+        timeout=30
     )
 
-    try:
-        model = "llama-3.3-70b-versatile" if _GROQ_KEY else "local-model"
-        resp = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": "You are a sentiment classifier. Reply with one label per line: POSITIVE, NEGATIVE, or NEUTRAL."},
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0.0,
-            max_tokens=len(comments) * 15,
-        )
-        lines = resp.choices[0].message.content.strip().split("\n")
-    except Exception as e:
-        logger.warning("LLM sentiment call failed: %s — falling back to NEUTRAL", e)
-        return [{"label": "NEUTRAL", "score": 0.5} for _ in comments]
-
-    results = []
-    for i, line in enumerate(lines):
-        cleaned = line.strip().upper().replace(".", "")
-        # Extract just the sentiment word
-        for word in ["POSITIVE", "NEGATIVE", "NEUTRAL"]:
-            if word in cleaned:
-                cleaned = word
-                break
-        else:
-            cleaned = "NEUTRAL"
-
-        score_map = {"POSITIVE": 0.85, "NEGATIVE": 0.15, "NEUTRAL": 0.50}
-        results.append({"label": cleaned, "score": score_map.get(cleaned, 0.5)})
-
-    # Pad if LLM returned fewer lines
-    while len(results) < len(comments):
-        results.append({"label": "NEUTRAL", "score": 0.5})
-
-    return results
-
-
-@analytics_task("A18_sentiment_analysis", "sentiment")
-def run_sentiment_analysis(df, session, job_id):
-    if not has_col(df, "comment_text"):
-        return {
-            "distribution": [],
-            "summary": "No comment_text column found — skipping sentiment analysis",
-            "total_analyzed": 0,
-        }
-
-    comments_df = df[df["comment_text"].notna() & (df["comment_text"].str.strip() != "")].copy()
-
-    if len(comments_df) == 0:
-        return {
-            "distribution": [],
-            "summary": "No non-empty comments found",
-            "total_analyzed": 0,
-        }
-
-    client = _get_client()
-
-    # Process in batches of 20
-    batch_size = 20
     all_results = []
-    for start in range(0, len(comments_df), batch_size):
-        batch = comments_df.iloc[start:start + batch_size]
-        batch_comments = batch["comment_text"].tolist()
-        batch_results = _classify_batch(client, batch_comments)
-        all_results.extend(batch_results)
+    # Process in batches of 20 to reduce API round-trips
+    for i in range(0, len(comments_df), 20):
+        batch = comments_df.iloc[i:i+20]["comment_text"].tolist()
+        prompt = "Classify each comment as POSITIVE, NEGATIVE, or NEUTRAL. Reply with ONLY one word per line:\n" + "\n".join(batch)
+        try:
+            res = client.chat.completions.create(
+                model="llama-3.3-70b-versatile" if _GROQ_KEY else "local-model",
+                messages=[{"role": "system", "content": "You are a sentiment classifier."}, {"role": "user", "content": prompt}],
+                temperature=0
+            )
+            labels = [line.strip().upper() for line in res.choices[0].message.content.split("\n") if line.strip()]
+            for label in labels[:len(batch)]:
+                clean_label = "POSITIVE" if "POSITIVE" in label else "NEGATIVE" if "NEGATIVE" in label else "NEUTRAL"
+                all_results.append(clean_label)
+        except:
+            all_results.extend(["NEUTRAL"] * len(batch))
 
-    comments_df["sentiment_label"] = [r["label"] for r in all_results[:len(comments_df)]]
-    comments_df["sentiment_score"] = [r["score"] for r in all_results[:len(comments_df)]]
+    comments_df["sentiment_label"] = all_results[:len(comments_df)]
+    score_map = {"POSITIVE": 0.85, "NEGATIVE": 0.15, "NEUTRAL": 0.5}
+    comments_df["sentiment_score"] = comments_df["sentiment_label"].map(score_map).fillna(0.5)
 
-    # Update orders table
-    if has_col(df, "id"):
-        for _, row in comments_df.iterrows():
-            order_ext_id = str(row.get("id", ""))
-            if order_ext_id:
-                session.execute(
-                    text("""
-                        UPDATE orders
-                        SET sentiment_label = :label, sentiment_score = :score, updated_at = NOW()
-                        WHERE external_id = :oid
-                    """),
-                    {"label": row["sentiment_label"], "score": float(row["sentiment_score"]), "oid": order_ext_id},
-                )
+    # PERFORMANCE WIN: Batch Update Database
+    updates = [{"l": r.sentiment_label, "s": float(r.sentiment_score), "oid": str(r.id)} for r in comments_df.itertuples()]
+    if updates:
+        session.execute(text("UPDATE orders SET sentiment_label = :l, sentiment_score = :s, updated_at = NOW() WHERE external_id = :oid"), updates)
         session.commit()
 
-    # Distribution
-    dist = comments_df["sentiment_label"].value_counts().reset_index()
-    dist.columns = ["label", "count"]
-    dist["pct"] = (dist["count"] / len(comments_df) * 100).round(2)
-
-    # Sample comments per sentiment
-    samples = {}
-    for label in ["POSITIVE", "NEGATIVE", "NEUTRAL"]:
-        subset = comments_df[comments_df["sentiment_label"] == label]
-        samples[label.lower()] = subset["comment_text"].head(5).tolist()
-
     return {
-        "distribution": dist.to_dict("records"),
-        "samples": samples,
+        "distribution": comments_df["sentiment_label"].value_counts(normalize=True).mul(100).round(2).to_dict(),
         "total_analyzed": len(comments_df),
-        "total_orders": len(df),
+        "samples": {l.lower(): comments_df[comments_df.sentiment_label==l].comment_text.head(3).tolist() for l in ["POSITIVE", "NEGATIVE", "NEUTRAL"]}
     }

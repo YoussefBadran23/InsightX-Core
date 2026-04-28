@@ -37,7 +37,10 @@ def list_customers(
     current_user: User = Depends(get_current_user),
 ):
     """Return paginated customer list. Supports search, segment filter, region filter, and sort."""
-    query = db.query(Customer).filter(Customer.deleted_at.is_(None))
+    query = db.query(Customer).filter(
+        Customer.user_id == current_user.id,
+        Customer.deleted_at.is_(None)
+    )
 
     if search:
         search_term = f"%{search}%"
@@ -78,7 +81,11 @@ def get_customer(
     """Return full customer profile including all analytics fields."""
     customer = (
         db.query(Customer)
-        .filter(Customer.id == customer_id, Customer.deleted_at.is_(None))
+        .filter(
+            Customer.id == customer_id,
+            Customer.user_id == current_user.id,
+            Customer.deleted_at.is_(None)
+        )
         .first()
     )
     if not customer:

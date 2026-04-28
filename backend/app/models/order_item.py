@@ -3,7 +3,7 @@
 import uuid
 from decimal import Decimal
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, Integer, Numeric
+from sqlalchemy import ForeignKey, Integer, Numeric, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -24,6 +24,9 @@ class OrderItem(UUIDMixin, TimestampMixin, Base):
     - Stock qty deduction per product on each upload
     """
     __tablename__ = "order_items"
+    __table_args__ = (
+        UniqueConstraint("order_id", "product_id", name="uq_order_item_order_prod"),
+    )
 
     order_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("orders.id", ondelete="CASCADE"), nullable=False, index=True

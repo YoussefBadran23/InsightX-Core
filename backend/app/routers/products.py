@@ -37,7 +37,11 @@ def list_products(
     current_user: User = Depends(get_current_user),
 ):
     """Return paginated product list. Supports search, category, ABC tier, stock status, and sort."""
-    query = db.query(Product).filter(Product.deleted_at.is_(None), Product.is_active.is_(True))
+    query = db.query(Product).filter(
+        Product.user_id == current_user.id,
+        Product.deleted_at.is_(None),
+        Product.is_active.is_(True)
+    )
 
     if search:
         search_term = f"%{search}%"
@@ -82,7 +86,11 @@ def get_product(
     """Return full product detail."""
     product = (
         db.query(Product)
-        .filter(Product.id == product_id, Product.deleted_at.is_(None))
+        .filter(
+            Product.id == product_id,
+            Product.user_id == current_user.id,
+            Product.deleted_at.is_(None)
+        )
         .first()
     )
     if not product:

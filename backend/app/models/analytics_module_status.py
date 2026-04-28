@@ -6,7 +6,7 @@ Read by the frontend to show the user which modules are blocked and why.
 
 import uuid
 from typing import TYPE_CHECKING
-from sqlalchemy import Boolean, ForeignKey, String, Text
+from sqlalchemy import Boolean, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -28,6 +28,9 @@ class AnalyticsModuleStatus(UUIDMixin, TimestampMixin, Base):
     2. Show a popup with missing columns + "Map your column" CTA
     """
     __tablename__ = "analytics_module_status"
+    __table_args__ = (
+        UniqueConstraint("upload_job_id", "module_key", name="uq_module_status_job"),
+    )
 
     upload_job_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),

@@ -10,23 +10,18 @@ from pathlib import Path
 
 from sqlalchemy import engine_from_config, pool
 from alembic import context
-from dotenv import load_dotenv
 
 # ── Path setup ────────────────────────────────────────────────────────────────
 # Add the backend/app directory to sys.path so our models can be imported.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-# Load DATABASE_URL from backend/.env
-load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+from app.core.config import settings
 
 # ── Alembic config ─────────────────────────────────────────────────────────────
 config = context.config
 
 # Override sqlalchemy.url with value from environment (not alembic.ini)
-database_url = os.getenv(
-    "DATABASE_URL",
-    "postgresql://insightx_user:insightx_pass@localhost:5432/insightx_db",
-)
+database_url = settings.DATABASE_URL
 config.set_main_option("sqlalchemy.url", database_url)
 
 if config.config_file_name is not None:

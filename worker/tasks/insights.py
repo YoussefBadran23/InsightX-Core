@@ -1,92 +1,83 @@
-"""Step 13 (Phase 3): Local LLM natural language insight generation."""
-
+"""Stage 8 — AI Insight Generation (Optimized & Complete)."""
 import os
 import logging
+import json
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from openai import OpenAI
-
 from celery_app import celery_app
-from app.models.insight import Insight
-from app.models.analysis_results_cache import AnalysisResultsCache
 
 logger = logging.getLogger(__name__)
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://insightx_user:insightx_pass@db:5432/insightx_db")
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-_LLM_TIMEOUT_SECONDS = int(os.getenv("LLM_TIMEOUT_SECONDS", "30"))
-
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+SessionLocal = sessionmaker(bind=engine)
 
 @celery_app.task(bind=True, name="tasks.insights.run_insights")
 def run_insights(self, job_id: str):
-    """Send synthesised summary to Local LLM (LM Studio/Ollama) and store 3 bullet insights."""
-    logger.info("Starting insights generation for job %s", job_id)
-
-    local_url = os.getenv("LOCAL_LLM_URL", "http://host.docker.internal:1234/v1")
-    api_key = os.getenv("LOCAL_LLM_API_KEY", "lm-studio")
-
+    """
+    Synthesizes analytics cache results into 3 natural language business insights.
+    Uses Local LLM or Groq based on environment configuration.
+    """
+    logger.info(f"Generating AI insights for job {job_id}")
     db = SessionLocal()
+    
     try:
-        # Query the most recent analytics result for this job to use as context
-        cache = (
-            db.query(AnalysisResultsCache)
-            .filter(AnalysisResultsCache.upload_job_id == job_id)
-            .order_by(AnalysisResultsCache.computed_at.desc())
-            .first()
+        # 1. Fetch the latest results from the cache to provide context for the LLM
+        cache_data = db.execute(text("""
+            SELECT analysis_type, result_json 
+            FROM analysis_results_cache 
+            WHERE upload_job_id = :jid 
+            ORDER BY computed_at DESC LIMIT 3
+        """), {"jid": job_id}).fetchall()
+
+        if not cache_data:
+            logger.warning(f"No cache found for {job_id}. Skipping insights.")
+            return {"status": "skipped", "reason": "no_data"}
+
+        # Build context string for the prompt
+        context = "\n".join([f"[{row[0]}]: {json.dumps(row[1])[:500]}" for row in cache_data])
+
+        # 2. Configure LLM Client
+        api_key = os.getenv("GROQ_API_KEY") or os.getenv("LOCAL_LLM_API_KEY", "lm-studio")
+        base_url = "https://api.groq.com/openai/v1" if os.getenv("GROQ_API_KEY") else os.getenv("LOCAL_LLM_URL", "http://host.docker.internal:1234/v1")
+        
+        client = OpenAI(base_url=base_url, api_key=api_key, timeout=45)
+
+        # 3. Generate Insights
+        system_msg = (
+            "You are a Senior E-commerce Strategist. Based on the raw JSON data, "
+            "provide EXACTLY 3 powerful, actionable business insights. "
+            "Focus on revenue growth, customer retention, and operational efficiency. "
+            "Keep each point under 25 words. Reply with ONLY bullets, no intro."
         )
-        if not cache:
-            logger.error("No analysis results found for job %s", job_id)
-            return {"status": "error", "message": f"Analysis results missing for {job_id}"}
-
-        system_prompt = (
-            "You are an expert data analyst. Based on the provided data, generate EXACTLY 3 short, "
-            "actionable business insights formatted as plain text bullet points. "
-            "Do not include any introductory or concluding text."
-        )
-        user_prompt = f"Data Summary: {str(cache.result_json)[:2000]}"
-
-        logger.info("Calling Local LLM for job %s (timeout=%ds)…", job_id, _LLM_TIMEOUT_SECONDS)
-        client = OpenAI(base_url=local_url, api_key=api_key, timeout=_LLM_TIMEOUT_SECONDS)
-
+        
         response = client.chat.completions.create(
-            model="local-model",
+            model="llama-3.3-70b-versatile" if os.getenv("GROQ_API_KEY") else "local-model",
             messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
+                {"role": "system", "content": system_msg},
+                {"role": "user", "content": f"Analyze this hardware/e-commerce data:\n{context}"}
             ],
-            temperature=0.7,
-            max_tokens=250,
+            temperature=0.3
         )
 
-        llm_text = response.choices[0].message.content.strip()
-        bullets = [
-            b.strip().lstrip("-").lstrip("*").strip()
-            for b in llm_text.split("\n")
-            if b.strip()
-        ][:3]
+        raw_text = response.choices[0].message.content.strip()
+        bullets = [b.strip().lstrip("-").lstrip("*").strip() for b in raw_text.split("\n") if b.strip()][:3]
 
-        while len(bullets) < 3:
-            bullets.append("[Insight unavailable — insufficient data]")
-
-        for i, b_text in enumerate(bullets, start=1):
-            db.add(Insight(
-                job_id=job_id,
-                source_type=cache.analysis_type,
-                bullet_index=i,
-                bullet_text=b_text,
-            ))
-
+        # 4. Persistence
+        for i, text_content in enumerate(bullets, start=1):
+            db.execute(text("""
+                INSERT INTO insights (id, job_id, source_type, bullet_index, bullet_text, created_at)
+                VALUES (gen_random_uuid(), :jid, 'ai_summary', :idx, :txt, NOW())
+            """), {"jid": job_id, "idx": i, "txt": text_content})
+        
         db.commit()
-        logger.info("Saved 3 insights for job %s", job_id)
-        return {"status": "success"}
+        logger.info(f"Saved {len(bullets)} AI insights for job {job_id}.")
+        return {"status": "success", "count": len(bullets)}
 
     except Exception as e:
-        logger.error("Failed to generate insights for job %s: %s", job_id, e)
-        # NOTE: Insights are best-effort — do NOT mutate the job status here.
-        # The pipeline (finalize task) has already set the job to 'completed'.
-        # Overriding it would incorrectly show the upload as failed in the UI.
-        raise self.retry(exc=e, countdown=60, max_retries=3)
+        db.rollback()
+        logger.error(f"Insight generation failed: {e}")
+        raise self.retry(exc=e, countdown=60)
     finally:
         db.close()
