@@ -13,7 +13,6 @@ class UUIDMixin:
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
-        index=True,
     )
 
 
@@ -38,4 +37,5 @@ class SoftDeleteMixin:
         DateTime(timezone=True),
         nullable=True,
         default=None,
+        index=True,  # Crucial for performance: almost all queries filter by this
     )

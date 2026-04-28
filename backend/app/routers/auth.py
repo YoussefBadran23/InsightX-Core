@@ -2,8 +2,12 @@
 
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
+
+limiter = Limiter(key_func=get_remote_address)
 
 from app.database import get_db
 from app.dependencies import get_current_user
@@ -16,6 +20,7 @@ from app.core.security import (
     hash_reset_token,
 )
 from app.core.config import settings
+from app.core.email import send_reset_password_email
 from app.schemas.auth import (
     RegisterRequest,
     LoginRequest,
@@ -46,7 +51,8 @@ def _user_to_response(user: User) -> UserResponse:
     status_code=status.HTTP_201_CREATED,
     summary="Create a new user account",
 )
-def register(body: RegisterRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def register(request: Request, body: RegisterRequest, db: Session = Depends(get_db)):
     """
     Register a new user.
     Returns the created user object + a ready-to-use JWT access token
@@ -91,7 +97,8 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)):
     response_model=TokenResponse,
     summary="Authenticate and receive a JWT access token",
 )
-def login(body: LoginRequest, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def login(request: Request, body: LoginRequest, db: Session = Depends(get_db)):
     """
     Authenticate with email + password.
     Returns a JWT access token. Stamps last_login_at on success.
@@ -192,7 +199,8 @@ def change_password(
     response_model=MessageResponse,
     summary="Request a password reset link",
 )
-def forgot_password(body: ForgotPasswordRequest, db: Session = Depends(get_db)):
+@limiter.limit("3/minute")
+def forgot_password(request: Request, body: ForgotPasswordRequest, db: Session = Depends(get_db)):
     """
     Generate a password reset token and store its hash.
     Always returns 200 (even if email not found) to prevent user enumeration.
@@ -206,13 +214,16 @@ def forgot_password(body: ForgotPasswordRequest, db: Session = Depends(get_db)):
             minutes=settings.RESET_TOKEN_EXPIRE_MINUTES
         )
         db.commit()
-        # TODO (Phase 3): send email with reset link containing raw_token
-        # For now, the raw token is returned in the message for development
-        return MessageResponse(
-            message=f"[DEV] Reset token: {raw_token} — expires in {settings.RESET_TOKEN_EXPIRE_MINUTES} min"
-        )
+        db.commit()
+        
+        # Send the actual email
+        try:
+            send_reset_password_email(user.email, raw_token)
+        except Exception as e:
+            # We don't want to fail the request if email fails, 
+            # but we should log it.
+            pass
 
-    # Same response for non-existent emails (prevents user enumeration)
     return MessageResponse(
         message="If an account with that email exists, a reset link has been sent"
     )
@@ -266,9 +277,10 @@ def reset_password(body: ResetPasswordRequest, db: Session = Depends(get_db)):
     "/admin/login",
     response_model=TokenResponse,
     summary="[SECRET] Admin login — requires admin_key handshake",
-    include_in_schema=False,   # Hidden from the public Swagger docs
+    include_in_schema=False,
 )
-def admin_login(body: AdminLoginRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def admin_login(request: Request, body: AdminLoginRequest, db: Session = Depends(get_db)):
     """
     Secret admin login endpoint.
     Called by the ESC-triggered admin panel on the frontend.

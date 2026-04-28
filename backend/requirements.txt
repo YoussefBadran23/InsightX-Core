@@ -8,6 +8,7 @@ pydantic-settings==2.2.1
 sqlalchemy==2.0.30
 alembic==1.13.1
 psycopg2-binary==2.9.9
+pymongo==4.6.1  # For MongoDB Student Cluster
 
 # Auth
 pyjwt==2.8.0
@@ -24,3 +25,11 @@ redis==5.0.4
 # Utilities
 python-dotenv==1.0.1
 httpx==0.27.0
+orjson>=3.9.0
+
+# Rate limiting
+slowapi==0.1.9
+
+# Monitoring & Error Tracking
+sentry-sdk[fastapi]==1.40.0  # Sentry for error tracking
+datadog==0.48.0  # Datadog APM

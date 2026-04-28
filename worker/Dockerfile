@@ -1,10 +1,14 @@
 # ── Worker Dockerfile ───────────────────────────────────────────────────────
 FROM python:3.11-slim
 
-# Set working directory
+# Prevent Python from writing .pyc files and enable unbuffered logging
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
-# System deps: gcc for Prophet/numpy compilation, libpq for DB access
+# Install system dependencies
+# gcc/g++ are required for Prophet; libpq-dev for Postgres
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
@@ -12,12 +16,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies (heavy AI stack — cached layer)
+# Upgrade pip and install requirements
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Copy application source
+# Copy the worker source code
 COPY . .
 
-# Default: start Celery worker (overridden by docker-compose)
-CMD ["celery", "-A", "celery_app", "worker", "--loglevel=info", "--concurrency=2"]
+# Ensure backend models are discoverable if backend is mounted/copied to /app/backend
+ENV PYTHONPATH=/app:/app/backend
+
+# Start Celery worker with concurrency optimized for HP Z440
+CMD ["celery", "-A celery_app", "worker", "--loglevel=info", "--concurrency=4", "--pool=prefork"]

@@ -27,7 +27,7 @@ class UploadJob(UUIDMixin, TimestampMixin, Base):
 
     # FK to the user who triggered the upload
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     # S3 object key for the raw uploaded CSV
     s3_key: Mapped[str] = mapped_column(String(500), nullable=False)
@@ -61,13 +61,13 @@ class UploadJob(UUIDMixin, TimestampMixin, Base):
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="upload_jobs")
     orders: Mapped[list["Order"]] = relationship(
-        "Order", back_populates="upload_job"
+        "Order", back_populates="upload_job", cascade="all, delete-orphan"
     )
     csv_column_mappings: Mapped[list["CsvColumnMapping"]] = relationship(
         "CsvColumnMapping", back_populates="upload_job", cascade="all, delete-orphan"
     )
     analysis_results: Mapped[list["AnalysisResultsCache"]] = relationship(
-        "AnalysisResultsCache", back_populates="upload_job"
+        "AnalysisResultsCache", back_populates="upload_job", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:

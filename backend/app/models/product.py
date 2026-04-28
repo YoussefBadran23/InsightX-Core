@@ -4,13 +4,15 @@ import uuid
 from datetime import date
 from decimal import Decimal
 from typing import TYPE_CHECKING
-from sqlalchemy import Boolean, Date, Numeric, String, Text, Integer
+from sqlalchemy import Boolean, Date, Numeric, String, Text, Integer, ForeignKey, UniqueConstraint
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 from app.models.base import UUIDMixin, TimestampMixin, SoftDeleteMixin
 
 if TYPE_CHECKING:
+    from app.models.user import User
     from app.models.order_item import OrderItem
 
 
@@ -20,10 +22,18 @@ class Product(UUIDMixin, TimestampMixin, SoftDeleteMixin, Base):
     ABC tier and return_rate written by analytics worker tasks.
     """
     __tablename__ = "products"
+    __table_args__ = (
+        UniqueConstraint("user_id", "sku", name="uq_product_user_sku"),
+    )
+
+    # Scopes the product to a specific tenant
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
 
     # "SK-9021" format shown in Product Inventory table
     sku: Mapped[str] = mapped_column(
-        String(20), nullable=False, unique=True, index=True
+        String(20), nullable=False, index=True
     )
     # "Wireless Noise-Cancelling Headphones"
     name: Mapped[str] = mapped_column(String(500), nullable=False)
@@ -79,6 +89,7 @@ class Product(UUIDMixin, TimestampMixin, SoftDeleteMixin, Base):
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
     # Relationships
+    user: Mapped["User"] = relationship("User", back_populates="products")
     order_items: Mapped[list["OrderItem"]] = relationship(
         "OrderItem", back_populates="product"
     )

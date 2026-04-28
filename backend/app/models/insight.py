@@ -1,7 +1,7 @@
 """Insight model — LLaMA 3 generated bullet insights per analysis run."""
 
 import uuid
-from sqlalchemy import SmallInteger, String, Text
+from sqlalchemy import SmallInteger, String, Text, UniqueConstraint, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -18,10 +18,13 @@ class Insight(UUIDMixin, TimestampMixin, Base):
     bullet_index is 1, 2, or 3 — ordered display on the dashboard.
     """
     __tablename__ = "insights"
+    __table_args__ = (
+        UniqueConstraint("job_id", "bullet_index", name="uq_insight_job_bullet"),
+    )
 
     # Links to the preprocess or forecast run that triggered this insight
     job_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False, index=True
+        UUID(as_uuid=True), ForeignKey("upload_jobs.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
     # Which worker produced this insight:

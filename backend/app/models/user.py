@@ -13,6 +13,9 @@ from app.models.base import UUIDMixin, TimestampMixin, SoftDeleteMixin
 if TYPE_CHECKING:
     from app.models.upload_job import UploadJob
     from app.models.forecast_result import ForecastResult
+    from app.models.customer import Customer
+    from app.models.product import Product
+    from app.models.order import Order
 
 
 class User(UUIDMixin, TimestampMixin, SoftDeleteMixin, Base):
@@ -47,7 +50,7 @@ class User(UUIDMixin, TimestampMixin, SoftDeleteMixin, Base):
     )
 
     # "Forgot password?" flow — stores hashed reset token
-    reset_token: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    reset_token: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
     reset_token_expires_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
@@ -57,11 +60,20 @@ class User(UUIDMixin, TimestampMixin, SoftDeleteMixin, Base):
     )
 
     # Relationships
+    customers: Mapped[list["Customer"]] = relationship(
+        "Customer", back_populates="user", cascade="all, delete-orphan"
+    )
+    products: Mapped[list["Product"]] = relationship(
+        "Product", back_populates="user", cascade="all, delete-orphan"
+    )
+    orders: Mapped[list["Order"]] = relationship(
+        "Order", back_populates="user", cascade="all, delete-orphan"
+    )
     upload_jobs: Mapped[list["UploadJob"]] = relationship(
-        "UploadJob", back_populates="user"
+        "UploadJob", back_populates="user", cascade="all, delete-orphan"
     )
     forecast_results: Mapped[list["ForecastResult"]] = relationship(
-        "ForecastResult", back_populates="user"
+        "ForecastResult", back_populates="user", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:

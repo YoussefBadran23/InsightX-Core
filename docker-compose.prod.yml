@@ -1,0 +1,136 @@
+services:
+  # ─────────────────────────────────────────────
+  # 1. PostgreSQL (Managed on DigitalOcean for core data)
+  # ─────────────────────────────────────────────
+  # Note: In production, use DO Managed PostgreSQL. Remove this service and update DATABASE_URL to DO's connection string.
+  db:
+    image: postgres:16-alpine
+    container_name: insightx_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Do NOT expose 5432 in production — backend connects over the internal network
+
+  # ─────────────────────────────────────────────
+  # 2. MongoDB (Student Cluster for scraped data)
+  # ─────────────────────────────────────────────
+  mongodb:
+    image: mongo:7-jammy
+    container_name: insightx_mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: insightx_scraped
+    volumes:
+      - mongodb_data:/data/db
+    # No ports exposed in production — connect via Student Cluster
+
+  # ─────────────────────────────────────────────
+  # 3. Redis (Managed on DigitalOcean)
+  # ─────────────────────────────────────────────
+  # Note: In production, use DO Managed Redis. Remove this service and update REDIS_URL to DO's connection string.
+
+  # ─────────────────────────────────────────────
+  # 4. Datadog Agent (Monitoring)
+  # ─────────────────────────────────────────────
+  datadog:
+    image: datadog/agent:latest
+    container_name: insightx_datadog
+    restart: always
+    environment:
+      DD_API_KEY: ${DD_API_KEY}
+      DD_SITE: datadoghq.eu  # EU region for Frankfurt
+      DD_LOGS_ENABLED: true
+      DD_APM_ENABLED: true
+      DD_PROCESS_AGENT_ENABLED: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+    depends_on:
+      - backend
+      - worker
+
+  # ─────────────────────────────────────────────
+  # 5. FastAPI Backend
+  # ─────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: insightx_backend
+    restart: always
+    env_file:
+      - ./backend/.env
+    environment:
+      APP_ENV: production
+      DATABASE_URL: ${DATABASE_URL}  # PostgreSQL for core data
+      MONGO_URL: ${MONGO_URL}  # MongoDB for scraped data
+      REDIS_URL: ${REDIS_URL}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2
+
+  # ─────────────────────────────────────────────
+  # 6. Celery Worker
+  # ─────────────────────────────────────────────
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    container_name: insightx_worker
+    restart: always
+    env_file:
+      - ./worker/.env
+    environment:
+      APP_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+      MONGO_URL: ${MONGO_URL}
+      REDIS_URL: ${REDIS_URL}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+    volumes:
+      - ./backend/app:/app/app
+      - uploads_data:/app/uploads
+    depends_on:
+      - mongodb
+    command: celery -A celery_app worker --loglevel=info --concurrency=4
+
+  # ─────────────────────────────────────────────
+  # 7. Next.js Frontend
+  # ─────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: insightx_frontend
+    restart: always
+    env_file:
+      - ./frontend/.env.local
+    environment:
+      NEXT_PUBLIC_API_URL: ${BACKEND_URL}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    command: npm start
+
+volumes:
+  postgres_data:
+  redis_data:
+  mongodb_data:
+  uploads_data:

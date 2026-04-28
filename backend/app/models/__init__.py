@@ -15,6 +15,7 @@ from app.models.forecast_result import ForecastResult  # noqa: F401
 from app.models.daily_kpi_snapshot import DailyKpiSnapshot  # noqa: F401
 from app.models.analysis_results_cache import AnalysisResultsCache  # noqa: F401
 from app.models.insight import Insight  # noqa: F401
+from app.models.analytics_module_status import AnalyticsModuleStatus  # noqa: F401
 
 __all__ = [
     "User",
@@ -28,4 +29,5 @@ __all__ = [
     "DailyKpiSnapshot",
     "AnalysisResultsCache",
     "Insight",
+    "AnalyticsModuleStatus",
 ]

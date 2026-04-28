@@ -4,13 +4,15 @@ import uuid
 from datetime import date, datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
-from sqlalchemy import Boolean, Date, DateTime, Numeric, SmallInteger, String
+from sqlalchemy import Boolean, Date, DateTime, Numeric, SmallInteger, String, ForeignKey, UniqueConstraint
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 from app.models.base import UUIDMixin, TimestampMixin, SoftDeleteMixin
 
 if TYPE_CHECKING:
+    from app.models.user import User
     from app.models.order import Order
 
 
@@ -21,14 +23,23 @@ class Customer(UUIDMixin, TimestampMixin, SoftDeleteMixin, Base):
     the insert_orders worker task on each upload.
     """
     __tablename__ = "customers"
+    __table_args__ = (
+        UniqueConstraint("user_id", "email", name="uq_customer_user_email"),
+        UniqueConstraint("user_id", "external_id", name="uq_customer_user_extid"),
+    )
+
+    # Scopes the customer to a specific tenant
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
 
     # The "CUS-001" format shown in the Customer Profiles UI table.
     external_id: Mapped[str | None] = mapped_column(
-        String(50), nullable=True, unique=True, index=True
+        String(50), nullable=True, index=True
     )
 
     email: Mapped[str] = mapped_column(
-        String(255), nullable=False, unique=True, index=True
+        String(255), nullable=False, index=True
     )
     full_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
@@ -101,8 +112,9 @@ class Customer(UUIDMixin, TimestampMixin, SoftDeleteMixin, Base):
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
 
     # Relationships
+    user: Mapped["User"] = relationship("User", back_populates="customers")
     orders: Mapped[list["Order"]] = relationship(
-        "Order", back_populates="customer"
+        "Order", back_populates="customer", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:

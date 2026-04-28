@@ -4,7 +4,7 @@ import uuid
 from datetime import date
 from decimal import Decimal
 from typing import TYPE_CHECKING
-from sqlalchemy import Boolean, Date, ForeignKey, Integer, Numeric, String, Text
+from sqlalchemy import Boolean, Date, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -12,6 +12,7 @@ from app.database import Base
 from app.models.base import UUIDMixin, TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.user import User
     from app.models.customer import Customer
     from app.models.upload_job import UploadJob
     from app.models.order_item import OrderItem
@@ -23,19 +24,27 @@ class Order(UUIDMixin, TimestampMixin, Base):
     reads from this table. Populated by the insert_orders Celery task.
     """
     __tablename__ = "orders"
+    __table_args__ = (
+        UniqueConstraint("user_id", "external_id", name="uq_order_user_extid"),
+    )
+
+    # Denormalized for lightning-fast dashboard queries without joining Customer
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
 
     # Original order ID from the imported CSV
     external_id: Mapped[str | None] = mapped_column(
-        String(50), nullable=True, unique=True, index=True
+        String(50), nullable=True, index=True
     )
 
     # FK to customer — required (every order has a customer)
     customer_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("customers.id"), nullable=False, index=True
+        UUID(as_uuid=True), ForeignKey("customers.id", ondelete="CASCADE"), nullable=False, index=True
     )
     # FK to the upload job that created this order — data lineage
     upload_job_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("upload_jobs.id"), nullable=True, index=True
+        UUID(as_uuid=True), ForeignKey("upload_jobs.id", ondelete="CASCADE"), nullable=True, index=True
     )
 
     # The transaction date — X-axis for the Sales Trend 30-day chart
@@ -86,6 +95,7 @@ class Order(UUIDMixin, TimestampMixin, Base):
     )
 
     # Relationships
+    user: Mapped["User"] = relationship("User", back_populates="orders")
     customer: Mapped["Customer"] = relationship("Customer", back_populates="orders")
     upload_job: Mapped["UploadJob | None"] = relationship(
         "UploadJob", back_populates="orders"

@@ -3,7 +3,7 @@
 import uuid
 from decimal import Decimal
 from typing import TYPE_CHECKING
-from sqlalchemy import Boolean, ForeignKey, Numeric, String
+from sqlalchemy import Boolean, ForeignKey, Numeric, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -22,6 +22,9 @@ class CsvColumnMapping(UUIDMixin, TimestampMixin, Base):
     Cascade-deleted when the parent upload_job is deleted.
     """
     __tablename__ = "csv_column_mappings"
+    __table_args__ = (
+        UniqueConstraint("upload_job_id", "csv_header", name="uq_csv_mapping_job_header"),
+    )
 
     upload_job_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("upload_jobs.id", ondelete="CASCADE"), nullable=False, index=True
