@@ -17,6 +17,7 @@ import sentry_sdk
 from ddtrace import patch_all, tracer
 
 from app.core.config import settings
+from app.database import get_db
 from app.routers import auth, upload, jobs, analytics, kpi, customers, products, forecasts, insights
 
 # Rate limiter — keyed by client IP; shared across routers via app.state

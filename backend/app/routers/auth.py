@@ -159,8 +159,8 @@ def update_me(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Update mutable profile fields (full_name, avatar_url)."""
-    allowed = {"full_name", "avatar_url"}
+    """Update mutable profile fields (full_name, avatar_url, preferred_language, preferred_theme)."""
+    allowed = {"full_name", "avatar_url", "preferred_language", "preferred_theme"}
     for key, value in body.items():
         if key in allowed:
             setattr(current_user, key, value)

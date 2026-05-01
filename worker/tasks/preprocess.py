@@ -28,18 +28,31 @@ def run_preprocessing(self, job_id: str):
         if not job: return {"status": "error"}
 
         mappings = db.execute(text("""
-            SELECT csv_header, mapped_column_name FROM csv_column_mapping 
-            WHERE upload_job_id = :id AND is_confirmed = True
-        """), {"id": job_id}).fetchall()
+            SELECT csv_header, mapped_column FROM csv_column_mappings 
+            WHERE upload_job_id = :id AND is_confirmed = :confirmed
+        """), {"id": job_id, "confirmed": True}).fetchall()
         
         rename_map = {row[0]: row[1] for row in mappings}
+        
+        if not rename_map:
+            raise ValueError(f"No confirmed column mappings found for job {job_id}. Cannot preprocess.")
         
         # 2. Read Full Data (Memory Optimized)
         file_path = os.path.join(UPLOAD_DIR, job.s3_key)
         df = pd.read_csv(file_path, low_memory=False, on_bad_lines='skip', encoding_errors='replace')
         
-        # 3. Rename and Prune
-        df = df[list(rename_map.keys())].rename(columns=rename_map)
+        # 3. Rename and Prune (filter to only keys that exist in the actual CSV)
+        available_keys = [k for k in rename_map.keys() if k in df.columns]
+        missing_keys = set(rename_map.keys()) - set(available_keys)
+        if missing_keys:
+            logger.warning(f"Mapped headers not found in CSV for job {job_id}: {missing_keys}")
+        if not available_keys:
+            raise ValueError(f"None of the mapped headers exist in CSV columns for job {job_id}. CSV cols: {list(df.columns)}")
+        filtered_rename = {k: rename_map[k] for k in available_keys}
+        df = df[available_keys].rename(columns=filtered_rename)
+        
+        # Handle duplicate column names (if multiple CSV headers map to same internal column)
+        df = df.loc[:, ~df.columns.duplicated()]
 
         # 4. Vectorized Coercion (Speed Optimization)
         if "created_at" in df.columns:

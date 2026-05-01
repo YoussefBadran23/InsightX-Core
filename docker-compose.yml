@@ -90,7 +90,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: celery -A celery_app worker --loglevel=info --concurrency=2
+    command: celery -A celery_app worker --loglevel=info --concurrency=2 -Q celery,analytics,ml
 
   # ─────────────────────────────────────────────
   # 5. Next.js Frontend (port 3000)
@@ -112,7 +112,7 @@ services:
       - /app/node_modules # keep container node_modules isolated
     depends_on:
       - backend
-    command: npm run dev
+    command: ["npm", "run", "dev", "--", "--hostname", "0.0.0.0", "--port", "3000"]
 
 volumes:
   postgres_data:
