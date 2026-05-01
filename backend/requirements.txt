@@ -33,3 +33,4 @@ slowapi==0.1.9
 # Monitoring & Error Tracking
 sentry-sdk[fastapi]==1.40.0  # Sentry for error tracking
 datadog==0.48.0  # Datadog APM
+ddtrace==2.9.2  # Datadog tracing library

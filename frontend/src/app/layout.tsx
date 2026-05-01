@@ -1,32 +1,65 @@
 import type { Metadata } from "next";
-import { init } from "@sentry/nextjs";
 import "./globals.css";
+import { Providers } from "./providers";
+import { cookies } from "next/headers";
 
-// Initialize Sentry
-if (typeof window !== 'undefined') {
-  init({
-    dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-    environment: process.env.NODE_ENV,
-    tracesSampleRate: 1.0,
-  });
-}
+// ── Anti-FOUC theme script ─────────────────────────────────────────────────
+// Runs synchronously before React hydrates, so the correct class is on <html>
+// before the first paint — no flash of wrong theme.
+const THEME_SCRIPT = `
+(function () {
+  try {
+    var raw   = localStorage.getItem('insightx-ui');
+    var state = raw ? JSON.parse(raw) : {};
+    var theme = (state.state && state.state.theme) || 'light';
+    var lang  = (state.state && state.state.language) || 'en';
+    document.documentElement.classList.toggle('dark',  theme === 'dark');
+    document.documentElement.classList.toggle('light', theme === 'light');
+    document.documentElement.lang = lang;
+    document.documentElement.dir  = lang === 'ar' ? 'rtl' : 'ltr';
+  } catch (e) {}
+})();
+`.trim();
 
 export const metadata: Metadata = {
   title: "InsightX — AI Analytics Platform",
-  description: "AI-powered business analytics for small and medium businesses. Upload your sales data and get instant insights, forecasts, and customer intelligence.",
-  keywords: ["analytics", "business intelligence", "AI", "sales", "forecasting", "customer segmentation"],
+  description:
+    "AI-powered business analytics for small and medium businesses. Upload your sales data and get instant insights, forecasts, and customer intelligence.",
+  keywords: [
+    "analytics",
+    "business intelligence",
+    "AI",
+    "sales",
+    "forecasting",
+    "customer segmentation",
+  ],
   openGraph: {
     title: "InsightX — AI Analytics Platform",
-    description: "Turn your sales data into actionable insights with AI-powered analytics.",
+    description:
+      "Turn your sales data into actionable insights with AI-powered analytics.",
     type: "website",
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const cookieStore = cookies();
+  const lang = cookieStore.get('insightx_lang')?.value || 'en';
+  const dir = lang === 'ar' ? 'rtl' : 'ltr';
+
   return (
-    <html lang="en" className="light">
-      <body className="bg-surface min-h-screen font-sans antialiased">
-        {children}
+    // suppressHydrationWarning: the anti-FOUC script mutates class/dir/lang
+    // before React hydrates, so React would otherwise warn about a mismatch.
+    <html lang={lang} dir={dir} suppressHydrationWarning>
+      <head>
+        {/* Anti-FOUC: set theme/lang class before first paint */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
+      <body className="bg-surface dark:bg-[#0f0f1a] min-h-screen font-sans antialiased text-slate-800 dark:text-slate-200">
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

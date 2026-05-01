@@ -57,6 +57,8 @@ class UserResponse(BaseModel):
     full_name: str
     role: str
     avatar_url: str | None
+    preferred_language: str | None
+    preferred_theme: str | None
     widget_config: dict
     is_active: bool
     last_login_at: datetime | None

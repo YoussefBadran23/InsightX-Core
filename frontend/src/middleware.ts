@@ -7,13 +7,22 @@ const AUTH_PATHS = ['/login', '/signup', '/forgot-password', '/reset-password'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get('insightx_token')?.value 
-    || request.headers.get('authorization')?.replace('Bearer ', '');
+  const token =
+    request.cookies.get('insightx_token')?.value ||
+    request.headers.get('authorization')?.replace('Bearer ', '');
 
   const isProtected = PROTECTED_PATHS.some((p) => pathname.startsWith(p));
-  const isAuthPath = AUTH_PATHS.some((p) => pathname.startsWith(p));
+  const isAuthPath  = AUTH_PATHS.some((p) => pathname.startsWith(p));
+  const isRoot      = pathname === '/';
 
-  // Redirect unauthenticated users to login
+  // ── 1. Root path: redirect authenticated users straight to dashboard ──────
+  if (isRoot && token) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/dashboard';
+    return NextResponse.redirect(url);
+  }
+
+  // ── 2. Protected routes: redirect unauthenticated users to login ──────────
   if (isProtected && !token) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
@@ -21,7 +30,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Redirect authenticated users away from login/signup
+  // ── 3. Auth pages: redirect already-authenticated users to dashboard ───────
   if (isAuthPath && token) {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
@@ -33,6 +42,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/',                   // ← NEW: check root for auth-redirect
     '/dashboard/:path*',
     '/login',
     '/signup',

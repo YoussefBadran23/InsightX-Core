@@ -45,6 +45,10 @@ class User(UUIDMixin, TimestampMixin, SoftDeleteMixin, Base):
 
     avatar_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
+    # UI Preferences
+    preferred_language: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    preferred_theme: Mapped[str | None] = mapped_column(String(20), nullable=True)
+
     is_active: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=True, index=True
     )

@@ -85,7 +85,7 @@ def process_csv(self, job_id: str):
                     mapped_table=info["table"],
                     mapped_column_name=info["column"],
                     match_score=float(res[1]) / 100.0,
-                    is_confirmed=(res[1] >= 85) # Auto-confirm high confidence matches
+                    is_confirmed=(float(res[1]) / 100.0 >= FUZZY_THRESHOLD) # Auto-confirm if it passes threshold
                 )
                 mappings.append(mapping)
 

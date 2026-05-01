@@ -28,4 +28,4 @@ COPY . .
 ENV PYTHONPATH=/app:/app/backend
 
 # Start Celery worker with concurrency optimized for HP Z440
-CMD ["celery", "-A celery_app", "worker", "--loglevel=info", "--concurrency=4", "--pool=prefork"]
+CMD ["celery", "-A", "celery_app", "worker", "--loglevel=info", "--concurrency=4", "--pool=prefork", "-Q", "celery,analytics,ml"]

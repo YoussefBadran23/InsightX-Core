@@ -58,6 +58,9 @@ class Settings(BaseSettings):
     # Frontend URL (CORS whitelist)
     FRONTEND_URL: str = ""
 
+    # Upload limits
+    MAX_UPLOAD_SIZE_MB: int = 100
+
     # MongoDB Atlas (For scraped data)
     MONGO_URL: str = "mongodb://localhost:27017/insightx_scraped"
 

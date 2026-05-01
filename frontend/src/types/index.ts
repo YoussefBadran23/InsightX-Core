@@ -8,6 +8,8 @@ export interface User {
   is_active: boolean;
   created_at: string;
   last_login_at: string | null;
+  preferred_language: 'en' | 'ar' | null;
+  preferred_theme: 'light' | 'dark' | null;
 }
 
 export interface UploadJob {

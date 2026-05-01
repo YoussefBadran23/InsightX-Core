@@ -59,7 +59,7 @@ export const authApi = {
 
   me: () => api.get('/auth/me'),
 
-  updateMe: (data: { full_name?: string; avatar_url?: string }) =>
+  updateMe: (data: { full_name?: string; avatar_url?: string; preferred_theme?: string; preferred_language?: string }) =>
     api.patch('/auth/me', data),
 
   changePassword: (current_password: string, new_password: string) =>
