@@ -15,30 +15,39 @@ from app.schemas.api import AnalyticsResultOut, AnalyticsSummaryOut
 
 router = APIRouter(prefix="/analytics", tags=["Analytics"])
 
-# Map URL segment → analysis_type stored in DB
+# Map URL segment → module_key stored in `analysis_results_cache.analysis_type`.
+# The pipeline now stores each module's unique key (e.g. 'A01_revenue_summary')
+# in that column. We keep short URL aliases for nice URLs (`/analytics/revenue`
+# → `A01_revenue_summary`). If the URL segment IS already a module key (e.g.
+# `/analytics/A01_revenue_summary`), it passes through unchanged.
 _ANALYSIS_TYPE_MAP: dict[str, str] = {
-    "revenue": "revenue",
-    "rfm": "rfm",
-    "cohort": "cohort",
-    "basket": "basket",
-    "margin": "margin",
-    "geographic": "geo",
-    "abc": "abc_tier",
-    "aov": "aov_trends",
-    "products": "top_n",
-    "clv-stats": "clv_stats",
-    "order-status": "order_status",
-    "discount": "discount",
-    "growth": "growth",
-    "channel": "channel",
-    "forecast": "forecast",
-    "anomaly": "anomaly",
-    "clv": "clv",
-    "sentiment": "sentiment",
-    "segmentation": "segmentation",
-    "churn": "churn",
-    "returns": "returns",
-    "fulfillment": "fulfillment",
+    "revenue": "A01_revenue_summary",
+    "rfm": "A02_rfm_scoring",
+    "basket": "A03_market_basket",
+    "margin": "A04_gross_margin",
+    "cohort": "A05_cohort_retention",
+    "geographic": "A06_geographic_revenue",
+    "geo": "A06_geographic_revenue",
+    "abc": "A07_abc_classification",
+    "abc_tier": "A07_abc_classification",
+    "aov": "A08_aov_trends",
+    "aov_trends": "A08_aov_trends",
+    "top-n": "A09_top_n_products",
+    "top_n": "A09_top_n_products",
+    "products": "A09_top_n_products",
+    "clv-stats": "A10_customer_lifetime",
+    "lifetime": "A10_customer_lifetime",
+    "order-status": "A11_order_status",
+    "order_status": "A11_order_status",
+    "status": "A11_order_status",
+    "discount": "A12_discount_impact",
+    "growth": "A13_growth_rates",
+    "channel": "A14_acquisition_channel",
+    "acquisition": "A14_acquisition_channel",
+    "forecast": "A15_prophet_forecast",
+    "anomaly": "A16_anomaly_detection",
+    "clv": "A17_clv_prediction",
+    "sentiment": "A18_sentiment_analysis",
 }
 
 

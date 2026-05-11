@@ -8,14 +8,33 @@ logger = logging.getLogger(__name__)
 
 def send_reset_password_email(email_to: str, token: str):
     """
-    Send a password reset email using SMTP.
+    Send a password reset email via SMTP.
+
+    Dev-mode fallback: when SMTP_USER or SMTP_PASSWORD is empty (which is
+    the default in `.env.example`), we skip the real send and emit the
+    reset URL to the backend logs. That way the developer can copy the
+    link from `docker compose logs backend` and complete the flow without
+    needing real SMTP credentials. In production fill in real SMTP and the
+    real email path runs.
     """
+    # Frontend URL — fall back to localhost dev port if not set.
+    frontend = settings.FRONTEND_URL or "http://localhost:3000"
+    reset_link = f"{frontend}/reset-password?token={token}"
+
     if not settings.SMTP_USER or not settings.SMTP_PASSWORD:
-        logger.warning("SMTP credentials not configured. Email NOT sent.")
+        # Big-banner log so the dev can spot it in the stream.
+        logger.warning(
+            "═══════════════════════════════════════════════════════════════\n"
+            "  SMTP not configured — printing reset link instead of emailing.\n"
+            "  To: %s\n"
+            "  Link: %s\n"
+            "  (Set SMTP_USER + SMTP_PASSWORD in backend/.env to send real email.)\n"
+            "═══════════════════════════════════════════════════════════════",
+            email_to, reset_link,
+        )
         return
 
     subject = f"{settings.EMAILS_FROM_NAME} - Password Reset"
-    reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}"
     
     html_content = f"""
     <html>

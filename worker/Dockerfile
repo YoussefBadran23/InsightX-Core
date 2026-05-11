@@ -1,31 +1,35 @@
-# ── Worker Dockerfile ───────────────────────────────────────────────────────
 FROM python:3.11-slim
 
-# Prevent Python from writing .pyc files and enable unbuffered logging
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# System dependencies for scientific packages and fontconfig
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    fonts-liberation \
+    fontconfig \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create a non-root user
+RUN groupadd -r celery && useradd -r -g celery celery
 
 WORKDIR /app
 
-# Install system dependencies
-# gcc/g++ are required for Prophet; libpq-dev for Postgres
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    g++ \
-    libpq-dev \
-    libgomp1 \
-    && rm -rf /var/lib/apt/lists/*
-
-# Upgrade pip and install requirements
+# Install python dependencies
 COPY requirements.txt .
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the worker source code
+# Create cache directories for matplotlib and fontconfig and set permissions
+RUN mkdir -p /app/.config/matplotlib \
+    && mkdir -p /app/.cache/fontconfig \
+    && chown -R celery:celery /app/.config \
+    && chown -R celery:celery /app/.cache
+
+# Set environment variables for writable cache directories
+ENV MPLCONFIGDIR=/app/.config/matplotlib
+ENV FONTCONFIG_PATH=/app/.cache/fontconfig
+
 COPY . .
+RUN chown -R celery:celery /app
 
-# Ensure backend models are discoverable if backend is mounted/copied to /app/backend
-ENV PYTHONPATH=/app:/app/backend
+USER celery
 
-# Start Celery worker with concurrency optimized for HP Z440
-CMD ["celery", "-A", "celery_app", "worker", "--loglevel=info", "--concurrency=4", "--pool=prefork", "-Q", "celery,analytics,ml"]
+CMD ["celery", "-A", "celery_app", "worker", "--loglevel=info", "--concurrency=2", "-Q", "celery,analytics,ml"]

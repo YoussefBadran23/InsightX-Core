@@ -24,13 +24,22 @@ const config: Config = {
           800: "#1e40af",
           900: "#1e3a8a",
         },
-        // Surfaces — sleek light theme
+        // Surfaces — wired to CSS variables in globals.css so they flip
+        // automatically when `.dark` is on <html>. The fallback colors after
+        // the slash are the light-mode defaults so Tailwind's default plugin
+        // gets a real value for any utility that needs one statically.
         surface: {
-          DEFAULT: "#f8fafc",
-          elevated: "#ffffff",
-          card: "#ffffff",
-          border: "#e2e8f0",
-          hover: "#f1f5f9",
+          DEFAULT:  "var(--surface, #f8fafc)",
+          elevated: "var(--surface-elevated, #ffffff)",
+          card:     "var(--surface-card, #ffffff)",
+          border:   "var(--surface-border, #e2e8f0)",
+          hover:    "var(--surface-hover, #f1f5f9)",
+        },
+        // Page background — `bg-background-light` / `bg-background-dark`
+        // are used by the dashboard layout's root flex container.
+        background: {
+          light: "#f8fafc",
+          dark:  "#0f0f1a",
         },
         // Semantic
         success: { DEFAULT: "#10b981", light: "#d1fae5", dark: "#065f46" },

@@ -3,7 +3,6 @@
 from typing import Generator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, Session
-from pymongo import MongoClient
 from app.core.config import settings
 
 DATABASE_URL = settings.DATABASE_URL
@@ -30,9 +29,31 @@ class Base(DeclarativeBase):
     """Declarative base shared by all ORM models."""
     pass
 
-# MongoDB client for scraped data
-mongo_client = MongoClient(settings.MONGO_URL)
-mongo_db = mongo_client.get_database()
+# MongoDB — lazy initialisation so a missing Mongo instance does NOT crash
+# the backend at startup. Call get_mongo_db() only where Mongo is needed.
+_mongo_client = None
+_mongo_db = None
+
+def get_mongo_db():
+    """Return the MongoDB database handle, creating the client on first call."""
+    global _mongo_client, _mongo_db
+    if _mongo_db is None:
+        try:
+            from pymongo import MongoClient
+            _mongo_client = MongoClient(settings.MONGO_URL, serverSelectionTimeoutMS=3000)
+            _mongo_db = _mongo_client.get_database()
+        except Exception as e:
+            import logging
+            logging.getLogger("insightx.db").warning(
+                "MongoDB unavailable — scraped-data features disabled. %s", e
+            )
+    return _mongo_db
+
+# Keep backwards-compatible aliases so existing code that does
+# `from app.database import mongo_db` still imports without crashing.
+# They will be None until get_mongo_db() is first called successfully.
+mongo_client = None
+mongo_db = None
 
 def get_db() -> Generator[Session, None, None]:
     """FastAPI dependency: yields a DB session and ensures reliable cleanup."""

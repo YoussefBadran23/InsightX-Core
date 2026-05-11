@@ -11,9 +11,10 @@ export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-surface dark:bg-[#0f0f1a] flex flex-col font-sans text-text-primary dark:text-slate-200">
       <PublicHeader />
-      <main className="flex-1 max-w-4xl mx-auto w-full p-8 md:p-16 text-right" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-        <h1 className="text-4xl font-bold mb-6 text-center md:text-start">{t('privacyTitle', language)}</h1>
-        <div className="bg-white dark:bg-[#16162a] rounded-xl shadow-lg border border-gray-200 dark:border-surface-border p-8 space-y-6">
+      <main className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-32 pb-16 text-right" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+        <div className="my-auto w-full">
+          <h1 className="text-4xl font-bold mb-6 text-center md:text-start">{t('privacyTitle', language)}</h1>
+          <div className="card w-full shadow-xl p-6 sm:p-8 space-y-6">
           <p className="text-sm text-text-muted dark:text-slate-500">{t('lastUpdatedPrivacy', language)}</p>
           <section>
             <h2 className="text-2xl font-semibold mb-3 text-gray-900 dark:text-white">{t('privacy1Title', language)}</h2>
@@ -33,6 +34,7 @@ export default function PrivacyPage() {
               {t('privacy3Text', language)}
             </p>
           </section>
+        </div>
         </div>
       </main>
       <PublicFooter />

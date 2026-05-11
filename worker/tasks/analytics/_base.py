@@ -1,39 +1,152 @@
-"""Optimized Shared infrastructure for all analytics modules."""
-import os
-import time
-import logging
-import functools
-import json
+"""Shared infrastructure for the 35 analytics modules.
+
+Each module file declares a pure function::
+
+    @register(key="A01_revenue_summary",
+              analysis_type="revenue",
+              required_cols=["total_amount", "order_date"],
+              optional_cols=["net_amount", "region", "currency"])
+    def run(df: pd.DataFrame) -> dict[str, Any]:
+        ...
+
+Registration populates `ANALYTICS_REGISTRY`, which both the standalone runner
+(`worker/run_analytics.py`) and the future Celery wrapper (in stage4_upsert)
+read to dispatch work.
+
+Pure-function design means every module is testable without Celery/Redis/
+Postgres — you just call `run(df)` with a DataFrame.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
 from datetime import date, datetime
 from decimal import Decimal
+from typing import Any, Callable, Iterable
+
 import numpy as np
 import pandas as pd
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
-from celery_app import celery_app
 
-logger = logging.getLogger(__name__)
 
-_UPLOAD_DIR = os.getenv("UPLOAD_DIR", "/app/uploads")
-_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://insightx_user:insightx_pass@db:5432/insightx_db")
+# ── Registry ────────────────────────────────────────────────────────────────
 
-# Optimization: Single engine instance with connection pooling
-_engine = create_engine(_DATABASE_URL, pool_size=10, max_overflow=20, pool_pre_ping=True)
-SessionLocal = sessionmaker(bind=_engine)
 
-def load_parquet(job_id: str, columns: list[str] = None) -> pd.DataFrame:
-    """Load cleaned Parquet with column pruning to save RAM."""
-    path = os.path.join(_UPLOAD_DIR, "cleaned", f"{job_id}_cleaned.parquet")
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Parquet not found: {path}")
-    
-    # RAM Optimization: Only load columns actually needed by the module
-    df = pd.read_parquet(path, columns=columns)
-    logger.info(f"Loaded {len(df)} rows for job {job_id}. RAM optimized: {columns is not None}")
-    return df
+@dataclass
+class ModuleSpec:
+    key: str
+    analysis_type: str
+    fn: Callable[[pd.DataFrame], dict[str, Any]]
+    required_cols: frozenset[str] = field(default_factory=frozenset)
+    optional_cols: frozenset[str] = field(default_factory=frozenset)
+    description: str = ""
 
-def sanitize_json(obj):
-    """Deeply convert types for JSON compatibility, handling PD/NP edge cases."""
+    def can_run(self, available_cols: Iterable[str]) -> tuple[bool, set[str]]:
+        """Return (eligible, missing_required_cols)."""
+        avail = set(available_cols)
+        missing = self.required_cols - avail
+        return (not missing), missing
+
+
+ANALYTICS_REGISTRY: dict[str, ModuleSpec] = {}
+
+
+def register(
+    key: str,
+    analysis_type: str,
+    required_cols: Iterable[str] | None = None,
+    optional_cols: Iterable[str] | None = None,
+    description: str = "",
+):
+    """Decorator: register a `run(df) -> dict` function under `key`.
+
+    Writes to two places so both code paths work:
+
+    1. `ANALYTICS_REGISTRY` (local) — used by `worker/run_analytics.py` CLI.
+    2. `schema.MODULES[key].fn` (global) — used by the Celery pipeline
+       (`stage5_run_module` looks up the function pointer here).
+
+    If `schema.MODULES` already has an entry for `key` we attach the function
+    to it. If it doesn't (e.g. a brand-new module the schema author hasn't
+    registered yet), we create a minimal entry so dispatch still works.
+    """
+
+    def decorator(fn: Callable[[pd.DataFrame], dict[str, Any]]):
+        req = frozenset(required_cols or [])
+        opt = frozenset(optional_cols or [])
+
+        # 1. Local registry (CLI runner).
+        ANALYTICS_REGISTRY[key] = ModuleSpec(
+            key=key,
+            analysis_type=analysis_type,
+            fn=fn,
+            required_cols=req,
+            optional_cols=opt,
+            description=description,
+        )
+
+        # 2. Central schema registry (Celery pipeline).
+        try:
+            import schema as _schema  # worker/schema.py
+            if key in _schema.MODULES:
+                _schema.MODULES[key].fn = fn
+                _schema.MODULES[key].analysis_type = analysis_type
+            else:
+                # Module not pre-declared in schema.py — create a minimal
+                # AnalyticsModule so the pipeline can still dispatch it.
+                _schema.MODULES[key] = _schema.AnalyticsModule(
+                    key=key,
+                    name=key,
+                    name_ar=key,
+                    description=description,
+                    required_cols=req,
+                    optional_cols=opt,
+                    series="A",
+                    fn=fn,
+                    analysis_type=analysis_type,
+                )
+        except Exception:
+            # In contexts where worker/ isn't on sys.path (e.g. some test
+            # harnesses), silently skip schema wiring — the local registry
+            # is enough for the CLI runner.
+            pass
+
+        return fn
+
+    return decorator
+
+
+# ── Helpers ─────────────────────────────────────────────────────────────────
+
+
+def has_col(df: pd.DataFrame, col: str) -> bool:
+    """True if column exists and contains at least one non-null value."""
+    return col in df.columns and df[col].notna().any()
+
+
+def coerce_numeric(series: pd.Series) -> pd.Series:
+    """Strip currency symbols and thousand separators, then `to_numeric`.
+
+    Handles: '$1,234.56', '1.234,56' (best-effort), 'USD 1234', '  $25 '.
+    Returns NaN for anything unparseable.
+    """
+    if pd.api.types.is_numeric_dtype(series):
+        return pd.to_numeric(series, errors="coerce")
+
+    cleaned = (
+        series.astype(str)
+        .str.replace(r"[^\d.,\-]", "", regex=True)  # drop symbols, letters, currency
+        .str.replace(",", "", regex=False)          # treat , as thousand sep
+    )
+    return pd.to_numeric(cleaned, errors="coerce")
+
+
+def coerce_date(series: pd.Series) -> pd.Series:
+    """Parse a column that may contain mixed date formats."""
+    return pd.to_datetime(series, errors="coerce", format="mixed")
+
+
+def sanitize_json(obj: Any) -> Any:
+    """Make a value JSON-serialisable for the analysis_results_cache."""
     if obj is None:
         return None
     if isinstance(obj, float) and (np.isnan(obj) or np.isinf(obj)):
@@ -45,95 +158,15 @@ def sanitize_json(obj):
     if isinstance(obj, (np.integer, int)):
         return int(obj)
     if isinstance(obj, (np.floating, float, Decimal)):
-        return round(float(obj), 2)
+        return round(float(obj), 4)
     if isinstance(obj, (pd.Timestamp, datetime, date)):
         return obj.isoformat()
-    if isinstance(obj, (pd.Period, bool, np.bool_)):
-        if isinstance(obj, (bool, np.bool_)):
-            return bool(obj)
+    if isinstance(obj, np.bool_):
+        return bool(obj)
+    if isinstance(obj, pd.Period):
         return str(obj)
     return obj
 
-def upsert_result(session, job_id: str, analysis_type: str, result_json: dict, duration_ms: int):
-    """UPSERT analysis results using high-performance JSONB."""
-    session.execute(
-        text("""
-            INSERT INTO analysis_results_cache 
-                (id, analysis_type, upload_job_id, result_json, computed_at, is_stale, duration_ms)
-            VALUES 
-                (gen_random_uuid(), :atype, :job_id, :rjson::jsonb, NOW(), FALSE, :dur)
-            ON CONFLICT (analysis_type, upload_job_id)
-            DO UPDATE SET 
-                result_json = EXCLUDED.result_json, 
-                computed_at = EXCLUDED.computed_at, 
-                is_stale = FALSE, 
-                duration_ms = EXCLUDED.duration_ms
-        """),
-        {
-            "atype": analysis_type, 
-            "job_id": job_id, 
-            "rjson": json.dumps(result_json), 
-            "dur": duration_ms
-        }
-    )
-    session.commit()
 
-def analytics_task(module_key: str, analysis_type: str, required_cols: list[str] = None):
-    """Optimized decorator with automatic memory and status management."""
-    def decorator(fn):
-        @celery_app.task(name=f"tasks.analytics.{module_key}", bind=True, max_retries=1, queue="analytics")
-        @functools.wraps(fn)
-        def wrapper(self, job_id: str):
-            session = SessionLocal()
-            try:
-                # 1. Update Status to Running
-                session.execute(
-                    text("UPDATE analytics_module_status SET run_status='running', updated_at=NOW() "
-                         "WHERE upload_job_id=:j AND module_key=:m"),
-                    {"j": job_id, "m": module_key}
-                )
-                session.commit()
-
-                # 2. Optimized Data Loading
-                df = load_parquet(job_id, columns=required_cols)
-                
-                # 3. Execution and Timing
-                t0 = time.time()
-                result = fn(df, session, job_id)
-                duration_ms = int((time.time() - t0) * 1000)
-
-                # 4. Save and Update Status to Completed
-                upsert_result(session, job_id, analysis_type, sanitize_json(result), duration_ms)
-                session.execute(
-                    text("UPDATE analytics_module_status SET run_status='completed', updated_at=NOW() "
-                         "WHERE upload_job_id=:j AND module_key=:m"),
-                    {"j": job_id, "m": module_key}
-                )
-                session.commit()
-                return {"status": "success", "module": module_key}
-            except Exception as exc:
-                session.rollback()
-                logger.error(f"Task {module_key} failed: {exc}", exc_info=True)
-                session.execute(
-                    text("UPDATE analytics_module_status SET run_status='failed', error_message=:e, updated_at=NOW() "
-                         "WHERE upload_job_id=:j AND module_key=:m"),
-                    {"j": job_id, "m": module_key, "e": str(exc)[:499]}
-                )
-                session.commit()
-                raise self.retry(exc=exc, countdown=10)
-            finally:
-                session.close()
-        return wrapper
-    return decorator
-
-def has_col(df: pd.DataFrame, col: str) -> bool:
-    """Check if a column exists and is not entirely null."""
-    return col in df.columns and df[col].notna().any()
-
-def to_month_str(dt) -> str:
-    """Safe conversion to YYYY-MM strings."""
-    if isinstance(dt, pd.Period):
-        return str(dt)
-    if isinstance(dt, (pd.Timestamp, datetime, date)):
-        return dt.strftime("%Y-%m")
-    return str(dt)
+def to_period_str(d, freq: str = "M") -> str:
+    return pd.Period(d, freq=freq).strftime("%Y-%m" if freq == "M" else "%Y")

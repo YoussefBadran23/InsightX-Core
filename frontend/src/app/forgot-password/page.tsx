@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import { PublicHeader } from '@/components/layout/PublicHeader';
+import { PublicFooter } from '@/components/layout/PublicFooter';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -26,43 +28,39 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col justify-center overflow-x-hidden bg-background-light dark:bg-background-dark font-sans text-slate-900 dark:text-white">
+    <div className="relative min-h-screen w-full flex flex-col overflow-x-hidden bg-background-light dark:bg-[#0f0f1a] font-sans text-slate-900 dark:text-slate-200">
       {/* Background Layer with Image and Overlay */}
       <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-white/90 dark:bg-[#0f0f1a]/80 z-10" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img 
-          className="h-full w-full object-cover opacity-30" 
-          alt="Dark abstract high-tech geometric network pattern with blue accents" 
+        <img
+          alt="Abstract connectivity network background"
+          className="w-full h-full object-cover"
           src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop"
         />
-        <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px]"></div>
       </div>
 
       {/* Global Navigation / Logo Area */}
-      <header className="absolute top-0 left-0 w-full z-20 px-8 py-6">
-        <div className="flex items-center gap-3 text-gray-900">
-          <h2 className="text-gray-900 text-xl font-bold leading-tight tracking-tight">InsightX</h2>
-        </div>
-      </header>
+      <PublicHeader />
 
       {/* Main Content - Centered Card */}
-      <main className="relative z-10 flex w-full flex-col items-center justify-center px-4 sm:px-6">
-        <div className="w-full max-w-[440px] rounded-2xl bg-white/90 backdrop-blur-md border border-gray-200 p-8 shadow-2xl sm:p-10">
+      <main className="relative z-10 flex-1 flex w-full flex-col items-center justify-center px-4 sm:px-6 pt-24 pb-12">
+        <div className="w-full max-w-[440px] rounded-2xl bg-white/90 dark:bg-[#16162a]/90 backdrop-blur-md border border-gray-200 dark:border-white/5 p-8 shadow-2xl sm:p-10">
           
           {/* Headline */}
           <div className="mb-8 text-center">
-            <h1 className="text-gray-900 text-[28px] font-bold leading-tight tracking-tight">Reset Password</h1>
-            <p className="mt-2 text-slate-500 text-sm">Enter your email and we'll send you a link to reset your password.</p>
+            <h1 className="text-gray-900 dark:text-white text-[28px] font-bold leading-tight tracking-tight">Reset Password</h1>
+            <p className="mt-2 text-slate-500 dark:text-slate-400 text-sm">Enter your email and we'll send you a link to reset your password.</p>
           </div>
 
           {status === 'success' ? (
             <div className="flex flex-col items-center justify-center gap-6 text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <div className="w-16 h-16 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <p className="text-gray-900 text-sm font-medium">{message}</p>
+              <p className="text-gray-900 dark:text-white text-sm font-medium">{message}</p>
               <Link 
                 href="/login" 
                 className="mt-4 flex w-full items-center justify-center rounded-lg bg-primary py-3.5 text-base font-semibold text-white shadow-lg shadow-primary/20 hover:bg-primary-hover transition-all duration-200"
@@ -81,13 +79,13 @@ export default function ForgotPasswordPage() {
               
               {/* Email Field */}
               <label className="flex flex-col gap-2">
-                <span className="text-gray-900 text-sm font-medium leading-normal">Email Address</span>
+                <span className="text-gray-900 dark:text-slate-200 text-sm font-medium leading-normal">Email Address</span>
                 <input 
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-white h-12 px-4 text-gray-900 placeholder-slate-400 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-200 shadow-sm" 
+                  className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-[#0f0f1a] h-12 px-4 text-gray-900 dark:text-white placeholder-slate-400 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-200 shadow-sm" 
                   placeholder="name@company.com" 
                 />
               </label>
@@ -118,9 +116,9 @@ export default function ForgotPasswordPage() {
       </main>
 
       {/* Footer */}
-      <footer className="absolute bottom-6 w-full text-center z-10 px-4">
-        <p className="text-slate-500 text-xs shadow-sm">© 2026 InsightX Inc. All rights reserved.</p>
-      </footer>
+      <div className="mt-auto relative z-10 w-full">
+        <PublicFooter />
+      </div>
     </div>
   );
 }

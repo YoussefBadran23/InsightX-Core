@@ -13,14 +13,9 @@ export function middleware(request: NextRequest) {
 
   const isProtected = PROTECTED_PATHS.some((p) => pathname.startsWith(p));
   const isAuthPath  = AUTH_PATHS.some((p) => pathname.startsWith(p));
-  const isRoot      = pathname === '/';
 
-  // ── 1. Root path: redirect authenticated users straight to dashboard ──────
-  if (isRoot && token) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/dashboard';
-    return NextResponse.redirect(url);
-  }
+  // ── 1. Root `/` always serves the landing page (no auto-redirect to dashboard).
+  //     Authenticated users reach the app via header CTAs or /dashboard directly.
 
   // ── 2. Protected routes: redirect unauthenticated users to login ──────────
   if (isProtected && !token) {
@@ -42,7 +37,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/',                   // ← NEW: check root for auth-redirect
     '/dashboard/:path*',
     '/login',
     '/signup',

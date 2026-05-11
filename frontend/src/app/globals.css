@@ -9,6 +9,9 @@
   --primary:         #137fec;
   --primary-hover:   #2563eb;
   --primary-glow:    rgba(19, 127, 236, 0.3);
+  /* Surfaces — light mode defaults. Overridden by `.dark` below so any
+     class like `bg-surface-card` (which resolves to `var(--surface-card)`
+     in tailwind.config.ts) flips automatically. */
   --surface:         #f8fafc;
   --surface-elevated:#ffffff;
   --surface-card:    #ffffff;
@@ -26,6 +29,26 @@
   --radius-lg:       1rem;
   --radius-xl:       1.5rem;
   --transition:      all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Dark mode token overrides ───────────────────────────────────────────
+   When `.dark` is on <html> (set by the anti-FOUC script in layout.tsx
+   before first paint), these values take over. Every `bg-surface-*`,
+   `border-surface-*`, `text-*` class in the app automatically follows. */
+.dark {
+  --surface:          #0f0f1a;
+  --surface-elevated: #1a1a2e;
+  --surface-card:     #16162a;
+  --surface-border:   rgba(255, 255, 255, 0.08);
+  --surface-hover:    rgba(255, 255, 255, 0.05);
+  --text-primary:     #f1f5f9;
+  --text-secondary:   #cbd5e1;
+  --text-muted:       #94a3b8;
+}
+
+.dark body {
+  background-color: var(--surface);
+  color: var(--text-primary);
 }
 
 /* ── Base Reset ─────────────────────────────────────────────────────────── */
@@ -51,6 +74,9 @@ body {
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
+.dark ::-webkit-scrollbar-thumb       { background: #475569; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
 /* ── Selection ──────────────────────────────────────────────────────────── */
 ::selection { background: rgba(19, 127, 236, 0.2); color: #0f172a; }
 
@@ -73,6 +99,11 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.4);
   }
 
+  .dark .glass {
+    background: rgba(15, 15, 26, 0.8);
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+
   .glass-dark {
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(20px) saturate(180%);
@@ -90,10 +121,21 @@ body {
     transition: var(--transition);
   }
 
+  .dark .glass-card {
+    background: linear-gradient(135deg, rgba(30, 30, 46, 0.85) 0%, rgba(15, 15, 26, 0.9) 100%);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.1);
+  }
+
   .glass-card:hover {
     border-color: rgba(19, 127, 236, 0.2);
     box-shadow: 0 8px 30px rgba(0,0,0,0.08), 0 0 20px rgba(19,127,236,0.05);
     transform: translateY(-1px);
+  }
+
+  .dark .glass-card:hover {
+    border-color: rgba(19, 127, 236, 0.4);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5), 0 0 20px rgba(19,127,236,0.2);
   }
 
   .glass-nav {
@@ -101,6 +143,11 @@ body {
     backdrop-filter: blur(20px) saturate(200%);
     -webkit-backdrop-filter: blur(20px) saturate(200%);
     border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  }
+
+  .dark .glass-nav {
+    background: rgba(15, 15, 26, 0.9);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
   }
 
   /* ── Gradient Border Card ── */
@@ -296,9 +343,19 @@ body {
     transition: var(--transition);
   }
 
+  .dark .card {
+    background: #16162a;
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+
   .card-hover:hover {
     border-color: rgba(99,102,241,0.2);
     box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  }
+
+  .dark .card-hover:hover {
+    border-color: rgba(19, 127, 236, 0.4);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
   }
 
   /* ── KPI Cards ── */
@@ -310,6 +367,11 @@ body {
     border-radius: var(--radius);
     padding: 1.5rem;
     transition: var(--transition);
+  }
+
+  .dark .kpi-card {
+    background: linear-gradient(135deg, #1e1e2e, #16162a);
+    border-color: rgba(255, 255, 255, 0.05);
   }
 
   .kpi-card::before {

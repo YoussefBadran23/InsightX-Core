@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
-from sqlalchemy import Boolean, DateTime, String
+from sqlalchemy import Boolean, DateTime, String, Text
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -45,9 +45,18 @@ class User(UUIDMixin, TimestampMixin, SoftDeleteMixin, Base):
 
     avatar_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
+    # Company-level fields shown on the Settings page
+    company_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # Logo stored as a base64 data URL (Text column to fit typical 50–200 KB logos).
+    # Could be migrated to S3 later — frontend doesn't care as long as the field
+    # contains a valid <img src=""> URI.
+    company_logo_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     # UI Preferences
     preferred_language: Mapped[str | None] = mapped_column(String(10), nullable=True)
     preferred_theme: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    # ISO 4217 currency code — e.g. 'USD', 'EUR', 'SAR'. Drives money formatting.
+    preferred_currency: Mapped[str | None] = mapped_column(String(3), nullable=True)
 
     is_active: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=True, index=True

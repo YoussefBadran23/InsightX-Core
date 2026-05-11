@@ -68,3 +68,5 @@ worker/.env
 frontend/.env.local
 !**/.env.example
 .aider*
+.claude/ 
+.claude/ 

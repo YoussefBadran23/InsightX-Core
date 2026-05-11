@@ -33,9 +33,26 @@ export default function SignupPage() {
 
     try {
       await register(email, password, fullName);
-      router.push('/dashboard');
+      // Use full page reload so middleware reads the new cookie correctly
+      window.location.href = '/dashboard';
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to create account');
+      const status = err.response?.status;
+      const detail = err.response?.data?.detail;
+      if (status === 409) {
+        setError('An account with this email already exists. Please log in instead.');
+      } else if (status === 422) {
+        // Pydantic validation error — extract first message
+        const firstMsg = Array.isArray(detail)
+          ? detail[0]?.msg || 'Invalid input. Please check your details.'
+          : detail || 'Invalid input. Please check your details.';
+        setError(firstMsg);
+      } else if (detail) {
+        setError(detail);
+      } else if (!err.response) {
+        setError('Cannot reach the server. Please check your connection and try again.');
+      } else {
+        setError('Failed to create account. Please try again.');
+      }
     }
   };
 
@@ -43,13 +60,13 @@ export default function SignupPage() {
     <div className="bg-background-light dark:bg-[#0f0f1a] text-slate-900 dark:text-slate-200 min-h-screen flex flex-col font-sans overflow-x-hidden">
       {/* Background Layer with Overlay */}
       <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-white/90 dark:bg-[#0f0f1a]/80 z-10" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img 
-          className="absolute inset-0 bg-cover bg-center h-full w-full object-cover opacity-30" 
-          alt="Abstract dark blue cyber technology background" 
+        <img
+          alt="Abstract connectivity network background"
+          className="w-full h-full object-cover"
           src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop"
         />
-        <div className="absolute inset-0 bg-white/80 backdrop-blur-[2px]"></div>
       </div>
 
       {/* Content Layer */}
@@ -61,7 +78,7 @@ export default function SignupPage() {
           <div className="w-full max-w-[540px] flex flex-col">
             
             {/* Auth Card */}
-            <div className="bg-white/90 dark:bg-[#16162a]/90 backdrop-blur-md border border-gray-200 dark:border-surface-border rounded-xl shadow-2xl p-6 md:p-10 w-full relative overflow-hidden">
+            <div className="bg-white/90 dark:bg-[#16162a]/90 backdrop-blur-md border border-gray-200 dark:border-white/5 rounded-xl shadow-2xl p-6 md:p-10 w-full relative overflow-hidden">
               {/* Subtle gradient glow at top of card */}
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
               
@@ -89,7 +106,7 @@ export default function SignupPage() {
                       required
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      className="w-full rounded-lg border border-gray-300 dark:border-surface-border bg-white dark:bg-[#0f0f1a] h-12 ltr:pl-11 rtl:pr-11 ltr:pr-4 rtl:pl-4 text-gray-900 dark:text-white placeholder-slate-400 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-200 shadow-sm" 
+                      className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-[#0f0f1a] h-12 ltr:pl-11 rtl:pr-11 ltr:pr-4 rtl:pl-4 text-gray-900 dark:text-white placeholder-slate-400 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-200 shadow-sm" 
                       placeholder="Acme Corp" 
                     />
                   </div>
@@ -103,7 +120,7 @@ export default function SignupPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 dark:border-surface-border bg-white dark:bg-[#0f0f1a] h-12 px-4 text-gray-900 dark:text-white placeholder-slate-400 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-200 shadow-sm" 
+                    className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-[#0f0f1a] h-12 px-4 text-gray-900 dark:text-white placeholder-slate-400 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-200 shadow-sm" 
                     placeholder="name@company.com" 
                     dir="ltr"
                   />
@@ -118,7 +135,7 @@ export default function SignupPage() {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full rounded-lg border border-gray-300 dark:border-surface-border bg-white dark:bg-[#0f0f1a] h-12 px-4 ltr:pr-12 rtl:pl-12 text-gray-900 dark:text-white placeholder-slate-400 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-200 shadow-sm" 
+                      className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-[#0f0f1a] h-12 px-4 ltr:pr-12 rtl:pl-12 text-gray-900 dark:text-white placeholder-slate-400 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-200 shadow-sm" 
                       placeholder="••••••••" 
                       dir="ltr"
                     />
@@ -141,7 +158,7 @@ export default function SignupPage() {
                       required
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full rounded-lg border border-gray-300 dark:border-surface-border bg-white dark:bg-[#0f0f1a] h-12 px-4 ltr:pr-12 rtl:pl-12 text-gray-900 dark:text-white placeholder-slate-400 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-200 shadow-sm" 
+                      className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-[#0f0f1a] h-12 px-4 ltr:pr-12 rtl:pl-12 text-gray-900 dark:text-white placeholder-slate-400 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-200 shadow-sm" 
                       placeholder="••••••••" 
                       dir="ltr"
                     />

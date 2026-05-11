@@ -1,165 +1,277 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Save, Download, Settings, RefreshCw } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Save, Download, Settings, RefreshCw, Loader2, AlertCircle } from 'lucide-react';
 import { forecastsApi } from '@/lib/api';
-import type { ForecastResult } from '@/types';
+import { useUiStore } from '@/stores/uiStore';
+import { t } from '@/lib/i18n';
+import type { Forecast } from '@/types';
+import {
+  ComposedChart,
+  Area,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  ReferenceLine,
+} from 'recharts';
+
+type SeasonalLevel = 'low' | 'medium' | 'high';
 
 export default function ForecastingPage() {
-  const [forecast, setForecast] = useState<ForecastResult | null>(null);
+  const language = useUiStore((s) => s.language);
+  const [base, setBase] = useState<Forecast | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Scenario parameters
-  const [marketingSpend, setMarketingSpend] = useState(1.15); // +15%
-  const [priceShift, setPriceShift] = useState(1.05); // +5%
-  const [seasonalFactor, setSeasonalFactor] = useState(1.042); // +4.2%
+  // Scenario sliders
+  const [marketingMul, setMarketingMul] = useState(1.15); // +15%
+  const [priceMul, setPriceMul] = useState(1.05);          // +5%
+  const [seasonal, setSeasonal] = useState<SeasonalLevel>('high');
 
+  const [adjusted, setAdjusted] = useState<Forecast['forecast'] | null>(null);
+  const [adjLoading, setAdjLoading] = useState(false);
+
+  // ── Load base forecast on mount ──
   useEffect(() => {
-    // In a real flow, this uses a specific job_id. We're mocking the latest.
-    forecastsApi.scenario({
-      marketing_spend_pct: marketingSpend,
-      price_shift_pct: priceShift,
-      seasonal_adjustment: String(seasonalFactor),
-      job_id: 'mock-job-id',
-    }).then(res => {
-      setForecast(res.data);
-      setLoading(false);
-    }).catch(() => setLoading(false));
-  }, [marketingSpend, priceShift, seasonalFactor]);
+    setLoading(true);
+    forecastsApi
+      .latest()
+      .then((res) => {
+        setBase(res.data as Forecast);
+        setError(null);
+      })
+      .catch((e) => {
+        setError(e?.response?.data?.detail || t('fc_noForecast', language));
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  // ── Re-request scenario whenever a slider moves ──
+  useEffect(() => {
+    if (!base) return;
+    setAdjLoading(true);
+    forecastsApi
+      .scenario({
+        marketing_spend_pct: marketingMul,
+        price_shift_pct: priceMul,
+        seasonal_adjustment: seasonal,
+      })
+      .then((res) => {
+        setAdjusted(
+          (res.data?.forecast || []).map((p: any) => ({
+            ds: p.ds,
+            yhat: p.yhat,
+            yhat_lower: p.yhat_lower,
+            yhat_upper: p.yhat_upper,
+            is_historical: false,
+          })),
+        );
+      })
+      .catch(() => setAdjusted(null))
+      .finally(() => setAdjLoading(false));
+  }, [base, marketingMul, priceMul, seasonal]);
+
+  // ── Build chart data: history first, then forecast (date-sorted) ──
+  const chartData = useMemo(() => {
+    if (!base) return [];
+    const adjMap = new Map((adjusted || []).map((p) => [p.ds, p.yhat]));
+    const rows: any[] = [];
+    for (const p of base.historical) {
+      rows.push({ ds: p.ds, actual: p.yhat });
+    }
+    for (const p of base.forecast) {
+      rows.push({
+        ds: p.ds,
+        forecast: p.yhat,
+        scenario: adjMap.get(p.ds) ?? null,
+        lower: p.yhat_lower,
+        upper: p.yhat_upper,
+        ci_band: [p.yhat_lower, p.yhat_upper],
+      });
+    }
+    return rows;
+  }, [base, adjusted]);
+
+  const lastHistorical = base?.historical?.[base.historical.length - 1]?.ds;
+
+  const projectedMrr = useMemo(() => {
+    const arr = adjusted ?? base?.forecast ?? [];
+    return arr.reduce((s: number, p: any) => s + (p.yhat || 0), 0);
+  }, [adjusted, base]);
 
   return (
     <div className="flex flex-col flex-1 h-full overflow-hidden animate-fade-in">
-      
-      {/* Header Overlay Actions */}
+      {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-200 dark:border-surface-border bg-white/95 dark:bg-background-dark/95 backdrop-blur px-6 py-3 h-16 shrink-0 z-10">
         <div className="flex items-center gap-4">
           <h2 className="text-gray-900 dark:text-white text-lg font-bold tracking-tight flex items-center gap-2">
-            Revenue Forecast
+            {t('fc_title', language)}
           </h2>
-          <span className="hidden sm:inline-block px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-surface-elevated text-slate-500 dark:text-slate-400 border border-gray-200 dark:border-slate-700">v2.4.0</span>
+          {base && (
+            <span className="hidden sm:inline-block px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-surface-elevated text-slate-500 dark:text-slate-400 border border-gray-200 dark:border-slate-700">
+              {base.method}
+            </span>
+          )}
         </div>
-        
+
         <div className="flex items-center gap-3">
-          <span className="text-slate-500 dark:text-slate-400 text-sm mr-2 hidden sm:block">Last updated: <span className="text-gray-900 dark:text-white">Just now</span></span>
+          <span className="text-slate-500 dark:text-slate-400 text-sm me-2 hidden sm:block">
+            {base ? `${base.forecast_periods}-${t('fc_dayForecast', language)}` : t('fc_loading', language)}
+          </span>
           <button className="flex items-center justify-center gap-2 rounded-lg h-9 px-4 bg-gray-100 dark:bg-surface-elevated border border-gray-200 dark:border-slate-700 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-900 dark:text-white text-sm font-medium transition-colors cursor-pointer">
             <Download className="w-4 h-4" />
-            <span className="hidden sm:inline">Export</span>
+            <span className="hidden sm:inline">{t('fc_export', language)}</span>
           </button>
           <button className="flex items-center justify-center gap-2 rounded-lg h-9 px-4 bg-primary hover:bg-primary-hover text-white text-sm font-bold shadow-lg shadow-primary/20 transition-all cursor-pointer">
             <Save className="w-4 h-4" />
-            <span>Save Forecast</span>
+            <span>{t('fc_save', language)}</span>
           </button>
         </div>
       </div>
 
-      {/* Vertical Split Layout */}
       <div className="flex flex-col flex-1 h-full overflow-y-auto">
-        
-        {/* Top Section: Interactive Chart */}
+        {/* Chart */}
         <section className="flex-1 min-h-[400px] flex flex-col p-6 pb-2 relative">
-          
           <div className="flex justify-between items-end mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-1">30-Day Revenue Forecast</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-1">
+                {base ? `${base.forecast_periods}-${t('fc_chartTitle', language)}` : t('fc_title', language)}
+              </h1>
               <div className="flex items-center gap-4 text-sm">
-                <span className="text-slate-500 dark:text-slate-400">Projected MRR:</span>
+                <span className="text-slate-500 dark:text-slate-400">{t('fc_projected', language)}</span>
                 <span className="text-2xl font-bold text-gray-900 dark:text-white leading-none">
-                  ${forecast ? Math.round(forecast.predictions.reduce((a, b) => a + b, 0)).toLocaleString() : '158,420'}
+                  ${Math.round(projectedMrr).toLocaleString()}
                 </span>
-                <span className="flex items-center text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-400/10 px-1.5 py-0.5 rounded text-xs font-medium">
-                  ↑ 12.5%
-                </span>
+                {adjLoading && <Loader2 className="w-4 h-4 text-primary animate-spin" />}
               </div>
             </div>
-            
-            {/* Legend */}
+
             <div className="flex gap-6 text-sm">
               <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-primary ring-2 ring-primary/30"></span>
-                <span className="text-slate-600 dark:text-slate-300 font-medium">Historical</span>
+                <span className="w-3 h-3 rounded-full bg-primary"></span>
+                <span className="text-slate-600 dark:text-slate-300 font-medium">{t('fc_legendHistorical', language)}</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-0.5 border-t-2 border-dashed border-purple-500"></div>
-                <span className="text-slate-600 dark:text-slate-300 font-medium">Prediction</span>
+                <span className="w-3 h-0.5 bg-purple-500"></span>
+                <span className="text-slate-600 dark:text-slate-300 font-medium">{t('fc_legendForecast', language)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded bg-purple-500/20 border border-purple-500/40"></span>
-                <span className="text-slate-600 dark:text-slate-300 font-medium">95% Confidence</span>
+                <span className="text-slate-600 dark:text-slate-300 font-medium">{t('fc_legendCI', language)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-0.5 border-t-2 border-dashed border-emerald-500"></span>
+                <span className="text-slate-600 dark:text-slate-300 font-medium">{t('fc_legendScenario', language)}</span>
               </div>
             </div>
           </div>
 
-          {/* Chart Container (SVG reproduction from starter) */}
           <div className="flex-1 min-h-[300px] relative w-full rounded-xl bg-gray-50/50 dark:bg-surface-elevated/30 border border-gray-200 dark:border-surface-border/50 p-4 overflow-hidden">
-            <div className="absolute left-0 top-4 bottom-8 w-12 flex flex-col justify-between text-xs text-slate-500 text-right pr-2">
-              <span>$200k</span>
-              <span>$150k</span>
-              <span>$100k</span>
-              <span>$50k</span>
-              <span>$0</span>
-            </div>
-            
-            <div className="absolute left-14 top-4 right-4 bottom-8">
-              <div className="w-full h-full flex flex-col justify-between">
-                <div className="w-full h-px bg-gray-200 dark:bg-slate-800/50"></div>
-                <div className="w-full h-px bg-gray-200 dark:bg-slate-800/50"></div>
-                <div className="w-full h-px bg-gray-200 dark:bg-slate-800/50"></div>
-                <div className="w-full h-px bg-gray-200 dark:bg-slate-800/50"></div>
-                <div className="w-full h-px bg-gray-300 dark:bg-slate-800"></div>
+            {loading ? (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
               </div>
-
-              {/* Chart SVG */}
-              <svg className="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 1000 300">
-                <defs>
-                  <linearGradient id="confidenceGradient" x1="0" x2="1" y1="0" y2="0">
-                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.1"></stop>
-                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.3"></stop>
-                  </linearGradient>
-                  <linearGradient id="lineGradient" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#137fec" stopOpacity="0.5"></stop>
-                    <stop offset="100%" stopColor="#137fec" stopOpacity="0"></stop>
-                  </linearGradient>
-                </defs>
-                
-                {/* Confidence Interval */}
-                <path d="M600,120 L650,110 L700,90 L750,80 L800,60 L850,50 L900,40 L950,30 L1000,20 L1000,160 L950,150 L900,145 L850,140 L800,135 L750,130 L700,125 L650,122 Z" fill="url(#confidenceGradient)" stroke="none"></path>
-                
-                {/* Historical */}
-                <path d="M0,250 C50,240 80,210 120,220 C160,230 180,180 220,190 C260,200 280,160 320,150 C360,140 400,180 440,160 C480,140 520,130 600,120" fill="none" stroke="#137fec" strokeLinecap="round" strokeWidth="3"></path>
-                <path d="M0,250 C50,240 80,210 120,220 C160,230 180,180 220,190 C260,200 280,160 320,150 C360,140 400,180 440,160 C480,140 520,130 600,120 V300 H0 Z" fill="url(#lineGradient)" opacity="0.2"></path>
-                
-                {/* Forecast Line - Note: We could map actual `predictions` here with charting math, but to preserve aesthetic we use the path from starter */}
-                {/* In a real production app, D3 or Recharts generator would bind to `forecast.predictions` array */}
-                <path d="M600,120 C650,115 700,100 750,95 C800,90 850,70 900,60 C950,50 980,45 1000,40" fill="none" stroke="#8b5cf6" strokeDasharray="6,6" strokeLinecap="round" strokeWidth="3"></path>
-                
-                {/* Today Line */}
-                <line stroke="#475569" strokeDasharray="4,4" strokeWidth="1" x1="600" x2="600" y1="0" y2="300"></line>
-                <circle cx="600" cy="120" fill="var(--surface)" r="6" stroke="#ffffff" strokeWidth="2"></circle>
-                
-                {/* Simulation Tooltip */}
-                <g transform="translate(850, 20)">
-                  <rect fill="var(--surface-elevated)" height="50" rx="8" stroke="#8b5cf6" strokeWidth="1" width="110" x="0" y="0"></rect>
-                  <text fill="var(--text-secondary)" fontFamily="Inter" fontSize="10" fontWeight="500" x="15" y="20">Projected</text>
-                  <text fill="var(--text-primary)" fontFamily="Inter" fontSize="14" fontWeight="700" x="15" y="38">$194,200</text>
-                </g>
-              </svg>
-
-              <div className="absolute w-full top-full mt-2 flex justify-between text-xs text-slate-500 font-medium uppercase tracking-wider">
-                <span>Oct 01</span>
-                <span>Oct 08</span>
-                <span>Oct 15</span>
-                <span>Oct 22</span>
-                <span className="text-gray-900 dark:text-white font-bold">Today</span>
-                <span>Nov 05</span>
-                <span>Nov 12</span>
-                <span>Nov 19</span>
-                <span>Nov 26</span>
+            ) : error ? (
+              <div className="absolute inset-0 flex items-center justify-center text-center px-6">
+                <div>
+                  <AlertCircle className="w-10 h-10 text-amber-500 mx-auto mb-3" />
+                  <p className="text-slate-600 dark:text-slate-300 max-w-md">{error}</p>
+                </div>
               </div>
-            </div>
+            ) : chartData.length === 0 ? (
+              <div className="absolute inset-0 flex items-center justify-center text-slate-500">
+                {t('fc_emptyChart', language)}
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={chartData} margin={{ top: 10, right: 20, bottom: 30, left: 0 }}>
+                  <defs>
+                    <linearGradient id="histFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#137fec" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="#137fec" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
+                  <XAxis
+                    dataKey="ds"
+                    tick={{ fontSize: 11 }}
+                    opacity={0.6}
+                    tickLine={false}
+                    axisLine={false}
+                    minTickGap={40}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11 }}
+                    opacity={0.6}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(v) => `$${Math.round(v / 1000)}k`}
+                  />
+                  <Tooltip
+                    formatter={(v: any) =>
+                      typeof v === 'number' ? `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : v
+                    }
+                    contentStyle={{
+                      borderRadius: 8,
+                      border: '1px solid rgba(0,0,0,0.1)',
+                      background: 'var(--surface, white)',
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                  {/* CI band */}
+                  <Area
+                    type="monotone"
+                    dataKey="ci_band"
+                    stroke="none"
+                    fill="#8b5cf6"
+                    fillOpacity={0.18}
+                    name="80% Confidence"
+                  />
+                  {/* Historical actual */}
+                  <Area
+                    type="monotone"
+                    dataKey="actual"
+                    stroke="#137fec"
+                    strokeWidth={2}
+                    fill="url(#histFill)"
+                    name="Historical"
+                    connectNulls={false}
+                  />
+                  {/* Forecast baseline */}
+                  <Line
+                    type="monotone"
+                    dataKey="forecast"
+                    stroke="#8b5cf6"
+                    strokeWidth={3}
+                    dot={false}
+                    name="Forecast"
+                    connectNulls={false}
+                  />
+                  {/* Scenario overlay */}
+                  <Line
+                    type="monotone"
+                    dataKey="scenario"
+                    stroke="#10b981"
+                    strokeWidth={2.5}
+                    strokeDasharray="6 6"
+                    dot={false}
+                    name="Scenario"
+                    connectNulls={false}
+                  />
+                  {lastHistorical && (
+                    <ReferenceLine x={lastHistorical} stroke="#94a3b8" strokeDasharray="4 4" />
+                  )}
+                </ComposedChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </section>
 
-        {/* Bottom Section: Scenario Simulation Panel */}
+        {/* Scenario sliders */}
         <section className="bg-white dark:bg-surface-elevated border-t border-gray-200 dark:border-surface-border flex flex-col z-10 shrink-0 mb-8 mx-6 rounded-xl overflow-hidden shadow-sm">
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-surface-border">
             <div className="flex items-center gap-3">
@@ -167,86 +279,98 @@ export default function ForecastingPage() {
                 <Settings className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-gray-900 dark:text-white font-bold text-base leading-tight">Scenario Simulation Panel</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-xs">Adjust parameters to simulate future revenue outcomes.</p>
+                <h3 className="text-gray-900 dark:text-white font-bold text-base leading-tight">{t('fc_scenarioTitle', language)}</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-xs">{t('fc_scenarioDesc', language)}</p>
               </div>
             </div>
-            <button className="text-slate-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white text-xs font-medium flex items-center gap-1 transition-colors cursor-pointer">
-              <RefreshCw className="w-3 h-3" /> Reset
+            <button
+              onClick={() => {
+                setMarketingMul(1.0);
+                setPriceMul(1.0);
+                setSeasonal('medium');
+              }}
+              className="text-slate-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white text-xs font-medium flex items-center gap-1 transition-colors cursor-pointer"
+            >
+              <RefreshCw className="w-3 h-3" /> {t('fc_reset', language)}
             </button>
           </div>
 
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-[1400px] mx-auto">
-              
-              {/* Card 1: Marketing Spend */}
-              <div className="bg-gray-50 dark:bg-background-dark border border-gray-200 dark:border-surface-border rounded-xl p-5 shadow-sm transition-colors group">
+              <div className="bg-gray-50 dark:bg-background-dark border border-gray-200 dark:border-surface-border rounded-xl p-5 shadow-sm">
                 <div className="flex justify-between items-start mb-4">
-                  <label className="text-gray-700 dark:text-slate-200 font-medium text-sm">Marketing Spend</label>
-                  <span className="text-primary font-bold text-sm bg-primary/10 px-2 py-1 rounded">+{Math.round((marketingSpend - 1) * 100)}%</span>
+                  <label className="text-gray-700 dark:text-slate-200 font-medium text-sm">{t('fc_marketing', language)}</label>
+                  <span className="text-primary font-bold text-sm bg-primary/10 px-2 py-1 rounded">
+                    {marketingMul >= 1 ? '+' : ''}
+                    {Math.round((marketingMul - 1) * 100)}%
+                  </span>
                 </div>
-                <div className="relative w-full h-10 flex items-center">
-                  <input 
-                    type="range" 
-                    min="1.0" 
-                    max="1.5" 
-                    step="0.05"
-                    value={marketingSpend}
-                    onChange={(e) => setMarketingSpend(parseFloat(e.target.value))}
-                    className="w-full h-1.5 bg-gray-300 dark:bg-slate-700 rounded-full appearance-none outline-none focus:outline-none cursor-pointer accent-primary"
-                  />
-                </div>
+                <input
+                  type="range"
+                  min="0.5"
+                  max="1.5"
+                  step="0.05"
+                  value={marketingMul}
+                  onChange={(e) => setMarketingMul(parseFloat(e.target.value))}
+                  className="w-full h-1.5 bg-gray-300 dark:bg-slate-700 rounded-full appearance-none outline-none cursor-pointer accent-primary"
+                />
                 <div className="flex justify-between text-xs text-slate-500 font-medium mt-1">
+                  <span>-50%</span>
                   <span>0%</span>
-                  <span>+25%</span>
                   <span>+50%</span>
                 </div>
               </div>
-              
-              {/* Card 2: Price Shift */}
-              <div className="bg-gray-50 dark:bg-background-dark border border-gray-200 dark:border-surface-border rounded-xl p-5 shadow-sm transition-colors group">
+
+              <div className="bg-gray-50 dark:bg-background-dark border border-gray-200 dark:border-surface-border rounded-xl p-5 shadow-sm">
                 <div className="flex justify-between items-start mb-4">
-                  <label className="text-gray-700 dark:text-slate-200 font-medium text-sm">Price Shift</label>
-                  <span className="text-purple-600 dark:text-purple-400 font-bold text-sm bg-purple-100 dark:bg-purple-500/10 px-2 py-1 rounded">+{Math.round((priceShift - 1) * 100)}%</span>
+                  <label className="text-gray-700 dark:text-slate-200 font-medium text-sm">{t('fc_priceShift', language)}</label>
+                  <span className="text-purple-600 dark:text-purple-400 font-bold text-sm bg-purple-100 dark:bg-purple-500/10 px-2 py-1 rounded">
+                    {priceMul >= 1 ? '+' : ''}
+                    {Math.round((priceMul - 1) * 100)}%
+                  </span>
                 </div>
-                <div className="relative w-full h-10 flex items-center">
-                  <input 
-                    type="range" 
-                    min="0.9" 
-                    max="1.2" 
-                    step="0.01"
-                    value={priceShift}
-                    onChange={(e) => setPriceShift(parseFloat(e.target.value))}
-                    className="w-full h-1.5 bg-gray-300 dark:bg-slate-700 rounded-full appearance-none outline-none focus:outline-none cursor-pointer accent-purple-500"
-                  />
-                </div>
+                <input
+                  type="range"
+                  min="0.8"
+                  max="1.3"
+                  step="0.01"
+                  value={priceMul}
+                  onChange={(e) => setPriceMul(parseFloat(e.target.value))}
+                  className="w-full h-1.5 bg-gray-300 dark:bg-slate-700 rounded-full appearance-none outline-none cursor-pointer accent-purple-500"
+                />
                 <div className="flex justify-between text-xs text-slate-500 font-medium mt-1">
-                  <span>-10%</span>
+                  <span>-20%</span>
                   <span>0%</span>
-                  <span>+20%</span>
-                </div>
-              </div>
-              
-              {/* Card 3: Seasonal Demand */}
-              <div className="bg-gray-50 dark:bg-background-dark border border-gray-200 dark:border-surface-border rounded-xl p-5 shadow-sm transition-colors group">
-                <div className="flex justify-between items-start mb-4">
-                  <label className="text-gray-700 dark:text-slate-200 font-medium text-sm">Seasonal Adjustment</label>
-                  <span className="text-emerald-600 dark:text-emerald-400 font-bold text-sm bg-emerald-100 dark:bg-emerald-400/10 px-2 py-1 rounded">High</span>
-                </div>
-                <div className="flex items-center justify-between gap-2 mt-2">
-                  <button className="flex-1 py-2 text-xs font-medium rounded bg-gray-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-gray-300 dark:hover:bg-slate-700 transition-colors">Low</button>
-                  <button className="flex-1 py-2 text-xs font-medium rounded bg-gray-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-gray-300 dark:hover:bg-slate-700 transition-colors">Medium</button>
-                  <button className="flex-1 py-2 text-xs font-bold rounded bg-emerald-500 text-white shadow-lg shadow-emerald-500/20">High</button>
-                </div>
-                <div className="mt-4 text-xs text-slate-500 dark:text-slate-400 text-center">
-                  Impact: <span className="text-emerald-600 dark:text-emerald-400 font-medium">+{((seasonalFactor - 1) * 100).toFixed(1)}% Growth</span>
+                  <span>+30%</span>
                 </div>
               </div>
 
+              <div className="bg-gray-50 dark:bg-background-dark border border-gray-200 dark:border-surface-border rounded-xl p-5 shadow-sm">
+                <div className="flex justify-between items-start mb-4">
+                  <label className="text-gray-700 dark:text-slate-200 font-medium text-sm">{t('fc_seasonal', language)}</label>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold text-sm bg-emerald-100 dark:bg-emerald-400/10 px-2 py-1 rounded uppercase">
+                    {t(`fc_${seasonal}` as any, language)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-2 mt-2">
+                  {(['low', 'medium', 'high'] as const).map((l) => (
+                    <button
+                      key={l}
+                      onClick={() => setSeasonal(l)}
+                      className={`flex-1 py-2 text-xs font-medium rounded transition-colors ${
+                        seasonal === l
+                          ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 font-bold'
+                          : 'bg-gray-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-gray-300 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      {t(`fc_${l}` as any, language)}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
-
       </div>
     </div>
   );

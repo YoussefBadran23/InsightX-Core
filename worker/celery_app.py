@@ -1,70 +1,74 @@
-"""Celery application configuration with Task Routing and Reliability."""
+"""
+Celery Application Configuration for InsightX Worker.
+Defines queues, routing, and Redis connection settings.
+"""
+
 import os
+import sys
 from celery import Celery
-from dotenv import load_dotenv
-import sentry_sdk
-from ddtrace import patch_all, tracer
 
-load_dotenv()
+# Ensure the worker's own directory is on sys.path so the `tasks` package can be
+# resolved even after Celery's `import_from_cwd` context has unwound. Without
+# this, `autodiscover_tasks` and any later imports of `tasks.*` raise
+# ModuleNotFoundError when invoked via the `celery` console script.
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+if _THIS_DIR not in sys.path:
+    sys.path.insert(0, _THIS_DIR)
 
-# Initialize Sentry for error tracking
-sentry_dsn = os.getenv("SENTRY_DSN")
-if sentry_dsn:
-    sentry_sdk.init(
-        dsn=sentry_dsn,
-        environment=os.getenv("APP_ENV", "development"),
-        traces_sample_rate=1.0,
-    )
+REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
 
-# Initialize Datadog for monitoring
-dd_api_key = os.getenv("DD_API_KEY")
-if dd_api_key:
-    patch_all()
-    tracer.configure(
-        hostname="datadog-agent",
-        port=8126,
-        service="insightx-worker",
-        env=os.getenv("DD_ENV", "development"),
-    )
-
+# Explicit `include` resolves the task modules at app construction time,
+# while celery_app.py is being imported by `celery -A celery_app`. That's
+# more reliable than `autodiscover_tasks`, which defers resolution until
+# after the cwd-on-path side-effect has gone.
 celery_app = Celery(
     "insightx_worker",
-    broker=os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0"),
-    backend=os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/0"),
+    broker=REDIS_URL,
+    backend=REDIS_URL,
     include=[
-        "tasks.csv",
-        "tasks.preprocess",
-        "tasks.upsert",
-        "tasks.forecast",
-        "tasks.sentiment",
-        "tasks.insights",
-        "tasks.finalize",
-        "tasks.analytics", 
+        "tasks.stage3_preprocess",
+        "tasks.stage4_upsert",
+        "tasks.stage5_run_module",   # Single dynamic task that runs any registered module
+        "tasks.stage6_finalize",
+        # Importing tasks.analytics fires all 18 @register decorators at worker
+        # startup, populating schema.MODULES[key].fn for the pipeline lookup.
+        "tasks.analytics",
     ],
 )
 
+# ── Optimized Configuration ──
 celery_app.conf.update(
     task_serializer="json",
-    result_serializer="json",
     accept_content=["json"],
+    result_serializer="json",
     timezone="UTC",
     enable_utc=True,
     
-    # RELIABILITY
-    task_acks_late=True,             # Task stays in Redis until finished
-    worker_prefetch_multiplier=1,    # One task per worker process at a time (saves RAM)
-    task_reject_on_worker_lost=True, # Re-queue if the container crashes
+    # Reliability settings
+    broker_connection_retry_on_startup=True,
+    task_acks_late=True,               # Don't ack until task succeeds
+    worker_prefetch_multiplier=1,      # Fair distribution of heavy tasks
     
-    # TIME LIMITS
-    task_soft_time_limit=300,        # 5 mins
-    task_time_limit=360,             # 6 mins
-
-    # TASK ROUTING
+    # Redis memory hygiene
+    result_expires=3600,               # Clear results after 1 hour
+    
+    # Task routing (Queue definition)
     task_routes={
+        # Machine Learning tasks go to 'ml' queue
+        "tasks.analytics.a15_*": {"queue": "ml"},
+        "tasks.analytics.a16_*": {"queue": "ml"},
+        "tasks.analytics.a17_*": {"queue": "ml"},
+        "tasks.analytics.a18_*": {"queue": "ml"},
+        "tasks.analytics.a19_*": {"queue": "ml"},
+        "tasks.analytics.a20_*": {"queue": "ml"},
+        "tasks.analytics.a23_*": {"queue": "ml"},
+        "tasks.analytics.a24_*": {"queue": "ml"},
+        "tasks.analytics.a26_*": {"queue": "ml"},
+        
+        # Standard analytics go to 'analytics' queue
         "tasks.analytics.*": {"queue": "analytics"},
-        "tasks.forecast.*": {"queue": "ml"},
-        "tasks.sentiment.*": {"queue": "ml"},
-        "tasks.preprocess.*": {"queue": "analytics"},
-        "tasks.csv.*": {"queue": "analytics"},
-    },
+        
+        # Pipeline stages go to the default 'celery' queue
+        "tasks.pipeline.*": {"queue": "celery"},
+    }
 )
