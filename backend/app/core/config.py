@@ -70,6 +70,17 @@ class Settings(BaseSettings):
     DD_SERVICE: str = "insightx-backend"
     DD_ENV: str = "development"
 
+    # SMTP / Email — used by /auth/forgot-password to send reset links.
+    # When SMTP_USER or SMTP_PASSWORD is empty, the email module skips the
+    # real send and prints the reset link to the backend logs instead
+    # (dev-friendly fallback).
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    EMAILS_FROM_NAME: str = "InsightX"
+    EMAILS_FROM_EMAIL: str = "noreply@insightx.local"
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

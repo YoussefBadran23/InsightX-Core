@@ -8,12 +8,12 @@ export type Locale = 'en' | 'ar';
 
 const translations = {
   en: {
-    // Header
-    login:           'Login',
+    // ── Global ──
     language: 'Language',
     toggleTheme: 'Toggle Theme',
     login: 'Login',
     signup: 'Sign Up',
+    logout: 'Sign Out',
     startFree: 'Start Analysis Free',
     viewDashboard: 'View Dashboard',
     tagline: 'Unlock the Power of',
@@ -33,8 +33,8 @@ const translations = {
     terms: 'Terms',
     privacy: 'Privacy',
     footer: '© 2026 InsightX Inc. All rights reserved.',
-    
-    // Login
+
+    // ── Auth ──
     signInTitle: 'Sign In to InsightX',
     signInDesc: 'Secure access to your dashboard',
     emailAddress: 'Email Address',
@@ -43,8 +43,6 @@ const translations = {
     logInBtn: 'Log In',
     loggingInBtn: 'Logging In...',
     noAccount: "Don't have an account?",
-
-    // Signup
     createAccountTitle: 'Create Your InsightX Account',
     createAccountDesc: 'Join thousands of companies using InsightX for data analytics.',
     fullName: 'Full Name / Company',
@@ -55,7 +53,7 @@ const translations = {
     haveAccount: 'Already have an account?',
     helpCenter: 'Help Center',
 
-    // Support
+    // ── Support / Terms / Privacy ──
     helpCenterTitle: 'Help Center & Support',
     contactUs: 'Contact Us',
     contactUsText: 'Need assistance with your data pipeline or analytics dashboard? Our team is here to help. Please reach out to us at support@insightx.io and we will respond within 24 hours.',
@@ -64,8 +62,6 @@ const translations = {
     faq1a: 'Depending on the size of your CSV, it may take anywhere from a few seconds to several minutes.',
     faq2q: 'Can I upload multiple datasets?',
     faq2a: 'Yes, you can initiate a new analysis from the dashboard anytime.',
-
-    // Terms
     termsTitle: 'Terms of Service',
     lastUpdatedTerms: 'Last Updated: April 2026',
     terms1Title: '1. Acceptance of Terms',
@@ -74,8 +70,6 @@ const translations = {
     terms2Text: 'InsightX provides AI-powered business analytics, forecasting, and data processing services. We reserve the right to modify or discontinue the service at any time.',
     terms3Title: '3. User Data',
     terms3Text: 'You retain all rights to the data you upload. InsightX only processes your data to provide analytics and insights directly to you, and does not share your raw data with third parties.',
-
-    // Privacy
     privacyTitle: 'Privacy Policy',
     lastUpdatedPrivacy: 'Last Updated: April 2026',
     privacy1Title: '1. Information We Collect',
@@ -84,12 +78,207 @@ const translations = {
     privacy2Text: 'We use the information we collect to provide, maintain, and improve our services, to process transactions, and to send you related information including confirmations and technical notices.',
     privacy3Title: '3. Data Security',
     privacy3Text: 'We take reasonable measures to help protect information about you from loss, theft, misuse, unauthorized access, disclosure, alteration, and destruction.',
+
+    // ── Dashboard navigation ──
+    nav_home: 'Home',
+    nav_products: 'Products',
+    nav_customers: 'Customers',
+    nav_analytics: 'Analytics',
+    nav_forecasting: 'Forecasting',
+    nav_segmentation: 'Segmentation',
+    nav_settings: 'Settings',
+    nav_upload: 'Upload',
+    nav_newAnalysis: 'New Analysis',
+    nav_notifications: 'Notifications',
+    nav_profile: 'Profile Settings',
+    nav_dashboard: 'Dashboard',
+
+    // ── Dashboard home ──
+    kpi_totalRevenue: 'Total Revenue',
+    kpi_activeCustomers: 'Active Customers',
+    kpi_churnRate: 'Churn Rate',
+    kpi_totalOrders: 'Total Orders',
+    kpi_aov: 'Average Order Value',
+    chart_salesTrend: 'Sales Trend (Last 30 Days)',
+    chart_salesTrendDesc: 'daily KPI snapshots',
+    chart_revenueByRegion: 'Revenue by Region',
+    chart_topRegions: 'Top regions',
+    chart_noRegional: 'No regional split yet',
+    chart_noHistory: 'No historical data yet — re-runs across days will populate this chart.',
+
+    // ── Analytics page ──
+    analytics_title: 'Analytics Pipeline',
+    analytics_jobId: 'Job',
+    analytics_status: 'status',
+    analytics_rowsProcessed: 'rows processed',
+    analytics_modules: 'Modules',
+    analytics_modulesDesc: 'Live status of every analytics module for this upload.',
+    analytics_noModules: 'No modules registered for this job.',
+    analytics_missingRequired: 'Missing required',
+    analytics_resultSections: 'Result sections',
+    analytics_more: 'more',
+    analytics_status_completed: 'Completed',
+    analytics_status_running: 'Running',
+    analytics_status_pending: 'Pending',
+    analytics_status_failed: 'Failed',
+    analytics_status_skipped: 'Skipped',
+    analytics_noJobs: 'No upload jobs yet. Use the onboarding modal or the upload page to upload a CSV.',
+
+    // ── Customers page ──
+    cust_title: 'Customer Profiles',
+    cust_loading: 'Loading...',
+    cust_count: 'customers in your dataset.',
+    cust_import: 'Import',
+    cust_export: 'Export Data',
+    cust_searchPlaceholder: 'Search by name, email, or ID...',
+    cust_sortBy: 'Sort by:',
+    cust_sortHighestLtv: 'Highest LTV',
+    cust_sortLowestLtv: 'Lowest LTV',
+    cust_sortNewest: 'Newest Customers',
+    cust_sortMostOrders: 'Most Orders',
+    cust_filters: 'Filters',
+    cust_thCustomer: 'Customer',
+    cust_thLocation: 'Location',
+    cust_thFirstPurchase: 'First Purchase',
+    cust_thOrders: 'Total Orders',
+    cust_thLtv: 'Lifetime Value',
+    cust_thSegment: 'AI Segment',
+    cust_loadingRow: 'Loading customers...',
+    cust_emptyRow: 'No customers found. Upload a CSV to get started.',
+    cust_unknownLocation: 'Unknown',
+    cust_rowsPerPage: 'Rows per page',
+    cust_summaryAvgLtv: 'Average LTV (page)',
+    cust_summaryAvgLtvSub: 'across {n} loaded',
+    cust_summaryVip: 'VIP Champions',
+    cust_summaryVipSub: 'on this page',
+    cust_summaryAtRisk: 'At-Risk Accounts',
+    cust_summaryAtRiskSub: 'Needs attention',
+
+    // ── Products page ──
+    prod_title: 'Product Inventory',
+    prod_aiBadge: 'AI Extracted',
+    prod_subtitle: 'SKUs in your catalog.',
+    prod_searchPlaceholder: 'Search inventory, SKUs...',
+    prod_addProduct: 'Add Product',
+    prod_totalSkus: 'Total SKUs',
+    prod_invValue: 'Inventory Value (page)',
+    prod_lowStock: 'Low Stock Items',
+    prod_categories: 'Categories (page)',
+    prod_filters: 'Filters:',
+    prod_clear: 'Clear',
+    prod_thSku: 'SKU',
+    prod_thName: 'Product Name',
+    prod_thCategory: 'Category',
+    prod_thStock: 'Stock',
+    prod_thPrice: 'Unit Price',
+    prod_thRevenue: 'Total Revenue',
+    prod_thTier: 'ABC Tier',
+    prod_thActions: 'Actions',
+    prod_loadingRow: 'Loading products...',
+    prod_emptyRow: 'No products found. Upload a CSV to populate inventory.',
+    prod_page: 'Page',
+
+    // ── Forecasting page ──
+    fc_title: 'Revenue Forecast',
+    fc_dayForecast: 'day forecast',
+    fc_loading: 'Loading…',
+    fc_export: 'Export',
+    fc_save: 'Save Forecast',
+    fc_chartTitle: 'Day Revenue Forecast',
+    fc_projected: 'Projected revenue:',
+    fc_legendHistorical: 'Historical',
+    fc_legendForecast: 'Forecast',
+    fc_legendCI: '80% Confidence',
+    fc_legendScenario: 'Scenario',
+    fc_emptyChart: 'Forecast data empty.',
+    fc_scenarioTitle: 'Scenario Simulation',
+    fc_scenarioDesc: 'Move a slider to project alternative outcomes (chart updates live).',
+    fc_reset: 'Reset',
+    fc_marketing: 'Marketing Spend',
+    fc_priceShift: 'Price Shift',
+    fc_seasonal: 'Seasonal',
+    fc_low: 'Low',
+    fc_medium: 'Medium',
+    fc_high: 'High',
+    fc_noForecast: 'No forecast available yet — upload a CSV with order_date + total_amount.',
+
+    // ── Segmentation page ──
+    seg_title: 'Customer Segmentation',
+    seg_subtitle: 'RFM-based segmentation of {n} customers · snapshot {date}',
+    seg_metrics_customers: 'Customers',
+    seg_metrics_revenue: 'Total Revenue',
+    seg_metrics_avgRecency: 'Avg Recency',
+    seg_metrics_avgMonetary: 'Avg Monetary',
+    seg_scatterTitle: 'Top 20 customers — frequency × monetary',
+    seg_sidebarTitle: 'Customer Segments',
+    seg_sidebarSubtitle: 'customers analyzed',
+    seg_avgLtv: 'Avg LTV',
+    seg_revShare: 'Revenue share',
+    seg_createCampaign: 'Create Campaign',
+    seg_noData: 'No RFM data yet. Upload a CSV with customer_id, order_date, and total_amount.',
+
+    // ── Upload (standalone) ──
+    upload_title: 'Upload Data Source',
+    upload_subtitle: 'Drop a CSV — we will auto-detect the columns and run all analytics modules.',
+    upload_dropHere: 'Click to upload',
+    upload_or: 'or drag and drop',
+    upload_csvOnly: 'CSV files only (Max 100MB)',
+    upload_btn: 'Start Analysis Pipeline',
+    upload_reading: 'Reading...',
+    upload_starting: 'Starting...',
+    upload_readingStatus: 'Reading CSV and detecting columns...',
+    upload_startingStatus: 'Starting analysis pipeline...',
+    upload_featCleaning: 'Automated Data Cleaning',
+    upload_featCleaningDesc: 'Currency symbols stripped, dates normalized, columns fuzzy-matched.',
+    upload_featModules: 'Analytics Modules',
+    upload_featModulesDesc: 'RFM, cohorts, market basket, ABC, Prophet forecast, CLV, sentiment, and more.',
+    upload_featDashboard: 'Dashboard-Ready',
+    upload_featDashboardDesc: 'Results land in customers, products, forecasting, and segmentation pages.',
+
+    // ── Onboarding modal ──
+    onb_welcome: 'Welcome to InsightX!',
+    onb_intro: 'To unlock your personalised dashboard, please upload your sales CSV file. Our AI will map your data and generate insights automatically.',
+    onb_drag: 'Drag & drop your CSV here',
+    onb_drop: 'Drop your file here',
+    onb_reading: 'Reading your file...',
+    onb_reviewTitle: 'Review Data Mappings',
+    onb_reviewDesc: 'Our AI detected the following columns. Please confirm or correct them.',
+    onb_sectionTransaction: 'Transaction Core Data',
+    onb_sectionCustomer: 'Customer Information (Optional)',
+    onb_sectionProduct: 'Product Information (Optional)',
+    onb_columns: 'columns',
+    onb_notInFile: '— not in your file —',
+    onb_optional: 'Optional',
+    onb_selectColumn: 'Select a column...',
+    onb_ready: 'ready',
+    onb_disabled: 'disabled',
+    onb_startAnalysis: 'Start Analysis →',
+    onb_processing: 'Processing & Analyzing Data',
+    onb_processingDesc: 'Importing data and running AI modules...',
+    onb_progress: 'Progress',
+    onb_complete: 'Analysis Complete! 🎉',
+    onb_completeDesc: 'Your data has been fully imported and analyzed.',
+    onb_viewDashboard: 'View Dashboard →',
+    onb_error: 'Something Went Wrong',
+    onb_tryAgain: 'Try Again',
+    onb_signOut: 'Sign out',
+
+    // ── Settings (placeholder for Week 4 build) ──
+    settings_title: 'Settings',
+    settings_profile: 'Profile',
+    settings_theme: 'Theme',
+    settings_themeLight: 'Light',
+    settings_themeDark: 'Dark',
+    settings_languageLabel: 'Language',
+    settings_signOut: 'Sign Out',
   },
   ar: {
+    // ── Global ──
     language: 'اللغة',
     toggleTheme: 'تغيير المظهر',
     login: 'تسجيل الدخول',
     signup: 'إنشاء حساب',
+    logout: 'تسجيل الخروج',
     startFree: 'ابدأ التحليل مجانًا',
     viewDashboard: 'لوحة التحكم',
     tagline: 'اكتشف قوة',
@@ -110,7 +299,7 @@ const translations = {
     privacy: 'الخصوصية',
     footer: '© 2026 إنسايت إكس. جميع الحقوق محفوظة.',
 
-    // Login
+    // ── Auth ──
     signInTitle: 'تسجيل الدخول إلى إنسايت إكس',
     signInDesc: 'وصول آمن إلى لوحة التحكم الخاصة بك',
     emailAddress: 'البريد الإلكتروني',
@@ -118,9 +307,7 @@ const translations = {
     forgotPassword: 'هل نسيت كلمة المرور؟',
     logInBtn: 'تسجيل الدخول',
     loggingInBtn: 'جاري تسجيل الدخول...',
-    noAccount: "ليس لديك حساب؟",
-
-    // Signup
+    noAccount: 'ليس لديك حساب؟',
     createAccountTitle: 'أنشئ حساب إنسايت إكس',
     createAccountDesc: 'انضم إلى آلاف الشركات التي تستخدم إنسايت إكس لتحليل البيانات.',
     fullName: 'الاسم الكامل / الشركة',
@@ -131,7 +318,7 @@ const translations = {
     haveAccount: 'لديك حساب بالفعل؟',
     helpCenter: 'مركز المساعدة',
 
-    // Support
+    // ── Support / Terms / Privacy ──
     helpCenterTitle: 'مركز المساعدة والدعم',
     contactUs: 'اتصل بنا',
     contactUsText: 'هل تحتاج إلى مساعدة بشأن بياناتك أو لوحة التحليلات؟ فريقنا هنا للمساعدة. يرجى التواصل معنا على support@insightx.io وسنرد عليك خلال 24 ساعة.',
@@ -140,8 +327,6 @@ const translations = {
     faq1a: 'حسب حجم ملف CSV الخاص بك، قد يستغرق الأمر من بضع ثوانٍ إلى عدة دقائق.',
     faq2q: 'هل يمكنني رفع مجموعات بيانات متعددة؟',
     faq2a: 'نعم، يمكنك بدء تحليل جديد من لوحة التحكم في أي وقت.',
-
-    // Terms
     termsTitle: 'شروط الخدمة',
     lastUpdatedTerms: 'آخر تحديث: أبريل 2026',
     terms1Title: '1. قبول الشروط',
@@ -150,8 +335,6 @@ const translations = {
     terms2Text: 'يوفر إنسايت إكس تحليلات أعمال وتوقعات ومعالجة بيانات مدعومة بالذكاء الاصطناعي. نحتفظ بالحق في تعديل أو إيقاف الخدمة في أي وقت.',
     terms3Title: '3. بيانات المستخدم',
     terms3Text: 'أنت تحتفظ بجميع الحقوق في البيانات التي تقوم برفعها. يقوم إنسايت إكس فقط بمعالجة بياناتك لتوفير التحليلات والرؤى لك مباشرة، ولا نشارك بياناتك الخام مع أطراف ثالثة.',
-
-    // Privacy
     privacyTitle: 'سياسة الخصوصية',
     lastUpdatedPrivacy: 'آخر تحديث: أبريل 2026',
     privacy1Title: '1. المعلومات التي نجمعها',
@@ -160,16 +343,218 @@ const translations = {
     privacy2Text: 'نستخدم المعلومات التي نجمعها لتقديم خدماتنا والحفاظ عليها وتحسينها، ولمعالجة المعاملات، ولإرسال المعلومات المتعلقة إليك بما في ذلك التأكيدات والإشعارات الفنية.',
     privacy3Title: '3. أمان البيانات',
     privacy3Text: 'نتخذ تدابير معقولة للمساعدة في حماية المعلومات المتعلقة بك من الفقدان والسرقة وسوء الاستخدام والوصول غير المصرح به والكشف والتعديل والتدمير.',
+
+    // ── Dashboard navigation ──
+    nav_home: 'الرئيسية',
+    nav_products: 'المنتجات',
+    nav_customers: 'العملاء',
+    nav_analytics: 'التحليلات',
+    nav_forecasting: 'التنبؤات',
+    nav_segmentation: 'التقسيم',
+    nav_settings: 'الإعدادات',
+    nav_upload: 'رفع البيانات',
+    nav_newAnalysis: 'تحليل جديد',
+    nav_notifications: 'الإشعارات',
+    nav_profile: 'إعدادات الملف الشخصي',
+    nav_dashboard: 'لوحة التحكم',
+
+    // ── Dashboard home ──
+    kpi_totalRevenue: 'إجمالي الإيرادات',
+    kpi_activeCustomers: 'العملاء النشطون',
+    kpi_churnRate: 'معدل فقدان العملاء',
+    kpi_totalOrders: 'إجمالي الطلبات',
+    kpi_aov: 'متوسط قيمة الطلب',
+    chart_salesTrend: 'اتجاه المبيعات (آخر 30 يومًا)',
+    chart_salesTrendDesc: 'لقطات يومية لمؤشرات الأداء',
+    chart_revenueByRegion: 'الإيرادات حسب المنطقة',
+    chart_topRegions: 'أعلى المناطق',
+    chart_noRegional: 'لا يوجد توزيع جغرافي بعد',
+    chart_noHistory: 'لا توجد بيانات تاريخية بعد — التشغيل عبر الأيام سيملأ هذا الرسم.',
+
+    // ── Analytics page ──
+    analytics_title: 'خط أنابيب التحليلات',
+    analytics_jobId: 'المهمة',
+    analytics_status: 'الحالة',
+    analytics_rowsProcessed: 'صف تم معالجته',
+    analytics_modules: 'الوحدات',
+    analytics_modulesDesc: 'الحالة المباشرة لكل وحدة تحليل لهذا الرفع.',
+    analytics_noModules: 'لا توجد وحدات مسجلة لهذه المهمة.',
+    analytics_missingRequired: 'مفقود مطلوب',
+    analytics_resultSections: 'أقسام النتيجة',
+    analytics_more: 'المزيد',
+    analytics_status_completed: 'مكتمل',
+    analytics_status_running: 'قيد التشغيل',
+    analytics_status_pending: 'معلق',
+    analytics_status_failed: 'فشل',
+    analytics_status_skipped: 'متخطى',
+    analytics_noJobs: 'لا توجد مهام رفع بعد. استخدم نافذة الإعداد أو صفحة الرفع لتحميل CSV.',
+
+    // ── Customers page ──
+    cust_title: 'ملفات العملاء',
+    cust_loading: 'جاري التحميل...',
+    cust_count: 'عميل في مجموعة البيانات.',
+    cust_import: 'استيراد',
+    cust_export: 'تصدير البيانات',
+    cust_searchPlaceholder: 'ابحث بالاسم أو البريد الإلكتروني أو المعرف...',
+    cust_sortBy: 'فرز حسب:',
+    cust_sortHighestLtv: 'أعلى قيمة عميل',
+    cust_sortLowestLtv: 'أقل قيمة عميل',
+    cust_sortNewest: 'أحدث العملاء',
+    cust_sortMostOrders: 'الأكثر طلبًا',
+    cust_filters: 'مرشحات',
+    cust_thCustomer: 'العميل',
+    cust_thLocation: 'الموقع',
+    cust_thFirstPurchase: 'أول عملية شراء',
+    cust_thOrders: 'إجمالي الطلبات',
+    cust_thLtv: 'القيمة الإجمالية',
+    cust_thSegment: 'الفئة الذكية',
+    cust_loadingRow: 'جاري تحميل العملاء...',
+    cust_emptyRow: 'لم يتم العثور على عملاء. ارفع ملف CSV للبدء.',
+    cust_unknownLocation: 'غير معروف',
+    cust_rowsPerPage: 'الصفوف لكل صفحة',
+    cust_summaryAvgLtv: 'متوسط القيمة (الصفحة)',
+    cust_summaryAvgLtvSub: 'من أصل {n} محمّل',
+    cust_summaryVip: 'كبار العملاء',
+    cust_summaryVipSub: 'في هذه الصفحة',
+    cust_summaryAtRisk: 'حسابات معرضة للخطر',
+    cust_summaryAtRiskSub: 'تتطلب الانتباه',
+
+    // ── Products page ──
+    prod_title: 'مخزون المنتجات',
+    prod_aiBadge: 'مستخرج بالذكاء الاصطناعي',
+    prod_subtitle: 'SKU في الكتالوج.',
+    prod_searchPlaceholder: 'ابحث في المخزون، SKUs...',
+    prod_addProduct: 'إضافة منتج',
+    prod_totalSkus: 'إجمالي SKUs',
+    prod_invValue: 'قيمة المخزون (الصفحة)',
+    prod_lowStock: 'منتجات منخفضة المخزون',
+    prod_categories: 'الفئات (الصفحة)',
+    prod_filters: 'المرشحات:',
+    prod_clear: 'مسح',
+    prod_thSku: 'SKU',
+    prod_thName: 'اسم المنتج',
+    prod_thCategory: 'الفئة',
+    prod_thStock: 'المخزون',
+    prod_thPrice: 'سعر الوحدة',
+    prod_thRevenue: 'إجمالي الإيرادات',
+    prod_thTier: 'تصنيف ABC',
+    prod_thActions: 'الإجراءات',
+    prod_loadingRow: 'جاري تحميل المنتجات...',
+    prod_emptyRow: 'لم يتم العثور على منتجات. ارفع ملف CSV لملء المخزون.',
+    prod_page: 'صفحة',
+
+    // ── Forecasting page ──
+    fc_title: 'توقعات الإيرادات',
+    fc_dayForecast: 'توقع يومي',
+    fc_loading: 'جاري التحميل…',
+    fc_export: 'تصدير',
+    fc_save: 'حفظ التوقع',
+    fc_chartTitle: 'توقع الإيرادات اليومية',
+    fc_projected: 'الإيرادات المتوقعة:',
+    fc_legendHistorical: 'تاريخي',
+    fc_legendForecast: 'توقع',
+    fc_legendCI: 'ثقة 80%',
+    fc_legendScenario: 'سيناريو',
+    fc_emptyChart: 'بيانات التوقع فارغة.',
+    fc_scenarioTitle: 'محاكاة السيناريو',
+    fc_scenarioDesc: 'حرّك شريط التمرير لتوقع نتائج بديلة (يتم تحديث الرسم مباشرة).',
+    fc_reset: 'إعادة تعيين',
+    fc_marketing: 'الإنفاق التسويقي',
+    fc_priceShift: 'تغيير السعر',
+    fc_seasonal: 'موسمي',
+    fc_low: 'منخفض',
+    fc_medium: 'متوسط',
+    fc_high: 'مرتفع',
+    fc_noForecast: 'لا يوجد توقع بعد — ارفع ملف CSV يحتوي على تاريخ الطلب والمبلغ الإجمالي.',
+
+    // ── Segmentation page ──
+    seg_title: 'تقسيم العملاء',
+    seg_subtitle: 'تقسيم RFM لـ {n} عميل · لقطة {date}',
+    seg_metrics_customers: 'العملاء',
+    seg_metrics_revenue: 'إجمالي الإيرادات',
+    seg_metrics_avgRecency: 'متوسط الحداثة',
+    seg_metrics_avgMonetary: 'متوسط الإنفاق',
+    seg_scatterTitle: 'أعلى 20 عميلًا — التكرار × الإنفاق',
+    seg_sidebarTitle: 'فئات العملاء',
+    seg_sidebarSubtitle: 'عميل تم تحليله',
+    seg_avgLtv: 'متوسط القيمة',
+    seg_revShare: 'حصة الإيرادات',
+    seg_createCampaign: 'إنشاء حملة',
+    seg_noData: 'لا توجد بيانات RFM بعد. ارفع ملف CSV يحتوي على معرف العميل وتاريخ الطلب والمبلغ الإجمالي.',
+
+    // ── Upload (standalone) ──
+    upload_title: 'رفع مصدر البيانات',
+    upload_subtitle: 'ضع ملف CSV — سنكتشف الأعمدة تلقائيًا ونشغّل جميع وحدات التحليل.',
+    upload_dropHere: 'انقر للرفع',
+    upload_or: 'أو اسحب وأفلت',
+    upload_csvOnly: 'ملفات CSV فقط (حد أقصى 100 ميجابايت)',
+    upload_btn: 'ابدأ خط أنابيب التحليل',
+    upload_reading: 'جاري القراءة...',
+    upload_starting: 'جاري البدء...',
+    upload_readingStatus: 'جاري قراءة CSV وكشف الأعمدة...',
+    upload_startingStatus: 'جاري بدء خط أنابيب التحليل...',
+    upload_featCleaning: 'تنظيف البيانات تلقائيًا',
+    upload_featCleaningDesc: 'إزالة رموز العملة، تطبيع التواريخ، مطابقة الأعمدة بالمنطق الضبابي.',
+    upload_featModules: 'وحدات التحليل',
+    upload_featModulesDesc: 'RFM، مجموعات الزبائن، سلة السوق، ABC، توقع Prophet، CLV، المشاعر، والمزيد.',
+    upload_featDashboard: 'جاهز للوحة التحكم',
+    upload_featDashboardDesc: 'تظهر النتائج في صفحات العملاء والمنتجات والتنبؤات والتقسيم.',
+
+    // ── Onboarding modal ──
+    onb_welcome: 'مرحبًا بك في إنسايت إكس!',
+    onb_intro: 'لفتح لوحة التحكم المخصصة لك، يرجى رفع ملف CSV لمبيعاتك. سيقوم الذكاء الاصطناعي بتعيين بياناتك وإنشاء رؤى تلقائيًا.',
+    onb_drag: 'اسحب وأفلت ملف CSV هنا',
+    onb_drop: 'أفلت ملفك هنا',
+    onb_reading: 'جاري قراءة الملف...',
+    onb_reviewTitle: 'مراجعة تعيينات البيانات',
+    onb_reviewDesc: 'اكتشف الذكاء الاصطناعي الأعمدة التالية. يرجى تأكيدها أو تصحيحها.',
+    onb_sectionTransaction: 'بيانات المعاملة الأساسية',
+    onb_sectionCustomer: 'معلومات العميل (اختياري)',
+    onb_sectionProduct: 'معلومات المنتج (اختياري)',
+    onb_columns: 'عمود',
+    onb_notInFile: '— غير موجود في ملفك —',
+    onb_optional: 'اختياري',
+    onb_selectColumn: 'اختر عمودًا...',
+    onb_ready: 'جاهز',
+    onb_disabled: 'معطل',
+    onb_startAnalysis: 'ابدأ التحليل ←',
+    onb_processing: 'معالجة وتحليل البيانات',
+    onb_processingDesc: 'استيراد البيانات وتشغيل وحدات الذكاء الاصطناعي...',
+    onb_progress: 'التقدم',
+    onb_complete: 'اكتمل التحليل! 🎉',
+    onb_completeDesc: 'تم استيراد بياناتك وتحليلها بالكامل.',
+    onb_viewDashboard: 'عرض لوحة التحكم ←',
+    onb_error: 'حدث خطأ ما',
+    onb_tryAgain: 'حاول مرة أخرى',
+    onb_signOut: 'تسجيل الخروج',
+
+    // ── Settings ──
+    settings_title: 'الإعدادات',
+    settings_profile: 'الملف الشخصي',
+    settings_theme: 'المظهر',
+    settings_themeLight: 'فاتح',
+    settings_themeDark: 'داكن',
+    settings_languageLabel: 'اللغة',
+    settings_signOut: 'تسجيل الخروج',
   },
 } as const;
 
 export type TranslationKey = keyof typeof translations.en;
 
-/** Translate a key to the given locale, falling back to English. */
+/** Translate a key to the given locale, falling back to English then the raw key. */
 export function t(key: TranslationKey, locale: Locale): string {
   return (translations[locale] as Record<string, string>)[key]
     ?? (translations.en as Record<string, string>)[key]
     ?? key;
+}
+
+/** Translate with a parameter map, e.g. t('seg_subtitle', 'ar', { n: 4950, date: '2026-05-11' }) */
+export function tp(key: TranslationKey, locale: Locale, vars: Record<string, string | number>): string {
+  let s = t(key, locale);
+  for (const [k, v] of Object.entries(vars)) {
+    s = s.replace(`{${k}}`, String(v));
+  }
+  return s;
 }
 
 export { translations };

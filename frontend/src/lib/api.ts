@@ -38,7 +38,14 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && typeof window !== 'undefined') {
       localStorage.removeItem('insightx_token');
       localStorage.removeItem('insightx_user');
-      if (!window.location.pathname.startsWith('/login')) {
+      // Clear the auth cookie too — middleware reads from the cookie. If we
+      // only clear localStorage, the user gets bounced back to /dashboard
+      // by the middleware and ends up stuck on the OnboardingModal.
+      document.cookie = 'insightx_token=; path=/; max-age=0; SameSite=Lax';
+      // Don't trigger redirect loops on auth pages or the landing page.
+      const safePaths = ['/login', '/signup', '/forgot-password', '/reset-password', '/'];
+      const isSafe = safePaths.some((p) => window.location.pathname === p || window.location.pathname.startsWith(p + '/'));
+      if (!isSafe) {
         window.location.href = '/login';
       }
     }
@@ -59,8 +66,15 @@ export const authApi = {
 
   me: () => api.get('/auth/me'),
 
-  updateMe: (data: { full_name?: string; avatar_url?: string; preferred_theme?: string; preferred_language?: string }) =>
-    api.patch('/auth/me', data),
+  updateMe: (data: {
+    full_name?: string;
+    avatar_url?: string;
+    company_name?: string;
+    company_logo_url?: string | null;
+    preferred_theme?: string;
+    preferred_language?: string;
+    preferred_currency?: string;
+  }) => api.patch('/auth/me', data),
 
   changePassword: (current_password: string, new_password: string) =>
     api.post('/auth/change-password', { current_password, new_password }),
@@ -90,10 +104,10 @@ export const jobsApi = {
 };
 
 export const uploadApi = {
-  uploadCsv: (file: File, onProgress?: (pct: number) => void) => {
+  sniffCsv: (file: File, onProgress?: (pct: number) => void) => {
     const form = new FormData();
     form.append('file', file);
-    return api.post('/upload/csv', form, {
+    return api.post('/upload/sniff', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
       onUploadProgress: (e) => {
         if (onProgress && e.total) {
@@ -102,6 +116,11 @@ export const uploadApi = {
       },
     });
   },
+
+  confirmMappings: (data: { sniff_id: string; confirmed_mappings: { csv_header: string; internal_column: string | null }[] }) =>
+    api.post('/upload/confirm', data),
+
+  getSchemaColumns: () => api.get('/upload/schema/columns'),
 };
 
 export const analyticsApi = {

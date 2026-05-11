@@ -1,5 +1,6 @@
 """Auth router — register, login, forgot-password, reset-password, /me."""
 
+import logging
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -7,6 +8,7 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 
+logger = logging.getLogger(__name__)
 limiter = Limiter(key_func=get_remote_address)
 
 from app.database import get_db
@@ -51,7 +53,7 @@ def _user_to_response(user: User) -> UserResponse:
     status_code=status.HTTP_201_CREATED,
     summary="Create a new user account",
 )
-@limiter.limit("5/minute")
+@limiter.limit(lambda: "30/minute" if settings.APP_ENV == "development" else "5/minute")
 def register(request: Request, body: RegisterRequest, db: Session = Depends(get_db)):
     """
     Register a new user.
@@ -97,7 +99,7 @@ def register(request: Request, body: RegisterRequest, db: Session = Depends(get_
     response_model=TokenResponse,
     summary="Authenticate and receive a JWT access token",
 )
-@limiter.limit("10/minute")
+@limiter.limit(lambda: "60/minute" if settings.APP_ENV == "development" else "10/minute")
 def login(request: Request, body: LoginRequest, db: Session = Depends(get_db)):
     """
     Authenticate with email + password.
@@ -159,11 +161,35 @@ def update_me(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Update mutable profile fields (full_name, avatar_url, preferred_language, preferred_theme)."""
-    allowed = {"full_name", "avatar_url", "preferred_language", "preferred_theme"}
+    """Update mutable profile fields.
+
+    Allowed keys:
+      - full_name, avatar_url
+      - company_name, company_logo_url (base64 data URL or http URL)
+      - preferred_language ('en'|'ar')
+      - preferred_theme ('light'|'dark')
+      - preferred_currency (ISO 4217, e.g. 'USD','EUR','SAR')
+
+    Any key not in this whitelist is silently ignored.
+    """
+    allowed = {
+        "full_name", "avatar_url",
+        "company_name", "company_logo_url",
+        "preferred_language", "preferred_theme", "preferred_currency",
+    }
+    # Light validation. The frontend is the primary enforcer but we keep the
+    # server honest with a defensive cap on logo size (avoid >2MB blobs).
     for key, value in body.items():
-        if key in allowed:
-            setattr(current_user, key, value)
+        if key not in allowed:
+            continue
+        if key == "company_logo_url" and isinstance(value, str) and len(value) > 2_500_000:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail="Logo too large — keep it under ~2 MB after base64 encoding.",
+            )
+        if key == "preferred_currency" and value:
+            value = str(value).upper()[:3]
+        setattr(current_user, key, value)
     db.commit()
     db.refresh(current_user)
     return _user_to_response(current_user)
@@ -216,13 +242,13 @@ def forgot_password(request: Request, body: ForgotPasswordRequest, db: Session =
         db.commit()
         db.commit()
         
-        # Send the actual email
+        # Send the actual email. Failures are logged but do NOT fail the
+        # request — we still want to return 200 so the response shape is
+        # identical whether or not the email exists (anti-enumeration).
         try:
             send_reset_password_email(user.email, raw_token)
-        except Exception as e:
-            # We don't want to fail the request if email fails, 
-            # but we should log it.
-            pass
+        except Exception:
+            logger.exception("forgot_password: send_reset_password_email failed")
 
     return MessageResponse(
         message="If an account with that email exists, a reset link has been sent"

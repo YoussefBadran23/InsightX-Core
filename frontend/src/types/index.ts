@@ -8,8 +8,14 @@ export interface User {
   is_active: boolean;
   created_at: string;
   last_login_at: string | null;
+  avatar_url: string | null;
+  company_name: string | null;
+  /** Base64 data URL or http URL of the uploaded company logo */
+  company_logo_url: string | null;
   preferred_language: 'en' | 'ar' | null;
   preferred_theme: 'light' | 'dark' | null;
+  /** ISO 4217 (e.g. 'USD','EUR','SAR') */
+  preferred_currency: string | null;
 }
 
 export interface UploadJob {

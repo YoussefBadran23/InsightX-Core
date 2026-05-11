@@ -96,7 +96,7 @@ export default function LandingPage() {
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-purple-500/20 rounded-full filter blur-3xl opacity-30" />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 relative">
 
-                <div className="glass-card bg-white/90 dark:bg-[#16162a]/90 p-6 border dark:border-white/5 hover:bg-white/50 dark:hover:border-primary/30 transition-all cursor-pointer group">
+                <div className="glass-card p-6 border dark:border-white/5 dark:hover:border-primary/30 transition-all cursor-pointer group">
                   <div className="h-12 w-12 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center mb-4 text-blue-600 dark:text-blue-400">
                     <span className="text-2xl">☁️</span>
                   </div>
@@ -104,7 +104,7 @@ export default function LandingPage() {
                   <p className="text-sm text-slate-600 dark:text-slate-400">{t('featureStartDesc', language)}</p>
                 </div>
 
-                <div className="glass-card bg-white/90 dark:bg-[#16162a]/90 p-6 border dark:border-white/5 hover:bg-white/50 dark:hover:border-primary/30 transition-all cursor-pointer group mt-0 sm:mt-8">
+                <div className="glass-card p-6 border dark:border-white/5 dark:hover:border-primary/30 transition-all cursor-pointer group mt-0 sm:mt-8">
                   <div className="h-12 w-12 rounded-lg bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center mb-4 text-indigo-600 dark:text-indigo-400">
                     <span className="text-2xl">📊</span>
                   </div>
@@ -112,7 +112,7 @@ export default function LandingPage() {
                   <p className="text-sm text-slate-600 dark:text-slate-400">{t('featureAnalyticsDesc', language)}</p>
                 </div>
 
-                <div className="glass-card bg-white/90 dark:bg-[#16162a]/90 p-6 border dark:border-white/5 hover:bg-white/50 dark:hover:border-primary/30 transition-all cursor-pointer group">
+                <div className="glass-card p-6 border dark:border-white/5 dark:hover:border-primary/30 transition-all cursor-pointer group">
                   <div className="h-12 w-12 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center mb-4 text-purple-600 dark:text-purple-400">
                     <span className="text-2xl">🔮</span>
                   </div>
@@ -120,7 +120,7 @@ export default function LandingPage() {
                   <p className="text-sm text-slate-600 dark:text-slate-400">{t('featureForecastingDesc', language)}</p>
                 </div>
 
-                <div className="glass-card bg-white/90 dark:bg-[#16162a]/90 p-6 border dark:border-white/5 hover:bg-white/50 dark:hover:border-primary/30 transition-all cursor-pointer group mt-0 sm:mt-8">
+                <div className="glass-card p-6 border dark:border-white/5 dark:hover:border-primary/30 transition-all cursor-pointer group mt-0 sm:mt-8">
                   <div className="h-12 w-12 rounded-lg bg-pink-100 dark:bg-pink-900/50 flex items-center justify-center mb-4 text-pink-600 dark:text-pink-400">
                     <span className="text-2xl">🎯</span>
                   </div>

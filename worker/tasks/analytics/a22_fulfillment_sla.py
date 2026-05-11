@@ -1,25 +1,176 @@
-"""A22 — Fulfillment SLA Analysis (Optimized & Complete)."""
-import pandas as pd
+"""A22 — Fulfillment SLA Analysis.
+
+Distribution of `delivery_days` plus SLA-compliance rate. Default SLA is 7
+days; the dashboard can pass a custom threshold via env or future param.
+
+Required columns:  delivery_days
+Optional columns:  status, order_date, region, country, product_id, category
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
 import numpy as np
-from ._base import analytics_task, has_col
+import pandas as pd
 
-COLS = ["delivery_days", "region", "status"]
+from ._base import coerce_date, coerce_numeric, has_col, register
 
-@analytics_task("A22_fulfillment_sla", "fulfillment", required_cols=COLS)
-def run_fulfillment_sla(df, session, job_id):
-    df["delivery_days"] = pd.to_numeric(df["delivery_days"], errors="coerce").dropna()
-    if df.empty: return {"summary": "No delivery data"}
 
-    # SLA Thresholds
-    met_3d = (df.delivery_days <= 3).mean() * 100
-    met_7d = (df.delivery_days <= 7).mean() * 100
+SLA_THRESHOLD_DAYS = 7
+DELIVERY_BUCKETS = [
+    (-float("inf"), 0,    "same/next-day"),
+    (0,             3,    "0-2 days"),
+    (3,             7,    "3-6 days"),
+    (7,             14,   "1-2 weeks"),
+    (14,            30,   "2-4 weeks"),
+    (30,            float("inf"), "1 month+"),
+]
 
-    # Regional Performance
-    reg_stats = df.groupby("region")["delivery_days"].agg(["mean", "median", "count"]).round(1).reset_index()
+
+@register(
+    key="A22_fulfillment_sla",
+    analysis_type="operations",
+    required_cols=["delivery_days"],
+    optional_cols=["status", "order_date", "region", "country", "product_id", "category"],
+    description="Delivery time distribution + SLA-compliance rate.",
+)
+def run(df: pd.DataFrame) -> dict[str, Any]:
+    df = df.copy()
+    df["delivery_days"] = coerce_numeric(df["delivery_days"])
+    df = df.dropna(subset=["delivery_days"])
+    df = df[df["delivery_days"] >= 0]
+
+    n_orders = int(len(df))
+    if n_orders == 0:
+        return _empty("no rows with delivery_days >= 0")
+
+    dd = df["delivery_days"].astype(float)
+    avg     = float(dd.mean())
+    median  = float(dd.median())
+    p90     = float(dd.quantile(0.90))
+    p99     = float(dd.quantile(0.99))
+    n_within = int((dd <= SLA_THRESHOLD_DAYS).sum())
+
+    # ── Distribution buckets ────────────────────────────────────────────────
+    distribution = []
+    for lo, hi, label in DELIVERY_BUCKETS:
+        mask = (dd >= lo) & (dd < hi) if hi != float("inf") else dd >= lo
+        n = int(mask.sum())
+        distribution.append({
+            "bucket": label,
+            "orders": n,
+            "pct":    round(n / n_orders * 100, 2),
+        })
+
+    # ── By region (if available) ────────────────────────────────────────────
+    by_region = None
+    if has_col(df, "region"):
+        sub = df.dropna(subset=["region"]).copy()
+        sub["region"] = sub["region"].astype(str)
+        rg = sub.groupby("region").agg(
+            orders=("delivery_days", "size"),
+            avg_delivery_days=("delivery_days", "mean"),
+            median_delivery_days=("delivery_days", "median"),
+            within_sla=("delivery_days", lambda s: int((s <= SLA_THRESHOLD_DAYS).sum())),
+        ).reset_index()
+        rg["sla_compliance_pct"] = (rg["within_sla"] / rg["orders"] * 100).round(2)
+        rg = rg.sort_values("avg_delivery_days")
+        by_region = [
+            {
+                "region":               str(r["region"]),
+                "orders":               int(r["orders"]),
+                "avg_delivery_days":    round(float(r["avg_delivery_days"]), 2),
+                "median_delivery_days": round(float(r["median_delivery_days"]), 2),
+                "sla_compliance_pct":   float(r["sla_compliance_pct"]),
+            }
+            for r in rg.to_dict("records")
+        ]
+
+    # ── By status ───────────────────────────────────────────────────────────
+    by_status = None
+    if has_col(df, "status"):
+        sub = df.dropna(subset=["status"]).copy()
+        sub["status"] = sub["status"].astype(str)
+        st = sub.groupby("status").agg(
+            orders=("delivery_days", "size"),
+            avg_delivery_days=("delivery_days", "mean"),
+        ).reset_index()
+        st = st.sort_values("orders", ascending=False)
+        by_status = [
+            {
+                "status":            str(r["status"]),
+                "orders":            int(r["orders"]),
+                "avg_delivery_days": round(float(r["avg_delivery_days"]), 2),
+            }
+            for r in st.to_dict("records")
+        ]
+
+    # ── Monthly trend ───────────────────────────────────────────────────────
+    monthly_trend = None
+    if has_col(df, "order_date"):
+        sub = df.copy()
+        sub["order_date"] = coerce_date(sub["order_date"])
+        sub = sub.dropna(subset=["order_date"])
+        if not sub.empty:
+            sub["_period"] = sub["order_date"].dt.to_period("M").astype(str)
+            tg = sub.groupby("_period").agg(
+                orders=("delivery_days", "size"),
+                avg_delivery_days=("delivery_days", "mean"),
+                within_sla=("delivery_days", lambda s: int((s <= SLA_THRESHOLD_DAYS).sum())),
+            ).reset_index().sort_values("_period")
+            tg["sla_compliance_pct"] = (tg["within_sla"] / tg["orders"] * 100).round(2)
+            monthly_trend = [
+                {
+                    "period":            r["_period"],
+                    "orders":            int(r["orders"]),
+                    "avg_delivery_days": round(float(r["avg_delivery_days"]), 2),
+                    "sla_compliance_pct": float(r["sla_compliance_pct"]),
+                }
+                for r in tg.to_dict("records")
+            ]
+
+    # ── Worst-delivery outliers ─────────────────────────────────────────────
+    worst = df.nlargest(min(15, n_orders), "delivery_days")
+    worst_orders = []
+    for r in worst.to_dict("records"):
+        rec: dict[str, Any] = {"delivery_days": int(r["delivery_days"])}
+        if "order_date" in r and pd.notna(r.get("order_date")):
+            rec["order_date"] = str(pd.to_datetime(r["order_date"]).date())
+        for c in ("region", "country", "product_id", "status"):
+            if c in r and pd.notna(r.get(c)):
+                rec[c] = str(r[c])
+        worst_orders.append(rec)
 
     return {
-        "sla_performance": {"3_day_pct": round(met_3d, 2), "7_day_pct": round(met_7d, 2)},
-        "avg_delivery_days": round(float(df.delivery_days.mean()), 1),
-        "regional_stats": reg_stats.to_dict("records"),
-        "max_delay": int(df.delivery_days.max())
+        "summary": {
+            "n_orders":             n_orders,
+            "sla_threshold_days":   SLA_THRESHOLD_DAYS,
+            "sla_compliance_pct":   round(n_within / n_orders * 100, 2),
+            "avg_delivery_days":    round(avg, 2),
+            "median_delivery_days": round(median, 2),
+            "p90_delivery_days":    round(p90, 2),
+            "p99_delivery_days":    round(p99, 2),
+            "max_delivery_days":    int(dd.max()),
+        },
+        "distribution":  distribution,
+        "by_region":     by_region,
+        "by_status":     by_status,
+        "monthly_trend": monthly_trend,
+        "worst_orders":  worst_orders,
+        "warning": None,
+    }
+
+
+def _empty(warning: str) -> dict[str, Any]:
+    return {
+        "summary": {
+            "n_orders": 0, "sla_threshold_days": SLA_THRESHOLD_DAYS,
+            "sla_compliance_pct": 0.0, "avg_delivery_days": 0.0,
+            "median_delivery_days": 0.0, "p90_delivery_days": 0.0,
+            "p99_delivery_days": 0.0, "max_delivery_days": 0,
+        },
+        "distribution": [], "by_region": None, "by_status": None,
+        "monthly_trend": None, "worst_orders": [],
+        "warning": warning,
     }

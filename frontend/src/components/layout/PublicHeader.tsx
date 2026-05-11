@@ -36,7 +36,7 @@ export function PublicHeader() {
   const isDark = theme === 'dark';
 
   return (
-    <header className="fixed w-full top-0 z-50 glass border-b border-gray-200 dark:border-surface-border">
+    <header className="fixed w-full top-0 z-50 glass border-b border-gray-200 dark:border-white/5 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <Link href={logoHref} className="flex items-center space-x-2 group">

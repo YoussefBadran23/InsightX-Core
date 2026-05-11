@@ -31,6 +31,9 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+      - ./infrastructure/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    # Pass the config file explicitly — silences the 'no config file' warning
+    command: redis-server /usr/local/etc/redis/redis.conf
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
@@ -57,7 +60,7 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app # mount source for hot-reload
-      - ./worker/analytics_registry.py:/app/analytics_registry.py:ro
+      - ./worker/schema.py:/app/schema.py:ro
     depends_on:
       db:
         condition: service_healthy
@@ -77,14 +80,17 @@ services:
     env_file:
       - ./worker/.env
     environment:
-      DATABASE_URL: postgresql://insightx_user:insightx_pass@db:5432/insightx_db
-      REDIS_URL: redis://redis:6379/0
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      # Explicit overrides ensure the worker always uses the Docker service
+      # hostnames (db, redis) — never the localhost fallbacks in .env
+      DATABASE_URL:           postgresql://insightx_user:insightx_pass@db:5432/insightx_db
+      REDIS_URL:              redis://redis:6379/0
+      CELERY_BROKER_URL:      redis://redis:6379/0
+      CELERY_RESULT_BACKEND:  redis://redis:6379/0
+      PYTHONUNBUFFERED:       "1"
     volumes:
       - ./worker:/app
-      - ./backend/app:/app/app # allow worker to import from app.models
-      - ./backend/uploads:/app/uploads # Shared storage between backend and worker
+      - ./backend/app:/app/app                    # allow worker to import from app.models
+      - ./backend/uploads:/app/uploads            # Shared storage between backend and worker
     depends_on:
       db:
         condition: service_healthy
@@ -105,11 +111,18 @@ services:
       - ./frontend/.env.local
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Prevents Next.js from trying to patch the lockfile at runtime.
+      # The lockfile is generated on Windows; the container runs on Linux.
+      # npm ci in the Dockerfile already installs the correct Linux binaries.
+      NEXT_IGNORE_INCORRECT_LOCKFILE: "1"
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app # mount source for hot-reload
-      - /app/node_modules # keep container node_modules isolated
+      - ./frontend:/app            # Bind mount source for hot-reload
+      - /app/node_modules          # Anonymous volume: keeps Linux node_modules
+                                   # isolated from the Windows host node_modules
+      - /app/.next                 # Anonymous volume: keeps Linux build cache isolated
     depends_on:
       - backend
     command: ["npm", "run", "dev", "--", "--hostname", "0.0.0.0", "--port", "3000"]

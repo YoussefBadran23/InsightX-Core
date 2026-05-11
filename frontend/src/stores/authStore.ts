@@ -63,12 +63,15 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           const response = await authApi.register(email, password, fullName);
-          const { access_token, user } = response.data;
+          // Backend returns RegisterResponse: { user, access_token, expires_in }
+          const { access_token, user } = response.data as { access_token: string; user: User; expires_in: number };
           if (typeof window !== 'undefined') {
             localStorage.setItem('insightx_token', access_token);
             setAuthCookie(access_token);
           }
           set({ token: access_token, user, isAuthenticated: true });
+          // Fetch full user profile to ensure all fields are populated
+          await get().fetchMe();
         } finally {
           set({ isLoading: false });
         }
@@ -91,6 +94,15 @@ export const useAuthStore = create<AuthState>()(
           const response = await authApi.me();
           set({ user: response.data, isAuthenticated: true });
         } catch {
+          // Token is invalid/expired — fully tear down auth state so the
+          // user can re-authenticate. Without clearing the cookie here,
+          // the middleware still considers them "logged in" and keeps
+          // them on /dashboard with a stuck OnboardingModal.
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('insightx_token');
+            localStorage.removeItem('insightx_user');
+            setAuthCookie(null);
+          }
           set({ token: null, user: null, isAuthenticated: false });
         }
       },
