@@ -1,0 +1,135 @@
+services:
+  # ─────────────────────────────────────────────
+  # 1. PostgreSQL
+  # ─────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: insightx_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: insightx_user
+      POSTGRES_PASSWORD: insightx_pass
+      POSTGRES_DB: insightx_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U insightx_user -d insightx_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────
+  # 2. Redis
+  # ─────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: insightx_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./infrastructure/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    # Pass the config file explicitly — silences the 'no config file' warning
+    command: redis-server /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────
+  # 3. FastAPI Backend (hot-reload on port 8000)
+  # ─────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: insightx_backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql://insightx_user:insightx_pass@db:5432/insightx_db
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app # mount source for hot-reload
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    # Run pending Alembic migrations on every boot, then start uvicorn. This
+    # means the user never has to drop into a shell after pulling new schema
+    # changes — restarting the backend container from Docker Desktop is enough.
+    # `alembic upgrade head` is idempotent (no-op when already at head).
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+  # ─────────────────────────────────────────────
+  # 4. Celery Worker (AI Engine Room)
+  # ─────────────────────────────────────────────
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    container_name: insightx_worker
+    restart: unless-stopped
+    env_file:
+      - ./worker/.env
+    environment:
+      # Explicit overrides ensure the worker always uses the Docker service
+      # hostnames (db, redis) — never the localhost fallbacks in .env
+      DATABASE_URL:           postgresql://insightx_user:insightx_pass@db:5432/insightx_db
+      REDIS_URL:              redis://redis:6379/0
+      CELERY_BROKER_URL:      redis://redis:6379/0
+      CELERY_RESULT_BACKEND:  redis://redis:6379/0
+      PYTHONUNBUFFERED:       "1"
+    volumes:
+      - ./worker:/app
+      - ./backend/app:/app/app                    # allow worker to import from app.models
+      - ./backend/uploads:/app/uploads            # Shared storage between backend and worker
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A celery_app worker --loglevel=warning --concurrency=4 -Q celery,analytics,ml
+
+  # ─────────────────────────────────────────────
+  # 5. Next.js Frontend (port 3000)
+  # ─────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: insightx_frontend
+    restart: unless-stopped
+    env_file:
+      - ./frontend/.env.local
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Prevents Next.js from trying to patch the lockfile at runtime.
+      # The lockfile is generated on Windows; the container runs on Linux.
+      # npm ci in the Dockerfile already installs the correct Linux binaries.
+      NEXT_IGNORE_INCORRECT_LOCKFILE: "1"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app            # Bind mount source for hot-reload
+      - /app/node_modules          # Anonymous volume: keeps Linux node_modules
+                                   # isolated from the Windows host node_modules
+      - /app/.next                 # Anonymous volume: keeps Linux build cache isolated
+    depends_on:
+      - backend
+    command: ["npm", "run", "dev", "--", "--hostname", "0.0.0.0", "--port", "3000"]
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -1,0 +1,93 @@
+"""User model — authentication, roles, and dashboard widget layout."""
+
+import uuid
+from datetime import datetime
+from typing import TYPE_CHECKING
+from sqlalchemy import Boolean, DateTime, String, Text
+from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.database import Base
+from app.models.base import UUIDMixin, TimestampMixin, SoftDeleteMixin
+
+if TYPE_CHECKING:
+    from app.models.upload_job import UploadJob
+    from app.models.forecast_result import ForecastResult
+    from app.models.customer import Customer
+    from app.models.product import Product
+    from app.models.order import Order
+
+
+class User(UUIDMixin, TimestampMixin, SoftDeleteMixin, Base):
+    """
+    Platform user. Stores auth credentials, role, and persisted
+    dashboard widget layout (from Analytics Edit Mode 'Save Layout').
+    """
+    __tablename__ = "users"
+
+    email: Mapped[str] = mapped_column(
+        String(255), nullable=False, unique=True, index=True
+    )
+    full_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    # Roles: 'admin' | 'analyst' | 'user'
+    # Shown in sidebar bottom e.g. "Alex Morgan / Admin"
+    role: Mapped[str] = mapped_column(
+        String(50), nullable=False, default="user", index=True
+    )
+
+    # Persisted drag-and-drop layout from Analytics Edit Mode "Save Layout".
+    # Shape: {"layout": [{"i": "revenue_chart", "x": 0, "y": 0, "w": 8, "h": 2}]}
+    widget_config: Mapped[dict] = mapped_column(
+        JSONB, nullable=False, default=dict
+    )
+
+    avatar_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
+    # Company-level fields shown on the Settings page
+    company_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # Logo stored as a base64 data URL (Text column to fit typical 50–200 KB logos).
+    # Could be migrated to S3 later — frontend doesn't care as long as the field
+    # contains a valid <img src=""> URI.
+    company_logo_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # UI Preferences
+    preferred_language: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    preferred_theme: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    # ISO 4217 currency code — e.g. 'USD', 'EUR', 'SAR'. Drives money formatting.
+    preferred_currency: Mapped[str | None] = mapped_column(String(3), nullable=True)
+
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, index=True
+    )
+
+    # "Forgot password?" flow — stores hashed reset token
+    reset_token: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
+    reset_token_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
+    last_login_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
+    # Relationships
+    customers: Mapped[list["Customer"]] = relationship(
+        "Customer", back_populates="user", cascade="all, delete-orphan"
+    )
+    products: Mapped[list["Product"]] = relationship(
+        "Product", back_populates="user", cascade="all, delete-orphan"
+    )
+    orders: Mapped[list["Order"]] = relationship(
+        "Order", back_populates="user", cascade="all, delete-orphan"
+    )
+    upload_jobs: Mapped[list["UploadJob"]] = relationship(
+        "UploadJob", back_populates="user", cascade="all, delete-orphan"
+    )
+    forecast_results: Mapped[list["ForecastResult"]] = relationship(
+        "ForecastResult", back_populates="user", cascade="all, delete-orphan"
+    )
+
+    def __repr__(self) -> str:
+        return f"<User id={self.id} email={self.email} role={self.role}>"

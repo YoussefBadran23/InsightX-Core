@@ -1,0 +1,55 @@
+# FastAPI core dependencies
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+pydantic==2.7.1
+pydantic-settings==2.2.1
+
+# Database (PostgreSQL only — MongoDB removed 2026-05-14)
+sqlalchemy==2.0.30
+alembic==1.13.1
+psycopg2-binary==2.9.9
+
+# Auth
+pyjwt==2.8.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.9
+
+# Async tasks
+celery==5.4.0
+redis==5.0.4
+
+# Utilities
+python-dotenv==1.0.1
+httpx==0.27.0
+orjson>=3.9.0
+chardet==5.2.0
+rapidfuzz==3.6.1
+
+# Multi-format upload support: openpyxl reads .xlsx, xlrd handles legacy
+# .xls binaries, pyarrow + fastparquet read .parquet. pandas drives all of
+# them through pd.read_excel / pd.read_json / pd.read_parquet — backend
+# converts non-CSV uploads to CSV at sniff time so the rest of the pipeline
+# stays uniform.
+pandas==2.2.2
+openpyxl==3.1.5
+xlrd==2.0.1
+pyarrow==16.0.0
+fastparquet==2024.2.0
+
+# Semantic CSV header matching (optional — code falls back to fuzzy if absent).
+# Pulls torch (~200 MB CPU). Comment out if image size matters more than match quality.
+sentence-transformers==2.7.0
+numpy==1.26.4
+
+# Rate limiting
+slowapi==0.1.9
+
+# Testing
+pytest>=8.0.0
+pytest-httpx>=0.30.0
+anyio[trio]>=4.0.0
+
+# Monitoring & Error Tracking
+sentry-sdk[fastapi]==1.40.0  # Sentry for error tracking
+datadog==0.48.0  # Datadog APM
+ddtrace==2.9.2  # Datadog tracing library

@@ -1,0 +1,26 @@
+# ── Files excluded from the Docker build context ────────────────────────────
+# node_modules from the host (Windows/macOS) must NEVER enter the image.
+# The correct Linux-native modules are installed inside the container by npm ci.
+node_modules/
+
+# Next.js build cache — rebuilt inside the container
+.next/
+
+# Local environment files (injected at runtime via docker-compose env_file)
+.env
+.env.local
+.env.*.local
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor and OS artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# TypeScript build info (rebuilt inside container)
+*.tsbuildinfo

@@ -1,0 +1,27 @@
+celery==5.4.0
+redis==5.0.4
+sqlalchemy==2.0.30
+psycopg2-binary==2.9.9
+pandas==2.2.2
+pyarrow==16.0.0
+fastparquet==2024.2.0
+scikit-learn==1.4.2
+prophet==1.1.5
+# statsmodels is A15's fallback engine when Prophet/CmdStan isn't available
+# (typical in dev / CI containers). Both engines emit the same output schema.
+statsmodels==0.14.6
+lifetimes==0.11.3
+# vaderSentiment powers A18's English sentiment path. Arabic comments use a
+# built-in lexicon; upgrade to transformers+torch later if you want
+# multilingual BERT-grade sentiment.
+vaderSentiment==3.3.2
+matplotlib==3.8.4
+seaborn==0.13.2
+requests==2.31.0
+rapidfuzz==3.6.1
+pydantic==2.7.1
+pydantic-settings==2.2.1
+python-dotenv==1.0.1
+chardet==5.2.0
+# Gemini LLM enrichment (Phase 4) — free tier: 1,500 req/day
+google-generativeai>=0.8.0
